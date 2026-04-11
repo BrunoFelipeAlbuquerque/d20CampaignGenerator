@@ -1,8 +1,5 @@
 package ability
 
-type AbilityScore struct {
-}
-
 type Alignment struct {
 }
 
