@@ -2,7 +2,9 @@ package modifier
 
 type ModifierType string
 
-type ModifierCircumstanceSource string
+type ModifierSource string
+
+type ModifierCircumstanceSource = ModifierSource
 
 type ModifierList []Modifier
 
@@ -19,7 +21,7 @@ type Condition interface {
 type Modifier struct {
 	Type      ModifierType
 	Value     int
-	Source    ModifierCircumstanceSource
+	Source    ModifierSource
 	Target    Target
 	Condition ModifierCondition
 }
@@ -42,6 +44,12 @@ func (mods ModifierList) ModifierResolve() int {
 
 func resolveByType(modifierType ModifierType, modifiers []Modifier) int {
 	switch modifierType {
+	case ModifierUntyped:
+		sum := 0
+		for _, untypedModifier := range modifiers {
+			sum += untypedModifier.Value
+		}
+		return sum
 
 	case ModifierDodge:
 		sum := 0
@@ -51,7 +59,7 @@ func resolveByType(modifierType ModifierType, modifiers []Modifier) int {
 		return sum
 
 	case ModifierCircumstance:
-		bySource := make(map[ModifierCircumstanceSource]int)
+		bySource := make(map[ModifierSource]int)
 
 		for _, circumstanceModifier := range modifiers {
 			if current, ok := bySource[circumstanceModifier.Source]; !ok || circumstanceModifier.Value > current {

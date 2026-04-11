@@ -1,6 +1,7 @@
 package modifier
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -13,18 +14,19 @@ func TestValidateModifierSource(t *testing.T) {
 		input string
 		valid bool
 	}{
-		{"flanking", true},
-		{"higher_ground", true},
-		{"a", true},
-		{"a1_b2", true},
+		{"combat.flanking", true},
+		{"combat.higher_ground", true},
+		{"skill.a1_b2", true},
+		{"custom.entry_01", true},
 
 		{"", false},
 		{"Flanking", false},
-		{"flanking-bonus", false},
-		{"flanking bonus", false},
-		{"flanking__", false},
-		{"_flanking", false},
-		{"flanking_", false},
+		{"flanking", false},
+		{"combat.flanking-bonus", false},
+		{"combat.flanking bonus", false},
+		{"combat..flanking", false},
+		{"combat._flanking", false},
+		{"combat.flanking_", false},
 		{"😏", false},
 		{"§", false},
 	}
@@ -46,10 +48,11 @@ func TestValidateModifierSource(t *testing.T) {
 
 func TestNormalizeModifierSource(t *testing.T) {
 	tests := map[string]ModifierSource{
-		"Flanking":        "flanking",
-		" higher ground ": "higher_ground",
-		"soft-cover":      "soft_cover",
-		"Mixed Case-Test": "mixed_case_test",
+		"Combat.Flanking":          "combat.flanking",
+		" combat.higher ground ":   "combat.higher_ground",
+		"skill.soft-cover":         "skill.soft_cover",
+		"Mixed Case.Test-Case":     "mixed_case.test_case",
+		"Environment.Strong Wind ": "environment.strong_wind",
 	}
 
 	for input, expected := range tests {
@@ -67,15 +70,15 @@ func TestNormalizeModifierSource(t *testing.T) {
 func TestRegistry_DefaultEntriesExist(t *testing.T) {
 	r := NewDefaultCircumstanceSourceRegistry()
 
-	if !r.IsKnown("flanking") {
-		t.Error("expected flanking to exist")
+	if !r.IsKnown(SourceFlanking) {
+		t.Error("expected combat.flanking to exist")
 	}
 
-	if !r.IsKnown("soft_cover") {
-		t.Error("expected soft_cover to exist")
+	if !r.IsKnown(SourceSoftCover) {
+		t.Error("expected combat.soft_cover to exist")
 	}
 
-	if r.IsKnown("nonexistent") {
+	if r.IsKnown("custom.nonexistent") {
 		t.Error("did not expect nonexistent to exist")
 	}
 }
@@ -83,9 +86,9 @@ func TestRegistry_DefaultEntriesExist(t *testing.T) {
 func TestRegistry_Get(t *testing.T) {
 	r := NewDefaultCircumstanceSourceRegistry()
 
-	info, ok := r.Get("flanking")
+	info, ok := r.Get(SourceFlanking)
 	if !ok {
-		t.Fatal("expected flanking to be found")
+		t.Fatal("expected combat.flanking to be found")
 	}
 
 	if info.Description == "" {
@@ -100,13 +103,13 @@ func TestRegistry_Get(t *testing.T) {
 func TestRegistry_RegisterSuccess(t *testing.T) {
 	r := NewDefaultCircumstanceSourceRegistry()
 
-	err := r.Register("new_source", "Some description")
+	err := r.Register("custom.new_source", "Some description")
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if !r.IsKnown("new_source") {
-		t.Error("expected new_source to be registered")
+	if !r.IsKnown("custom.new_source") {
+		t.Error("expected custom.new_source to be registered")
 	}
 }
 
@@ -117,7 +120,7 @@ func TestRegistry_RegisterSuccess(t *testing.T) {
 func TestRegistry_RegisterDuplicate(t *testing.T) {
 	r := NewDefaultCircumstanceSourceRegistry()
 
-	err := r.Register("flanking", "Duplicate")
+	err := r.Register(SourceFlanking, "Duplicate")
 	if err == nil {
 		t.Error("expected duplicate error")
 	}
@@ -133,8 +136,9 @@ func TestRegistry_RegisterInvalidFormat(t *testing.T) {
 	invalids := []ModifierSource{
 		"",
 		"Flanking",
-		"flanking bonus",
-		"flanking-bonus",
+		"flanking",
+		"combat.flanking bonus",
+		"combat.flanking-bonus",
 		"😏",
 	}
 
@@ -153,8 +157,7 @@ func TestRegistry_RegisterInvalidFormat(t *testing.T) {
 func TestRegistry_RegisterSimilar(t *testing.T) {
 	r := NewDefaultCircumstanceSourceRegistry()
 
-	// flanking already exists
-	err := r.Register("flankng", "typo")
+	err := r.Register("combat.flankin", "typo")
 	if err == nil {
 		t.Error("expected similarity error")
 	}
@@ -167,8 +170,7 @@ func TestRegistry_RegisterSimilar(t *testing.T) {
 func TestRegistry_RegisterCloseButValid(t *testing.T) {
 	r := NewDefaultCircumstanceSourceRegistry()
 
-	// distance > 1 → should pass
-	err := r.Register("flank_attack", "different concept")
+	err := r.Register("combat.flank_attack", "different concept")
 	if err != nil {
 		t.Errorf("expected success, got error: %v", err)
 	}
@@ -189,7 +191,7 @@ func TestRegistry_InternalMapIsolation(t *testing.T) {
 	// ensure no accidental overwrite
 	before := len(r.sources)
 
-	_ = r.Register("unique_source_test", "desc")
+	_ = r.Register("custom.unique_source_test", "desc")
 
 	after := len(r.sources)
 
@@ -204,14 +206,19 @@ func TestRegistry_InternalMapIsolation(t *testing.T) {
 
 func TestRegistry_ManyInsertions(t *testing.T) {
 	r := NewDefaultCircumstanceSourceRegistry()
+	before := len(r.sources)
 
 	for i := 0; i < 1000; i++ {
-		id := ModifierSource("custom_source_" + string(rune('a'+(i%26))) + string(rune('a'+((i/26)%26))))
-		_ = r.Register(id, "desc")
+		id := ModifierSource(fmt.Sprintf("custom.entry_%04d_%04d", i, i*7))
+
+		err := r.Register(id, "desc")
+		if err != nil {
+			t.Fatalf("unexpected error registering %q: %v", id, err)
+		}
 	}
 
-	// just ensure no panic / corruption
-	if len(r.sources) == 0 {
-		t.Error("registry should not be empty")
+	after := len(r.sources)
+	if after != before+1000 {
+		t.Errorf("expected map size to grow by 1000, got %d -> %d", before, after)
 	}
 }

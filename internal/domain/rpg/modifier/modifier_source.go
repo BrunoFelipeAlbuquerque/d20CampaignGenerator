@@ -8,9 +8,7 @@ import (
 	utils "d20campaing/internal/text"
 )
 
-var validModifierSource = regexp.MustCompile(`^[a-z0-9]+(_[a-z0-9]+)*$`)
-
-type ModifierSource string
+var validModifierSource = regexp.MustCompile(`^[a-z0-9]+(?:_[a-z0-9]+)*(?:\.[a-z0-9]+(?:_[a-z0-9]+)*)+$`)
 
 type CircumstanceSourceInfo struct {
 	ID          ModifierSource
@@ -49,35 +47,35 @@ func NewDefaultCircumstanceSourceRegistry() *CircumstanceSourceRegistry {
 	}
 
 	// COMBAT
-	r.register("flanking", "Flanking target")
-	r.register("higher_ground", "Higher ground advantage")
-	r.register("target_prone", "Target is prone")
-	r.register("charging", "Charging attack")
-	r.register("cover", "Target has cover")
-	r.register("soft_cover", "Target has soft cover")
+	r.register(SourceFlanking, "Flanking target")
+	r.register(SourceHigherGround, "Higher ground advantage")
+	r.register(SourceProneTarget, "Target is prone")
+	r.register(SourceCharging, "Charging attack")
+	r.register(SourceCover, "Target has cover")
+	r.register(SourceSoftCover, "Target has soft cover")
 
 	// PERCEPTION
-	r.register("concealment", "Target has concealment")
-	r.register("total_concealment", "Target has total concealment")
-	r.register("invisible_target", "Target is invisible")
-	r.register("poor_lighting", "Poor lighting conditions")
+	r.register(SourceConcealment, "Target has concealment")
+	r.register(SourceTotalConcealment, "Target has total concealment")
+	r.register(SourceInvisibleTarget, "Target is invisible")
+	r.register(SourcePoorLighting, "Poor lighting conditions")
 
 	// CONDITION
-	r.register("target_helpless", "Target is helpless")
-	r.register("target_blinded", "Target is blinded")
-	r.register("target_stunned", "Target is stunned")
-	r.register("target_flat_footed", "Target is flat-footed")
+	r.register(SourceTargetHelpless, "Target is helpless")
+	r.register(SourceTargetBlinded, "Target is blinded")
+	r.register(SourceTargetStunned, "Target is stunned")
+	r.register(SourceTargetFlatFooted, "Target is flat-footed")
 
 	// ENVIRONMENT
-	r.register("slippery_surface", "Slippery surface")
-	r.register("strong_wind", "Strong wind")
-	r.register("extreme_heat", "Extreme heat")
-	r.register("extreme_cold", "Extreme cold")
+	r.register(SourceSlipperySurface, "Slippery surface")
+	r.register(SourceStrongWind, "Strong wind")
+	r.register(SourceExtremeHeat, "Extreme heat")
+	r.register(SourceExtremeCold, "Extreme cold")
 
 	// SKILL
-	r.register("favorable_conditions", "Favorable conditions")
-	r.register("unfavorable_conditions", "Unfavorable conditions")
-	r.register("distraction", "Distraction")
+	r.register(SourceFavorableConditions, "Favorable conditions")
+	r.register(SourceUnfavorableConditions, "Unfavorable conditions")
+	r.register(SourceDistraction, "Distraction")
 
 	return r
 }

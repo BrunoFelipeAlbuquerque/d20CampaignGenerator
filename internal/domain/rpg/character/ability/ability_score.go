@@ -1,28 +1,38 @@
 package ability
 
-const (
-	StrengthScore     abilityScoreID = "STR"
-	DexterityScore    abilityScoreID = "DEX"
-	ConstitutionScore abilityScoreID = "CON"
-	IntelligenceScore abilityScoreID = "INT"
-	WisdomScore       abilityScoreID = "WIS"
-	CharismaScore     abilityScoreID = "CHA"
-)
-
 type abilityScoreID string
+type AbilityScoreID = abilityScoreID
 
 type abilityScoreValue struct {
 	value int
 	valid bool
 }
+type AbilityScoreValue = abilityScoreValue
 
 type abilityScore struct {
 	id    abilityScoreID
 	name  string
 	value abilityScoreValue
 }
+type AbilityScore = abilityScore
 
-func NewAbilityScore(id abilityScoreID, value abilityScoreValue) abilityScore {
+const (
+	StrengthScore     AbilityScoreID = "STR"
+	DexterityScore    AbilityScoreID = "DEX"
+	ConstitutionScore AbilityScoreID = "CON"
+	IntelligenceScore AbilityScoreID = "INT"
+	WisdomScore       AbilityScoreID = "WIS"
+	CharismaScore     AbilityScoreID = "CHA"
+)
+
+func NewAbilityScoreValue(value int, valid bool) AbilityScoreValue {
+	return abilityScoreValue{
+		value: value,
+		valid: valid,
+	}
+}
+
+func NewAbilityScore(id AbilityScoreID, value AbilityScoreValue) AbilityScore {
 	return abilityScore{
 		id:    id,
 		name:  id.GetName(),
@@ -65,7 +75,7 @@ func (v *abilityScoreValue) SetValid(valid bool) {
 	v.valid = valid
 }
 
-func (a abilityScore) GetID() abilityScoreID {
+func (a abilityScore) GetID() AbilityScoreID {
 	return a.id
 }
 
@@ -73,11 +83,11 @@ func (a abilityScore) GetName() string {
 	return a.name
 }
 
-func (a abilityScore) GetValue() abilityScoreValue {
+func (a abilityScore) GetValue() AbilityScoreValue {
 	return a.value
 }
 
-func (a *abilityScore) SetValue(value abilityScoreValue) {
+func (a *abilityScore) SetValue(value AbilityScoreValue) {
 	a.value = value
 }
 

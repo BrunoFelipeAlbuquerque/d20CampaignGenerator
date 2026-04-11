@@ -4,21 +4,25 @@ type weightRange struct {
 	min weightValue
 	max weightValue
 }
+type WeightRange = weightRange
 
 type weightValue struct {
 	grams int
 }
+type WeightValue = weightValue
 
 type strengthCarryingCapacity struct {
 	lightLoadMax weightValue
 	mediumLoad   weightRange
 	heavyLoad    weightRange
 }
+type StrengthCarryingCapacity = strengthCarryingCapacity
 
 type spellcastingAbilityProfile struct {
 	abilityModifier int
 	maxSpellLevel   int
 }
+type SpellcastingAbilityProfile = spellcastingAbilityProfile
 
 func (w weightValue) GetKilograms() float64 {
 	return float64(w.grams) / 1000
@@ -28,23 +32,23 @@ func (w weightValue) GetPounds() float64 {
 	return float64(w.grams) / gramsPerPound
 }
 
-func (r weightRange) GetMin() weightValue {
+func (r weightRange) GetMin() WeightValue {
 	return r.min
 }
 
-func (r weightRange) GetMax() weightValue {
+func (r weightRange) GetMax() WeightValue {
 	return r.max
 }
 
-func (c strengthCarryingCapacity) GetLightLoadMax() weightValue {
+func (c strengthCarryingCapacity) GetLightLoadMax() WeightValue {
 	return c.lightLoadMax
 }
 
-func (c strengthCarryingCapacity) GetMediumLoad() weightRange {
+func (c strengthCarryingCapacity) GetMediumLoad() WeightRange {
 	return c.mediumLoad
 }
 
-func (c strengthCarryingCapacity) GetHeavyLoad() weightRange {
+func (c strengthCarryingCapacity) GetHeavyLoad() WeightRange {
 	return c.heavyLoad
 }
 
@@ -64,7 +68,7 @@ func (p spellcastingAbilityProfile) GetBonusSpells(spellLevel int) int {
 	return 1 + ((p.abilityModifier - spellLevel) / 4)
 }
 
-func (a abilityScore) GetCarryingCapacity() (strengthCarryingCapacity, bool) {
+func (a abilityScore) GetCarryingCapacity() (StrengthCarryingCapacity, bool) {
 	if a.id != StrengthScore {
 		return strengthCarryingCapacity{}, false
 	}
@@ -77,7 +81,7 @@ func (a abilityScore) GetCarryingCapacity() (strengthCarryingCapacity, bool) {
 	return resolveStrengthCarryingCapacity(score), true
 }
 
-func (a abilityScore) GetSpellcastingProfile() (spellcastingAbilityProfile, bool) {
+func (a abilityScore) GetSpellcastingProfile() (SpellcastingAbilityProfile, bool) {
 	score, valid := a.value.GetValue()
 	if !valid {
 		return spellcastingAbilityProfile{}, false

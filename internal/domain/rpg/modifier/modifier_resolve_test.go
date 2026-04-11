@@ -18,7 +18,7 @@ func (mockCondition) isCondition() {}
 // HELPERS
 // ==============================
 
-func m(t ModifierType, v int, src ModifierCircumstanceSource) Modifier {
+func m(t ModifierType, v int, src ModifierSource) Modifier {
 	return Modifier{
 		Type:   t,
 		Value:  v,
@@ -71,8 +71,8 @@ func TestModifierResolve_DefaultMax(t *testing.T) {
 
 func TestModifierResolve_CircumstanceDifferentSources(t *testing.T) {
 	mods := ModifierList{
-		m(ModifierCircumstance, 2, "flanking"),
-		m(ModifierCircumstance, 1, "higher_ground"),
+		m(ModifierCircumstance, 2, SourceFlanking),
+		m(ModifierCircumstance, 1, SourceHigherGround),
 	}
 
 	got := mods.ModifierResolve()
@@ -85,9 +85,9 @@ func TestModifierResolve_CircumstanceDifferentSources(t *testing.T) {
 
 func TestModifierResolve_CircumstanceSameSourceTakeHighest(t *testing.T) {
 	mods := ModifierList{
-		m(ModifierCircumstance, 1, "flanking"),
-		m(ModifierCircumstance, 3, "flanking"),
-		m(ModifierCircumstance, 2, "flanking"),
+		m(ModifierCircumstance, 1, SourceFlanking),
+		m(ModifierCircumstance, 3, SourceFlanking),
+		m(ModifierCircumstance, 2, SourceFlanking),
 	}
 
 	got := mods.ModifierResolve()
@@ -110,8 +110,8 @@ func TestModifierResolve_MixedTypes(t *testing.T) {
 		m("enhancement", 5, "x"),
 		m("enhancement", 3, "y"),
 
-		m(ModifierCircumstance, 2, "flanking"),
-		m(ModifierCircumstance, 1, "higher_ground"),
+		m(ModifierCircumstance, 2, SourceFlanking),
+		m(ModifierCircumstance, 1, SourceHigherGround),
 	}
 
 	got := mods.ModifierResolve()
@@ -125,6 +125,50 @@ func TestModifierResolve_MixedTypes(t *testing.T) {
 // ==============================
 // NEGATIVE VALUES
 // ==============================
+
+func TestModifierResolve_UntypedPenaltiesStack(t *testing.T) {
+	mods := ModifierList{
+		m(ModifierUntyped, -1, "condition.fatigued"),
+		m(ModifierUntyped, -5, "condition.exhausted"),
+		m(ModifierUntyped, -3, "environment.hampered"),
+	}
+
+	got := mods.ModifierResolve()
+	want := -9
+
+	if got != want {
+		t.Errorf("expected %d, got %d", want, got)
+	}
+}
+
+func TestModifierResolve_UntypedValuesStackArithmetically(t *testing.T) {
+	mods := ModifierList{
+		m(ModifierUntyped, 2, "custom.blessing"),
+		m(ModifierUntyped, -1, "condition.shaken"),
+		m(ModifierUntyped, 3, "custom.momentum"),
+	}
+
+	got := mods.ModifierResolve()
+	want := 4
+
+	if got != want {
+		t.Errorf("expected %d, got %d", want, got)
+	}
+}
+
+func TestModifierResolve_EmptyTypeDoesNotBehaveAsUntyped(t *testing.T) {
+	mods := ModifierList{
+		m("", -1, "condition.fatigued"),
+		m("", -5, "condition.exhausted"),
+	}
+
+	got := mods.ModifierResolve()
+	want := -1
+
+	if got != want {
+		t.Errorf("expected %d, got %d", want, got)
+	}
+}
 
 func TestModifierResolve_Negatives_Default(t *testing.T) {
 	mods := ModifierList{
@@ -190,8 +234,8 @@ func TestModifierResolve_Single(t *testing.T) {
 
 func TestModifierResolve_CircumstanceMixedSameSourceNegative(t *testing.T) {
 	mods := ModifierList{
-		m(ModifierCircumstance, 2, "flanking"),
-		m(ModifierCircumstance, -5, "flanking"),
+		m(ModifierCircumstance, 2, SourceFlanking),
+		m(ModifierCircumstance, -5, SourceFlanking),
 	}
 
 	// current logic: picks highest (2)

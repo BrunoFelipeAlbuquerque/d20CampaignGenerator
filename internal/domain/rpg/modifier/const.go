@@ -2,37 +2,38 @@ package modifier
 
 const (
 	// MODIFIER SOURCE: COMBAT
-	SourceFlanking     ModifierCircumstanceSource = "combat.flanking"
-	SourceHigherGround ModifierCircumstanceSource = "combat.higher_ground"
-	SourceProneTarget  ModifierCircumstanceSource = "combat.target_prone"
-	SourceCharging     ModifierCircumstanceSource = "combat.charging"
-	SourceCover        ModifierCircumstanceSource = "combat.cover"
-	SourceSoftCover    ModifierCircumstanceSource = "combat.soft_cover"
+	SourceFlanking     ModifierSource = "combat.flanking"
+	SourceHigherGround ModifierSource = "combat.higher_ground"
+	SourceProneTarget  ModifierSource = "combat.target_prone"
+	SourceCharging     ModifierSource = "combat.charging"
+	SourceCover        ModifierSource = "combat.cover"
+	SourceSoftCover    ModifierSource = "combat.soft_cover"
 
 	// MODIFIER SOURCE: PERCEPTION
-	SourceConcealment      ModifierCircumstanceSource = "perception.concealment"
-	SourceTotalConcealment ModifierCircumstanceSource = "perception.total_concealment"
-	SourceInvisibleTarget  ModifierCircumstanceSource = "perception.invisible_target"
-	SourcePoorLighting     ModifierCircumstanceSource = "perception.poor_lighting"
+	SourceConcealment      ModifierSource = "perception.concealment"
+	SourceTotalConcealment ModifierSource = "perception.total_concealment"
+	SourceInvisibleTarget  ModifierSource = "perception.invisible_target"
+	SourcePoorLighting     ModifierSource = "perception.poor_lighting"
 
 	// MODIFIER SOURCE: CONDITON
-	SourceTargetHelpless   ModifierCircumstanceSource = "condition.helpless"
-	SourceTargetBlinded    ModifierCircumstanceSource = "condition.blinded"
-	SourceTargetStunned    ModifierCircumstanceSource = "condition.stunned"
-	SourceTargetFlatFooted ModifierCircumstanceSource = "condition.flat_footed"
+	SourceTargetHelpless   ModifierSource = "condition.helpless"
+	SourceTargetBlinded    ModifierSource = "condition.blinded"
+	SourceTargetStunned    ModifierSource = "condition.stunned"
+	SourceTargetFlatFooted ModifierSource = "condition.flat_footed"
 
 	// MODIFIER SOURCE: ENVIRONMENT
-	SourceSlipperySurface ModifierCircumstanceSource = "environment.slippery"
-	SourceStrongWind      ModifierCircumstanceSource = "environment.strong_wind"
-	SourceExtremeHeat     ModifierCircumstanceSource = "environment.extreme_heat"
-	SourceExtremeCold     ModifierCircumstanceSource = "environment.extreme_cold"
+	SourceSlipperySurface ModifierSource = "environment.slippery"
+	SourceStrongWind      ModifierSource = "environment.strong_wind"
+	SourceExtremeHeat     ModifierSource = "environment.extreme_heat"
+	SourceExtremeCold     ModifierSource = "environment.extreme_cold"
 
 	// MODIFIER SOURCE: SKILL
-	SourceFavorableConditions   ModifierCircumstanceSource = "skill.favorable_conditions"
-	SourceUnfavorableConditions ModifierCircumstanceSource = "skill.unfavorable_conditions"
-	SourceDistraction           ModifierCircumstanceSource = "skill.distraction"
+	SourceFavorableConditions   ModifierSource = "skill.favorable_conditions"
+	SourceUnfavorableConditions ModifierSource = "skill.unfavorable_conditions"
+	SourceDistraction           ModifierSource = "skill.distraction"
 
 	// MODIFIER TYPES
+	ModifierUntyped      ModifierType = "untyped"
 	ModifierAlchemical   ModifierType = "alchemical"
 	ModifierArmor        ModifierType = "armor"
 	ModifierCircumstance ModifierType = "circumstance"
