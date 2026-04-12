@@ -1,8 +1,5 @@
 package ability
 
-type Alignment struct {
-}
-
 type BaseAttackBonus struct {
 }
 
