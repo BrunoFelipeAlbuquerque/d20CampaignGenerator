@@ -9,6 +9,8 @@ import (
 func TestExportedAbilityTypesAreUsableOutsidePackage(t *testing.T) {
 	value := ability.NewAbilityScoreValue(18, true)
 	score := ability.NewAbilityScore(ability.StrengthScore, value)
+	bab := ability.NewBaseAttackBonusByClassLevel(2, ability.BaseAttackBonusThreeQuarters)
+	save := ability.NewSavingThrowByClassLevel(ability.FortitudeSave, 1, ability.SavingThrowGood)
 
 	var exportedID ability.AbilityScoreID = score.GetID()
 	if exportedID != ability.StrengthScore {
@@ -25,6 +27,16 @@ func TestExportedAbilityTypesAreUsableOutsidePackage(t *testing.T) {
 	capacity, ok := exportedScore.GetCarryingCapacity()
 	if !ok {
 		t.Fatal("expected carrying capacity from exported score")
+	}
+
+	var exportedBAB ability.BaseAttackBonus = bab
+	if exportedBAB.GetValue() != 1 {
+		t.Fatalf("expected exported BAB 1, got %d", exportedBAB.GetValue())
+	}
+
+	var exportedSave ability.SavingThrow = save
+	if exportedSave.GetValue() != 2 {
+		t.Fatalf("expected exported saving throw 2, got %d", exportedSave.GetValue())
 	}
 
 	var exportedCapacity ability.StrengthCarryingCapacity = capacity
