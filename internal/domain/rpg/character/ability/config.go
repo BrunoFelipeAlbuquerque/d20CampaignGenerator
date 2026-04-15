@@ -1,8 +1,5 @@
 package ability
 
-type CasterLevel struct {
-}
-
 type CreatureType struct {
 }
 

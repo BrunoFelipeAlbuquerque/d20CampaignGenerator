@@ -11,6 +11,7 @@ func TestExportedAbilityTypesAreUsableOutsidePackage(t *testing.T) {
 	score := ability.NewAbilityScore(ability.StrengthScore, value)
 	bab := ability.NewBaseAttackBonusByClassLevel(2, ability.BaseAttackBonusThreeQuarters)
 	save := ability.NewSavingThrowByClassLevel(ability.FortitudeSave, 1, ability.SavingThrowGood)
+	casterLevel := ability.NewCasterLevel(5, 0, 0)
 
 	var exportedID ability.AbilityScoreID = score.GetID()
 	if exportedID != ability.StrengthScore {
@@ -37,6 +38,16 @@ func TestExportedAbilityTypesAreUsableOutsidePackage(t *testing.T) {
 	var exportedSave ability.SavingThrow = save
 	if exportedSave.GetValue() != 2 {
 		t.Fatalf("expected exported saving throw 2, got %d", exportedSave.GetValue())
+	}
+
+	var exportedCasterLevel ability.CasterLevel = casterLevel
+	arcaneCasterLevel, ok := exportedCasterLevel.GetArcane()
+	if !ok {
+		t.Fatal("expected exported arcane caster level to be available")
+	}
+
+	if arcaneCasterLevel != 5 {
+		t.Fatalf("expected exported arcane caster level 5, got %d", arcaneCasterLevel)
 	}
 
 	var exportedCapacity ability.StrengthCarryingCapacity = capacity
