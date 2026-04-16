@@ -49,6 +49,42 @@ func (r resolvedCreatureRules) GetHitPointKind() ability.HitPointKind {
 	return r.hitPointKind
 }
 
+func (r resolvedCreatureRules) NewRacialHitDie(hitDieCount int) (ability.HitDie, bool) {
+	return ability.NewUniformHitDie(r.hitDieType, hitDieCount)
+}
+
+func (r resolvedCreatureRules) NewHitPoints(
+	hd ability.HitDie,
+	constitutionScore int,
+	charismaScore int,
+	size ability.Size,
+) (ability.HitPoints, bool) {
+	switch r.hitPointKind {
+	case ability.StandardHitPoints:
+		return ability.NewStandardHitPoints(hd, constitutionScore)
+	case ability.UndeadHitPoints:
+		return ability.NewUndeadHitPoints(hd, charismaScore)
+	case ability.ConstructHitPoints:
+		return ability.NewConstructHitPoints(hd, size)
+	default:
+		return ability.HitPoints{}, false
+	}
+}
+
+func (r resolvedCreatureRules) NewRacialHitPoints(
+	hitDieCount int,
+	constitutionScore int,
+	charismaScore int,
+	size ability.Size,
+) (ability.HitPoints, bool) {
+	hd, ok := r.NewRacialHitDie(hitDieCount)
+	if !ok {
+		return ability.HitPoints{}, false
+	}
+
+	return r.NewHitPoints(hd, constitutionScore, charismaScore, size)
+}
+
 func (r resolvedCreatureRules) GetTraitIDs() []CreatureTypeTraitID {
 	return append([]CreatureTypeTraitID(nil), r.traitIDs...)
 }

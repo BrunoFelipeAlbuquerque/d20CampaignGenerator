@@ -33,6 +33,46 @@ func TestHitDie_GetDieCount_RejectsUnknownDieType(t *testing.T) {
 	}
 }
 
+func TestNewUniformHitDie_MapsKindToSingleBucket(t *testing.T) {
+	tests := []struct {
+		name    string
+		kind    HitDieType
+		count   int
+		wantD6  int
+		wantD8  int
+		wantD10 int
+		wantD12 int
+	}{
+		{name: "d6", kind: D6HitDie, count: 2, wantD6: 2},
+		{name: "d8", kind: D8HitDie, count: 3, wantD8: 3},
+		{name: "d10", kind: D10HitDie, count: 4, wantD10: 4},
+		{name: "d12", kind: D12HitDie, count: 1, wantD12: 1},
+	}
+
+	for _, tt := range tests {
+		hd, ok := NewUniformHitDie(tt.kind, tt.count)
+		if !ok {
+			t.Fatalf("expected %s uniform hit die to be constructed", tt.name)
+		}
+
+		if hd.GetTotal() != tt.count {
+			t.Fatalf("expected %s total %d, got %d", tt.name, tt.count, hd.GetTotal())
+		}
+
+		assertHitDieCounts(t, hd, tt.wantD6, tt.wantD8, tt.wantD10, tt.wantD12)
+	}
+}
+
+func TestNewUniformHitDie_RejectsInvalidInputs(t *testing.T) {
+	if _, ok := NewUniformHitDie(HitDieType("d20"), 1); ok {
+		t.Fatal("expected unknown hit die type to be rejected")
+	}
+
+	if _, ok := NewUniformHitDie(D8HitDie, 0); ok {
+		t.Fatal("expected zero-count hit die to be rejected")
+	}
+}
+
 func TestNewStandardHitPoints_UsesConstitutionLedgerAndThreshold(t *testing.T) {
 	hd, ok := NewHitDie(0, 2, 0, 0)
 	if !ok {
@@ -574,5 +614,29 @@ func TestHitPointConstructors_RejectInvalidInputs(t *testing.T) {
 	invalidHD := HitDie{}
 	if _, ok := NewStandardHitPoints(invalidHD, 10); ok {
 		t.Fatal("expected semantically invalid hit die payload to be rejected")
+	}
+}
+
+func assertHitDieCounts(t *testing.T, hd HitDie, wantD6 int, wantD8 int, wantD10 int, wantD12 int) {
+	t.Helper()
+
+	d6, ok := hd.GetDieCount(D6HitDie)
+	if !ok || d6 != wantD6 {
+		t.Fatalf("expected d6 count (%d, true), got (%d, %t)", wantD6, d6, ok)
+	}
+
+	d8, ok := hd.GetDieCount(D8HitDie)
+	if !ok || d8 != wantD8 {
+		t.Fatalf("expected d8 count (%d, true), got (%d, %t)", wantD8, d8, ok)
+	}
+
+	d10, ok := hd.GetDieCount(D10HitDie)
+	if !ok || d10 != wantD10 {
+		t.Fatalf("expected d10 count (%d, true), got (%d, %t)", wantD10, d10, ok)
+	}
+
+	d12, ok := hd.GetDieCount(D12HitDie)
+	if !ok || d12 != wantD12 {
+		t.Fatalf("expected d12 count (%d, true), got (%d, %t)", wantD12, d12, ok)
 	}
 }

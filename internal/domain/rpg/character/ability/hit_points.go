@@ -81,6 +81,21 @@ func NewHitDie(d6 int, d8 int, d10 int, d12 int) (HitDie, bool) {
 	}, true
 }
 
+func NewUniformHitDie(kind HitDieType, count int) (HitDie, bool) {
+	switch kind {
+	case D6HitDie:
+		return NewHitDie(count, 0, 0, 0)
+	case D8HitDie:
+		return NewHitDie(0, count, 0, 0)
+	case D10HitDie:
+		return NewHitDie(0, 0, count, 0)
+	case D12HitDie:
+		return NewHitDie(0, 0, 0, count)
+	default:
+		return hitDie{}, false
+	}
+}
+
 func NewStandardHitPoints(hd HitDie, constitutionScore int) (HitPoints, bool) {
 	if !isValidLivingConstitutionScore(constitutionScore) || !isSemanticallyValidHitDie(hd) {
 		return hitPoints{}, false

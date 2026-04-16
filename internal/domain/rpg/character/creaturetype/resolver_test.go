@@ -214,6 +214,141 @@ func TestResolveCreatureRules_DedupesResolvedFlags(t *testing.T) {
 	}
 }
 
+func TestResolvedCreatureRules_NewRacialHitDie_UsesResolvedDieType(t *testing.T) {
+	classification, ok := NewCreatureClassification(DragonType, nil, nil)
+	if !ok {
+		t.Fatal("expected classification to be constructed")
+	}
+
+	rules, ok := ResolveCreatureRules(classification)
+	if !ok {
+		t.Fatal("expected creature rules to resolve")
+	}
+
+	hd, ok := rules.NewRacialHitDie(3)
+	if !ok {
+		t.Fatal("expected racial hit die to be constructed")
+	}
+
+	if hd.GetTotal() != 3 {
+		t.Fatalf("expected 3 total hit dice, got %d", hd.GetTotal())
+	}
+
+	d12Count, ok := hd.GetDieCount(ability.D12HitDie)
+	if !ok || d12Count != 3 {
+		t.Fatalf("expected dragon racial hit dice (3 d12, true), got (%d, %t)", d12Count, ok)
+	}
+}
+
+func TestResolvedCreatureRules_NewRacialHitDie_HumanoidStillExposesFlagButBuildsHitDie(t *testing.T) {
+	classification, ok := NewCreatureClassification(HumanoidType, nil, nil)
+	if !ok {
+		t.Fatal("expected classification to be constructed")
+	}
+
+	rules, ok := ResolveCreatureRules(classification)
+	if !ok {
+		t.Fatal("expected creature rules to resolve")
+	}
+
+	if !rules.HasContextualFlag(HumanoidRacialHDUsesClassRulesFlag) {
+		t.Fatal("expected humanoid contextual flag to still be present")
+	}
+
+	hd, ok := rules.NewRacialHitDie(1)
+	if !ok {
+		t.Fatal("expected humanoid racial hit die construction to succeed")
+	}
+
+	d8Count, ok := hd.GetDieCount(ability.D8HitDie)
+	if !ok || d8Count != 1 {
+		t.Fatalf("expected humanoid racial hit dice (1 d8, true), got (%d, %t)", d8Count, ok)
+	}
+}
+
+func TestResolvedCreatureRules_NewHitPoints_UsesResolvedHitPointKind(t *testing.T) {
+	undeadClassification, ok := NewCreatureClassification(UndeadType, nil, nil)
+	if !ok {
+		t.Fatal("expected undead classification to be constructed")
+	}
+
+	undeadRules, ok := ResolveCreatureRules(undeadClassification)
+	if !ok {
+		t.Fatal("expected undead rules to resolve")
+	}
+
+	undeadHD, ok := ability.NewUniformHitDie(ability.D8HitDie, 2)
+	if !ok {
+		t.Fatal("expected undead hit die to be constructed")
+	}
+
+	undeadHP, ok := undeadRules.NewHitPoints(undeadHD, 1, 16, ability.MediumSize)
+	if !ok {
+		t.Fatal("expected undead hit points to be constructed")
+	}
+
+	if undeadHP.GetKind() != ability.UndeadHitPoints {
+		t.Fatalf("expected undead hit point kind %q, got %q", ability.UndeadHitPoints, undeadHP.GetKind())
+	}
+
+	if undeadHP.GetDeathThreshold() != 0 {
+		t.Fatalf("expected undead death threshold 0, got %d", undeadHP.GetDeathThreshold())
+	}
+
+	constructClassification, ok := NewCreatureClassification(ConstructType, nil, nil)
+	if !ok {
+		t.Fatal("expected construct classification to be constructed")
+	}
+
+	constructRules, ok := ResolveCreatureRules(constructClassification)
+	if !ok {
+		t.Fatal("expected construct rules to resolve")
+	}
+
+	constructHD, ok := ability.NewUniformHitDie(ability.D10HitDie, 2)
+	if !ok {
+		t.Fatal("expected construct hit die to be constructed")
+	}
+
+	constructHP, ok := constructRules.NewHitPoints(constructHD, 0, 0, ability.LargeSize)
+	if !ok {
+		t.Fatal("expected construct hit points to be constructed")
+	}
+
+	if constructHP.GetKind() != ability.ConstructHitPoints {
+		t.Fatalf("expected construct hit point kind %q, got %q", ability.ConstructHitPoints, constructHP.GetKind())
+	}
+
+	if constructHP.GetDeathThreshold() != 0 {
+		t.Fatalf("expected construct death threshold 0, got %d", constructHP.GetDeathThreshold())
+	}
+}
+
+func TestResolvedCreatureRules_NewRacialHitPoints_BridgesResolvedCreatureRules(t *testing.T) {
+	classification, ok := NewCreatureClassification(AnimalType, nil, nil)
+	if !ok {
+		t.Fatal("expected classification to be constructed")
+	}
+
+	rules, ok := ResolveCreatureRules(classification)
+	if !ok {
+		t.Fatal("expected creature rules to resolve")
+	}
+
+	hp, ok := rules.NewRacialHitPoints(2, 14, 0, ability.MediumSize)
+	if !ok {
+		t.Fatal("expected racial hit points to be constructed")
+	}
+
+	if hp.GetKind() != ability.StandardHitPoints {
+		t.Fatalf("expected standard hit point kind %q, got %q", ability.StandardHitPoints, hp.GetKind())
+	}
+
+	if hp.GetTotal() != 14 {
+		t.Fatalf("expected animal racial hit points total 14, got %d", hp.GetTotal())
+	}
+}
+
 func TestIsValidResolvedCreatureRules_RejectsInvalidResolvedMetadata(t *testing.T) {
 	if isValidResolvedCreatureRules(resolvedCreatureRules{
 		fixedGoodSaves:          []ability.SavingThrowID{ability.FortitudeSave, ability.ReflexSave},
