@@ -30,10 +30,10 @@ type hitPoints struct {
 	temporary        int
 	nonLethal        int
 	deathThreshold   int
-	dead             bool
 	hd               hitDie
 	sources          []hpSource
 	temporarySources []hpSource
+	activeTemporary  string
 	kind             hitPointKind
 	size             size
 	constitution     int
@@ -57,8 +57,13 @@ func NewHitDie(d6 int, d8 int, d10 int, d12 int) (HitDie, bool) {
 		return hitDie{}, false
 	}
 
+	total := d6 + d8 + d10 + d12
+	if total <= 0 {
+		return hitDie{}, false
+	}
+
 	return hitDie{
-		total: d6 + d8 + d10 + d12,
+		total: total,
 		d6:    d6,
 		d8:    d8,
 		d10:   d10,
@@ -67,7 +72,7 @@ func NewHitDie(d6 int, d8 int, d10 int, d12 int) (HitDie, bool) {
 }
 
 func NewStandardHitPoints(hd HitDie, constitutionScore int) (HitPoints, bool) {
-	if constitutionScore < 0 {
+	if constitutionScore < 0 || !isSemanticallyValidHitDie(hd) {
 		return hitPoints{}, false
 	}
 
@@ -81,7 +86,7 @@ func NewStandardHitPoints(hd HitDie, constitutionScore int) (HitPoints, bool) {
 }
 
 func NewUndeadHitPoints(hd HitDie, charismaScore int) (HitPoints, bool) {
-	if charismaScore < 0 {
+	if charismaScore < 0 || !isSemanticallyValidHitDie(hd) {
 		return hitPoints{}, false
 	}
 
@@ -95,7 +100,7 @@ func NewUndeadHitPoints(hd HitDie, charismaScore int) (HitPoints, bool) {
 }
 
 func NewConstructHitPoints(hd HitDie, size Size) (HitPoints, bool) {
-	if !isValidSize(size) {
+	if !isValidSize(size) || !isSemanticallyValidHitDie(hd) {
 		return hitPoints{}, false
 	}
 
@@ -176,10 +181,6 @@ func (h hitPoints) GetKind() HitPointKind {
 	return h.kind
 }
 
-func (h hitPoints) IsDead() bool {
-	return h.dead
-}
-
 func (h hitPoints) IsNonLethalImmune() bool {
 	return h.kind == UndeadHitPoints || h.kind == ConstructHitPoints
 }
@@ -195,12 +196,12 @@ func (h *hitPoints) SetTemporaryHPSource(name string, value int) bool {
 		}
 
 		h.temporarySources[i].value = value
-		h.recalculateTemporary()
+		h.recalculateTemporary(false)
 		return true
 	}
 
 	h.temporarySources = append(h.temporarySources, hpSource{name: name, value: value})
-	h.recalculateTemporary()
+	h.recalculateTemporary(false)
 	return true
 }
 
@@ -211,7 +212,10 @@ func (h *hitPoints) RemoveTemporaryHPSource(name string) bool {
 		}
 
 		h.temporarySources = append(h.temporarySources[:i], h.temporarySources[i+1:]...)
-		h.recalculateTemporary()
+		if h.activeTemporary == name {
+			h.activeTemporary = ""
+		}
+		h.recalculateTemporary(false)
 		return true
 	}
 
@@ -219,7 +223,7 @@ func (h *hitPoints) RemoveTemporaryHPSource(name string) bool {
 }
 
 func (h *hitPoints) TakeDamage(amount int, isNonLethal bool) bool {
-	if amount < 0 || h.dead {
+	if amount < 0 {
 		return false
 	}
 
@@ -235,7 +239,6 @@ func (h *hitPoints) TakeDamage(amount int, isNonLethal bool) bool {
 
 	if !isNonLethal {
 		h.current -= remaining
-		h.updateDeadState()
 		return true
 	}
 
@@ -248,7 +251,7 @@ func (h *hitPoints) TakeDamage(amount int, isNonLethal bool) bool {
 }
 
 func (h *hitPoints) Heal(amount int) bool {
-	if amount < 0 || h.dead {
+	if amount < 0 {
 		return false
 	}
 
@@ -319,8 +322,6 @@ func (h *hitPoints) recalculate(initial bool) {
 			h.current = h.total
 		}
 	}
-
-	h.updateDeadState()
 }
 
 func (h hitPoints) resolveCoreState() ([]hpSource, int, int) {
@@ -355,43 +356,52 @@ func (h hitPoints) resolveCoreState() ([]hpSource, int, int) {
 	}
 }
 
-func (h *hitPoints) recalculateTemporary() {
-	total := 0
-	for _, source := range h.temporarySources {
-		total += source.value
+func (h *hitPoints) recalculateTemporary(preserveActive bool) {
+	if len(h.temporarySources) == 0 {
+		h.temporary = 0
+		h.activeTemporary = ""
+		return
 	}
 
-	delta := total - h.temporary
-	h.temporary = total
-
-	if delta < 0 && h.current > h.total {
-		h.current = h.total
+	if preserveActive {
+		if activeIndex, ok := h.findTemporarySourceIndexByName(h.activeTemporary); ok {
+			h.temporary = h.temporarySources[activeIndex].value
+			return
+		}
 	}
+
+	activeIndex := h.findHighestTemporarySourceIndex()
+	h.activeTemporary = h.temporarySources[activeIndex].name
+	h.temporary = h.temporarySources[activeIndex].value
 }
 
 func (h *hitPoints) consumeTemporaryHP(amount int) int {
-	remaining := amount
+	if h.temporary == 0 || len(h.temporarySources) == 0 {
+		return amount
+	}
 
-	for i := 0; i < len(h.temporarySources) && remaining > 0; {
-		if h.temporarySources[i].value <= remaining {
-			remaining -= h.temporarySources[i].value
-			h.temporarySources = append(h.temporarySources[:i], h.temporarySources[i+1:]...)
-			continue
+	activeIndex, ok := h.findTemporarySourceIndexByName(h.activeTemporary)
+	if !ok {
+		h.recalculateTemporary(false)
+		activeIndex, ok = h.findTemporarySourceIndexByName(h.activeTemporary)
+		if !ok {
+			return amount
 		}
-
-		h.temporarySources[i].value -= remaining
-		remaining = 0
-		i++
 	}
 
-	h.recalculateTemporary()
+	remaining := amount
+	if h.temporarySources[activeIndex].value <= remaining {
+		remaining -= h.temporarySources[activeIndex].value
+		h.temporarySources = append(h.temporarySources[:activeIndex], h.temporarySources[activeIndex+1:]...)
+		h.activeTemporary = ""
+		h.recalculateTemporary(false)
+		return remaining
+	}
+
+	h.temporarySources[activeIndex].value -= remaining
+	remaining = 0
+	h.recalculateTemporary(true)
 	return remaining
-}
-
-func (h *hitPoints) updateDeadState() {
-	if h.current <= h.deathThreshold {
-		h.dead = true
-	}
 }
 
 func applyMinimumHitPointFloor(total int, minimum int, sources *[]hpSource) int {
@@ -411,4 +421,37 @@ func getAbilityModifier(score int) int {
 	}
 
 	return (delta / 2) - 1
+}
+
+func isSemanticallyValidHitDie(hd HitDie) bool {
+	if hd.total <= 0 || hd.d6 < 0 || hd.d8 < 0 || hd.d10 < 0 || hd.d12 < 0 {
+		return false
+	}
+
+	return hd.total == hd.d6+hd.d8+hd.d10+hd.d12
+}
+
+func (h hitPoints) findTemporarySourceIndexByName(name string) (int, bool) {
+	if len(name) == 0 {
+		return 0, false
+	}
+
+	for i, source := range h.temporarySources {
+		if source.name == name {
+			return i, true
+		}
+	}
+
+	return 0, false
+}
+
+func (h hitPoints) findHighestTemporarySourceIndex() int {
+	highestIndex := 0
+	for i := 1; i < len(h.temporarySources); i++ {
+		if h.temporarySources[i].value > h.temporarySources[highestIndex].value {
+			highestIndex = i
+		}
+	}
+
+	return highestIndex
 }

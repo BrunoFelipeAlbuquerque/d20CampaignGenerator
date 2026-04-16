@@ -7,7 +7,10 @@ import (
 )
 
 func TestExportedAbilityTypesAreUsableOutsidePackage(t *testing.T) {
-	value := ability.NewAbilityScoreValue(18, true)
+	value, ok := ability.NewAbilityScoreValue(18, true)
+	if !ok {
+		t.Fatal("expected ability score value to be constructed")
+	}
 	score, ok := ability.NewAbilityScore(ability.StrengthScore, value)
 	if !ok {
 		t.Fatal("expected ability score to be constructed")
@@ -62,7 +65,7 @@ func TestExportedAbilityTypesAreUsableOutsidePackage(t *testing.T) {
 	}
 
 	var exportedCasterLevel ability.CasterLevel = casterLevel
-	arcaneCasterLevel, ok := exportedCasterLevel.GetArcane()
+	arcaneCasterLevel, ok := exportedCasterLevel.GetSourceLevel(ability.ArcaneCasterSource)
 	if !ok {
 		t.Fatal("expected exported arcane caster level to be available")
 	}

@@ -3,7 +3,7 @@ package ability
 import "testing"
 
 func TestNewSavingThrow_PreservesActualAndRoundsDownValue(t *testing.T) {
-	save, ok := NewSavingThrow(ReflexSave, 2.3333333333)
+	save, ok := NewSavingThrow(ReflexSave, mustNewRationalValue(t, 7, 3))
 	if !ok {
 		t.Fatal("expected saving throw to be constructed")
 	}
@@ -12,8 +12,12 @@ func TestNewSavingThrow_PreservesActualAndRoundsDownValue(t *testing.T) {
 		t.Fatalf("expected save id %q, got %q", ReflexSave, save.GetID())
 	}
 
-	if !almostEqual(save.GetActualValue(), 2.3333333333) {
-		t.Fatalf("expected actual save 2.33, got %.10f", save.GetActualValue())
+	if save.GetActualValue().GetNumerator() != 7 || save.GetActualValue().GetDenominator() != 3 {
+		t.Fatalf(
+			"expected actual save 7/3, got %d/%d",
+			save.GetActualValue().GetNumerator(),
+			save.GetActualValue().GetDenominator(),
+		)
 	}
 
 	if save.GetValue() != 2 {
@@ -31,8 +35,12 @@ func TestNewSavingThrowByClassLevel_GoodProgressionIncludesOneTimeBonus(t *testi
 		t.Fatal("expected saving throw to be constructed")
 	}
 
-	if !almostEqual(save.GetActualValue(), 2.5) {
-		t.Fatalf("expected actual save 2.5, got %.2f", save.GetActualValue())
+	if save.GetActualValue().GetNumerator() != 5 || save.GetActualValue().GetDenominator() != 2 {
+		t.Fatalf(
+			"expected actual save 5/2, got %d/%d",
+			save.GetActualValue().GetNumerator(),
+			save.GetActualValue().GetDenominator(),
+		)
 	}
 
 	if save.GetValue() != 2 {
@@ -50,8 +58,12 @@ func TestNewSavingThrowByClassLevel_PoorProgressionRoundsDownFraction(t *testing
 		t.Fatal("expected saving throw to be constructed")
 	}
 
-	if !almostEqual(save.GetActualValue(), 1.6666666667) {
-		t.Fatalf("expected actual save about 1.67, got %.10f", save.GetActualValue())
+	if save.GetActualValue().GetNumerator() != 5 || save.GetActualValue().GetDenominator() != 3 {
+		t.Fatalf(
+			"expected actual save 5/3, got %d/%d",
+			save.GetActualValue().GetNumerator(),
+			save.GetActualValue().GetDenominator(),
+		)
 	}
 
 	if save.GetValue() != 1 {
@@ -69,8 +81,12 @@ func TestSavingThrowAddClassLevel_DoesNotRepeatGoodSaveBaseBonusAcrossMulticlass
 		t.Fatal("expected second good save class level to be accepted")
 	}
 
-	if !almostEqual(save.GetActualValue(), 3) {
-		t.Fatalf("expected actual save 3.0, got %.2f", save.GetActualValue())
+	if save.GetActualValue().GetNumerator() != 3 || save.GetActualValue().GetDenominator() != 1 {
+		t.Fatalf(
+			"expected actual save 3/1, got %d/%d",
+			save.GetActualValue().GetNumerator(),
+			save.GetActualValue().GetDenominator(),
+		)
 	}
 
 	if save.GetValue() != 3 {
@@ -88,8 +104,12 @@ func TestSavingThrowSetByClassLevel_ReplacesExistingState(t *testing.T) {
 		t.Fatal("expected save to be reset from a new class progression")
 	}
 
-	if !almostEqual(save.GetActualValue(), 0.6666666667) {
-		t.Fatalf("expected actual save about 0.67, got %.10f", save.GetActualValue())
+	if save.GetActualValue().GetNumerator() != 2 || save.GetActualValue().GetDenominator() != 3 {
+		t.Fatalf(
+			"expected actual save 2/3, got %d/%d",
+			save.GetActualValue().GetNumerator(),
+			save.GetActualValue().GetDenominator(),
+		)
 	}
 
 	if save.GetValue() != 0 {
@@ -102,27 +122,32 @@ func TestSavingThrowSetByClassLevel_ReplacesExistingState(t *testing.T) {
 }
 
 func TestSavingThrowAddClassLevel_RejectsInvalidProgression(t *testing.T) {
-	save, ok := NewSavingThrow(ReflexSave, 1)
+	save, ok := NewSavingThrow(ReflexSave, mustNewRationalValue(t, 1, 1))
 	if !ok {
 		t.Fatal("expected saving throw to be constructed")
 	}
 
-	if ok := save.AddClassLevel(2, SavingThrowProgression(0.4)); ok {
+	if ok := save.AddClassLevel(2, SavingThrowProgression("0.4")); ok {
 		t.Fatal("expected invalid save progression to be rejected")
 	}
 
-	if !almostEqual(save.GetActualValue(), 1) || save.GetValue() != 1 {
-		t.Fatalf("expected save to remain unchanged, got actual %.2f and value %d", save.GetActualValue(), save.GetValue())
+	if save.GetActualValue().GetNumerator() != 1 || save.GetActualValue().GetDenominator() != 1 || save.GetValue() != 1 {
+		t.Fatalf(
+			"expected save to remain 1/1 and value 1, got %d/%d and value %d",
+			save.GetActualValue().GetNumerator(),
+			save.GetActualValue().GetDenominator(),
+			save.GetValue(),
+		)
 	}
 }
 
 func TestSavingThrowSetID_RejectsInvalidIDs(t *testing.T) {
-	save, ok := NewSavingThrow(WillSave, 0.5)
+	save, ok := NewSavingThrow(WillSave, mustNewRationalValue(t, 1, 2))
 	if !ok {
 		t.Fatal("expected saving throw to be constructed")
 	}
 
-	if _, ok := NewSavingThrow(SavingThrowID("Luck"), 0.5); ok {
+	if _, ok := NewSavingThrow(SavingThrowID("Luck"), mustNewRationalValue(t, 1, 2)); ok {
 		t.Fatal("expected invalid saving throw id to be rejected at construction")
 	}
 
@@ -132,5 +157,16 @@ func TestSavingThrowSetID_RejectsInvalidIDs(t *testing.T) {
 
 	if save.GetID() != WillSave {
 		t.Fatalf("expected save id to remain %q, got %q", WillSave, save.GetID())
+	}
+}
+
+func TestNewSavingThrow_RejectsNegativeActualValue(t *testing.T) {
+	invalidActualValue, ok := NewRationalValue(-1, 2)
+	if !ok {
+		t.Fatal("expected negative rational value to still be constructible for validation tests")
+	}
+
+	if _, ok := NewSavingThrow(FortitudeSave, invalidActualValue); ok {
+		t.Fatal("expected invalid actual value to be rejected")
 	}
 }

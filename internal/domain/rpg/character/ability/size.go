@@ -139,7 +139,7 @@ func (s size) GetConstructBonusHP() (int, bool) {
 
 func (s size) GetSpace(shape BodyShape) (LengthValue, bool) {
 	profile, ok := getSizeProfile(s)
-	if !ok {
+	if !ok || !isValidBodyShape(shape) {
 		return lengthValue{}, false
 	}
 
@@ -152,7 +152,7 @@ func (s size) GetSpace(shape BodyShape) (LengthValue, bool) {
 
 func (s size) GetNaturalReach(shape BodyShape) (LengthValue, bool) {
 	profile, ok := getSizeProfile(s)
-	if !ok {
+	if !ok || !isValidBodyShape(shape) {
 		return lengthValue{}, false
 	}
 
@@ -184,6 +184,15 @@ func (s size) GetTypicalWeightRange() (SizeWeightRange, bool) {
 func isValidSize(value Size) bool {
 	_, ok := getSizeProfile(value)
 	return ok
+}
+
+func isValidBodyShape(value BodyShape) bool {
+	switch value {
+	case TallBodyShape, LongBodyShape:
+		return true
+	default:
+		return false
+	}
 }
 
 func getSizeProfile(value Size) (sizeProfile, bool) {

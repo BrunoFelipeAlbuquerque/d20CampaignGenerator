@@ -128,12 +128,22 @@ func TestAbilityScoreValue_GettersAndSetters(t *testing.T) {
 		t.Fatal("expected value to report valid")
 	}
 
-	value.SetValue(8)
-	value.SetValid(false)
+	var ok bool
+	value, ok = value.WithValue(8)
+	if !ok {
+		t.Fatal("expected ability score value update to succeed")
+	}
+	value = value.WithValid(false)
 
 	gotValue, gotValid = value.GetValue()
 	if gotValue != 8 || gotValid {
 		t.Fatalf("expected (8, false), got (%d, %t)", gotValue, gotValid)
+	}
+}
+
+func TestNewAbilityScoreValue_RejectsNegativeValues(t *testing.T) {
+	if _, ok := NewAbilityScoreValue(-1, true); ok {
+		t.Fatal("expected negative ability score value to be rejected")
 	}
 }
 

@@ -25,15 +25,19 @@ const (
 	CharismaScore     AbilityScoreID = "CHA"
 )
 
-func NewAbilityScoreValue(value int, valid bool) AbilityScoreValue {
+func NewAbilityScoreValue(value int, valid bool) (AbilityScoreValue, bool) {
+	if value < 0 {
+		return abilityScoreValue{}, false
+	}
+
 	return abilityScoreValue{
 		value: value,
 		valid: valid,
-	}
+	}, true
 }
 
 func NewAbilityScore(id AbilityScoreID, value AbilityScoreValue) (AbilityScore, bool) {
-	if id.GetName() == "" {
+	if id.GetName() == "" || !isValidAbilityScoreValue(value) {
 		return abilityScore{}, false
 	}
 
@@ -71,12 +75,18 @@ func (v abilityScoreValue) IsValid() bool {
 	return v.valid
 }
 
-func (v *abilityScoreValue) SetValue(value int) {
+func (v abilityScoreValue) WithValue(value int) (AbilityScoreValue, bool) {
+	if value < 0 {
+		return abilityScoreValue{}, false
+	}
+
 	v.value = value
+	return v, true
 }
 
-func (v *abilityScoreValue) SetValid(valid bool) {
+func (v abilityScoreValue) WithValid(valid bool) AbilityScoreValue {
 	v.valid = valid
+	return v
 }
 
 func (a abilityScore) GetID() AbilityScoreID {
@@ -91,16 +101,27 @@ func (a abilityScore) GetValue() AbilityScoreValue {
 	return a.value
 }
 
-func (a *abilityScore) SetValue(value AbilityScoreValue) {
+func (a *abilityScore) SetValue(value AbilityScoreValue) bool {
+	if !isValidAbilityScoreValue(value) {
+		return false
+	}
+
 	a.value = value
+	return true
 }
 
-func (a *abilityScore) SetScoreValue(value int) {
+func (a *abilityScore) SetScoreValue(value int) bool {
+	if value < 0 {
+		return false
+	}
+
 	a.value.value = value
+	return true
 }
 
-func (a *abilityScore) SetValueValidity(valid bool) {
+func (a *abilityScore) SetValueValidity(valid bool) bool {
 	a.value.valid = valid
+	return true
 }
 
 func (a abilityScore) GetModifier() (int, bool) {
@@ -119,4 +140,8 @@ func calculateAbilityModifier(score int) int {
 	}
 
 	return (delta / 2) - 1
+}
+
+func isValidAbilityScoreValue(value AbilityScoreValue) bool {
+	return value.value >= 0
 }

@@ -189,6 +189,76 @@ func TestTakeDamage_ConsumesTemporaryHitPointsFirst(t *testing.T) {
 	}
 }
 
+func TestSetTemporaryHPSource_ReplacesSameSourceInsteadOfStacking(t *testing.T) {
+	hd, ok := NewHitDie(0, 2, 0, 0)
+	if !ok {
+		t.Fatal("expected hit die to be constructed")
+	}
+	hp, ok := NewStandardHitPoints(hd, 12)
+	if !ok {
+		t.Fatal("expected hit points to be constructed")
+	}
+
+	if ok := hp.SetTemporaryHPSource("False Life", 10); !ok {
+		t.Fatal("expected first temporary HP source to be added")
+	}
+
+	if ok := hp.TakeDamage(3, false); !ok {
+		t.Fatal("expected damage to consume temporary HP")
+	}
+
+	if ok := hp.SetTemporaryHPSource("False Life", 5); !ok {
+		t.Fatal("expected same temporary HP source to be replaced")
+	}
+
+	if hp.GetTemporary() != 5 {
+		t.Fatalf("expected temporary HP to reset to replacement source total 5, got %d", hp.GetTemporary())
+	}
+
+	if len(hp.GetTemporarySources()) != 1 {
+		t.Fatalf("expected one temporary HP source after replacement, got %d", len(hp.GetTemporarySources()))
+	}
+}
+
+func TestSetTemporaryHPSource_DifferentSourcesDoNotStackIntoOnePool(t *testing.T) {
+	hd, ok := NewHitDie(0, 2, 0, 0)
+	if !ok {
+		t.Fatal("expected hit die to be constructed")
+	}
+	hp, ok := NewStandardHitPoints(hd, 12)
+	if !ok {
+		t.Fatal("expected hit points to be constructed")
+	}
+
+	if ok := hp.SetTemporaryHPSource("False Life", 10); !ok {
+		t.Fatal("expected false life temporary HP source to be added")
+	}
+
+	if ok := hp.SetTemporaryHPSource("Aid", 5); !ok {
+		t.Fatal("expected aid temporary HP source to be added")
+	}
+
+	if hp.GetTemporary() != 10 {
+		t.Fatalf("expected only the highest temporary HP pool to apply, got %d", hp.GetTemporary())
+	}
+
+	if ok := hp.TakeDamage(6, false); !ok {
+		t.Fatal("expected damage to consume only the active temporary HP pool")
+	}
+
+	if hp.GetTemporary() != 4 {
+		t.Fatalf("expected active temporary HP pool to drop to 4, got %d", hp.GetTemporary())
+	}
+
+	if hp.GetCurrent() != hp.GetTotal() {
+		t.Fatalf("expected no lethal damage while active temporary HP remained, got current %d", hp.GetCurrent())
+	}
+
+	if len(hp.GetTemporarySources()) != 2 {
+		t.Fatalf("expected both temporary HP sources to remain tracked, got %d", len(hp.GetTemporarySources()))
+	}
+}
+
 func TestTakeDamage_NonLethalStacksAsDebtWithoutBecomingLethal(t *testing.T) {
 	hd, ok := NewHitDie(0, 2, 0, 0)
 	if !ok {
@@ -370,7 +440,7 @@ func TestUpdateCharismaAndSize_RecalculateSpecificLedgerEntries(t *testing.T) {
 	}
 }
 
-func TestTakeDamage_FlagsDeathWhenThresholdIsReached(t *testing.T) {
+func TestTakeDamage_CanDropBelowDeathThresholdWithoutOwningCombatState(t *testing.T) {
 	hd, ok := NewHitDie(0, 1, 0, 0)
 	if !ok {
 		t.Fatal("expected hit die to be constructed")
@@ -384,14 +454,18 @@ func TestTakeDamage_FlagsDeathWhenThresholdIsReached(t *testing.T) {
 		t.Fatal("expected lethal damage to be accepted")
 	}
 
-	if !hp.IsDead() {
-		t.Fatal("expected character to be dead after reaching death threshold")
+	if hp.GetCurrent() > hp.GetDeathThreshold() {
+		t.Fatalf("expected current HP to be at or below death threshold, got current %d and threshold %d", hp.GetCurrent(), hp.GetDeathThreshold())
 	}
 }
 
 func TestHitPointConstructors_RejectInvalidInputs(t *testing.T) {
 	if _, ok := NewHitDie(-1, 0, 0, 0); ok {
 		t.Fatal("expected invalid hit die to be rejected")
+	}
+
+	if _, ok := NewHitDie(0, 0, 0, 0); ok {
+		t.Fatal("expected zero-total hit die to be rejected")
 	}
 
 	hd, ok := NewHitDie(0, 1, 0, 0)
@@ -409,5 +483,10 @@ func TestHitPointConstructors_RejectInvalidInputs(t *testing.T) {
 
 	if _, ok := NewConstructHitPoints(hd, Size("Invalid")); ok {
 		t.Fatal("expected invalid construct size to be rejected")
+	}
+
+	invalidHD := HitDie{}
+	if _, ok := NewStandardHitPoints(invalidHD, 10); ok {
+		t.Fatal("expected semantically invalid hit die payload to be rejected")
 	}
 }

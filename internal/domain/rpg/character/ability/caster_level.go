@@ -1,35 +1,31 @@
 package ability
 
-type casterPillar string
-type CasterPillar = casterPillar
+type casterSource string
+type CasterSource = casterSource
 
 const (
-	ArcaneCasterPillar CasterPillar = "Arcane"
-	DivineCasterPillar CasterPillar = "Divine"
-	PrimalCasterPillar CasterPillar = "Primal"
+	ArcaneCasterSource CasterSource = "Arcane"
+	DivineCasterSource CasterSource = "Divine"
+	PrimalCasterSource CasterSource = "Primal"
 )
 
+type nullableInt struct {
+	value int
+	valid bool
+}
+
 type casterLevel struct {
-	arcane      int
-	arcaneValid bool
-	divine      int
-	divineValid bool
-	primal      int
-	primalValid bool
+	arcane nullableInt
+	divine nullableInt
+	primal nullableInt
 }
 type CasterLevel = casterLevel
 
 func NewCasterLevel(arcane int, divine int, primal int) (CasterLevel, bool) {
-	level := casterLevel{
-		arcane:      arcane,
-		arcaneValid: true,
-		divine:      divine,
-		divineValid: true,
-		primal:      primal,
-		primalValid: true,
-	}
-
-	if !isValidCasterLevel(level) {
+	level := casterLevel{}
+	if !level.SetSourceLevel(ArcaneCasterSource, arcane) ||
+		!level.SetSourceLevel(DivineCasterSource, divine) ||
+		!level.SetSourceLevel(PrimalCasterSource, primal) {
 		return casterLevel{}, false
 	}
 
@@ -40,165 +36,137 @@ func NewImpossibleCasterLevel() CasterLevel {
 	return casterLevel{}
 }
 
-func (c casterLevel) GetArcane() (int, bool) {
-	return c.arcane, c.arcaneValid
+func (c casterLevel) GetSourceLevel(source CasterSource) (int, bool) {
+	value, ok := c.getSourceValue(source)
+	if !ok {
+		return 0, false
+	}
+
+	return value.Get()
 }
 
-func (c casterLevel) GetDivine() (int, bool) {
-	return c.divine, c.divineValid
-}
-
-func (c casterLevel) GetPrimal() (int, bool) {
-	return c.primal, c.primalValid
-}
-
-func (c casterLevel) GetCasterLevel() CasterLevel {
-	return c
-}
-
-func (c *casterLevel) SetCasterLevel(cl CasterLevel) bool {
-	if !isValidCasterLevel(cl) {
+func (c *casterLevel) SetCasterLevel(level CasterLevel) bool {
+	if !isValidCasterLevel(level) {
 		return false
 	}
 
-	c.arcane = cl.arcane
-	c.arcaneValid = cl.arcaneValid
-	c.divine = cl.divine
-	c.divineValid = cl.divineValid
-	c.primal = cl.primal
-	c.primalValid = cl.primalValid
+	c.arcane = level.arcane
+	c.divine = level.divine
+	c.primal = level.primal
 	return true
 }
 
-func (c *casterLevel) SetArcaneCasterLevel(value int) bool {
+func (c *casterLevel) AddCasterLevel(level CasterLevel) bool {
+	if !isValidCasterLevel(level) {
+		return false
+	}
+
+	if level.arcane.valid && !c.AddSourceLevel(ArcaneCasterSource, level.arcane.value) {
+		return false
+	}
+
+	if level.divine.valid && !c.AddSourceLevel(DivineCasterSource, level.divine.value) {
+		return false
+	}
+
+	if level.primal.valid && !c.AddSourceLevel(PrimalCasterSource, level.primal.value) {
+		return false
+	}
+
+	return true
+}
+
+func (c *casterLevel) SetSourceLevel(source CasterSource, value int) bool {
 	if !isValidCasterLevelValue(value) {
 		return false
 	}
 
-	c.arcane = value
-	c.arcaneValid = true
+	sourceValue, ok := c.getSourceValuePointer(source)
+	if !ok {
+		return false
+	}
+
+	sourceValue.Set(value)
 	return true
 }
 
-func (c *casterLevel) SetDivineCasterLevel(value int) bool {
+func (c *casterLevel) AddSourceLevel(source CasterSource, value int) bool {
 	if !isValidCasterLevelValue(value) {
 		return false
 	}
 
-	c.divine = value
-	c.divineValid = true
-	return true
-}
-
-func (c *casterLevel) SetPrimalCasterLevel(value int) bool {
-	if !isValidCasterLevelValue(value) {
+	sourceValue, ok := c.getSourceValuePointer(source)
+	if !ok {
 		return false
 	}
 
-	c.primal = value
-	c.primalValid = true
+	sourceValue.Add(value)
 	return true
 }
 
-func (c *casterLevel) DisableArcaneCasterLevel() {
-	c.arcane = 0
-	c.arcaneValid = false
-}
-
-func (c *casterLevel) DisableDivineCasterLevel() {
-	c.divine = 0
-	c.divineValid = false
-}
-
-func (c *casterLevel) DisablePrimalCasterLevel() {
-	c.primal = 0
-	c.primalValid = false
-}
-
-func (c *casterLevel) AddCasterLevel(cl CasterLevel) bool {
-	if !isValidCasterLevel(cl) {
+func (c *casterLevel) DisableSourceLevel(source CasterSource) bool {
+	sourceValue, ok := c.getSourceValuePointer(source)
+	if !ok {
 		return false
 	}
 
-	if cl.arcaneValid {
-		if c.arcaneValid {
-			c.arcane += cl.arcane
-		} else {
-			c.arcane = cl.arcane
-			c.arcaneValid = true
-		}
-	}
-
-	if cl.divineValid {
-		if c.divineValid {
-			c.divine += cl.divine
-		} else {
-			c.divine = cl.divine
-			c.divineValid = true
-		}
-	}
-
-	if cl.primalValid {
-		if c.primalValid {
-			c.primal += cl.primal
-		} else {
-			c.primal = cl.primal
-			c.primalValid = true
-		}
-	}
-
+	sourceValue.Disable()
 	return true
 }
 
-func (c *casterLevel) AddArcaneCasterLevel(value int) bool {
-	if !isValidCasterLevelValue(value) {
-		return false
+func (c casterLevel) getSourceValue(source CasterSource) (nullableInt, bool) {
+	switch source {
+	case ArcaneCasterSource:
+		return c.arcane, true
+	case DivineCasterSource:
+		return c.divine, true
+	case PrimalCasterSource:
+		return c.primal, true
+	default:
+		return nullableInt{}, false
 	}
-
-	if c.arcaneValid {
-		c.arcane += value
-	} else {
-		c.arcane = value
-		c.arcaneValid = true
-	}
-
-	return true
 }
 
-func (c *casterLevel) AddDivineCasterLevel(value int) bool {
-	if !isValidCasterLevelValue(value) {
-		return false
+func (c *casterLevel) getSourceValuePointer(source CasterSource) (*nullableInt, bool) {
+	switch source {
+	case ArcaneCasterSource:
+		return &c.arcane, true
+	case DivineCasterSource:
+		return &c.divine, true
+	case PrimalCasterSource:
+		return &c.primal, true
+	default:
+		return nil, false
 	}
-
-	if c.divineValid {
-		c.divine += value
-	} else {
-		c.divine = value
-		c.divineValid = true
-	}
-
-	return true
 }
 
-func (c *casterLevel) AddPrimalCasterLevel(value int) bool {
-	if !isValidCasterLevelValue(value) {
-		return false
-	}
-
-	if c.primalValid {
-		c.primal += value
-	} else {
-		c.primal = value
-		c.primalValid = true
-	}
-
-	return true
+func (n nullableInt) Get() (int, bool) {
+	return n.value, n.valid
 }
 
-func isValidCasterLevel(cl CasterLevel) bool {
-	return (!cl.arcaneValid || isValidCasterLevelValue(cl.arcane)) &&
-		(!cl.divineValid || isValidCasterLevelValue(cl.divine)) &&
-		(!cl.primalValid || isValidCasterLevelValue(cl.primal))
+func (n *nullableInt) Set(value int) {
+	n.value = value
+	n.valid = true
+}
+
+func (n *nullableInt) Add(value int) {
+	if n.valid {
+		n.value += value
+		return
+	}
+
+	n.Set(value)
+}
+
+func (n *nullableInt) Disable() {
+	n.value = 0
+	n.valid = false
+}
+
+func isValidCasterLevel(level CasterLevel) bool {
+	return (!level.arcane.valid || isValidCasterLevelValue(level.arcane.value)) &&
+		(!level.divine.valid || isValidCasterLevelValue(level.divine.value)) &&
+		(!level.primal.valid || isValidCasterLevelValue(level.primal.value))
 }
 
 func isValidCasterLevelValue(value int) bool {

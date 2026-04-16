@@ -11,23 +11,23 @@ const (
 	WillSave      SavingThrowID = "Will"
 )
 
-type savingThrowProgression float64
+type savingThrowProgression string
 type SavingThrowProgression = savingThrowProgression
 
 const (
-	SavingThrowPoor SavingThrowProgression = 1.0 / 3.0
-	SavingThrowGood SavingThrowProgression = 0.5
+	SavingThrowPoor SavingThrowProgression = "1/3"
+	SavingThrowGood SavingThrowProgression = "1/2"
 )
 
 type savingThrow struct {
 	id                   savingThrowID
-	actualValue          float64
+	actualValue          rationalValue
 	value                int
 	goodBaseBonusApplied bool
 }
 type SavingThrow = savingThrow
 
-func NewSavingThrow(id SavingThrowID, actualValue float64) (SavingThrow, bool) {
+func NewSavingThrow(id SavingThrowID, actualValue RationalValue) (SavingThrow, bool) {
 	save := savingThrow{}
 	if !save.SetID(id) || !save.SetActualValue(actualValue) {
 		return savingThrow{}, false
@@ -53,7 +53,7 @@ func (s savingThrow) GetID() SavingThrowID {
 	return s.id
 }
 
-func (s savingThrow) GetActualValue() float64 {
+func (s savingThrow) GetActualValue() RationalValue {
 	return s.actualValue
 }
 
@@ -74,19 +74,27 @@ func (s *savingThrow) SetID(id SavingThrowID) bool {
 	return true
 }
 
-func (s *savingThrow) SetActualValue(actualValue float64) bool {
-	if actualValue < 0 {
+func (s *savingThrow) SetActualValue(actualValue RationalValue) bool {
+	if !isNonNegativeRationalValue(actualValue) {
 		return false
 	}
 
 	s.actualValue = actualValue
-	s.value = roundDown(actualValue)
+	s.value = actualValue.Floor()
 	s.goodBaseBonusApplied = false
 	return true
 }
 
 func (s *savingThrow) SetByClassLevel(level int, progression SavingThrowProgression) bool {
-	s.actualValue = 0
+	if level < 0 {
+		return false
+	}
+
+	if _, ok := progression.toRationalValue(); !ok {
+		return false
+	}
+
+	s.actualValue = zeroRationalValue()
 	s.value = 0
 	s.goodBaseBonusApplied = false
 
@@ -94,18 +102,24 @@ func (s *savingThrow) SetByClassLevel(level int, progression SavingThrowProgress
 }
 
 func (s *savingThrow) AddClassLevel(level int, progression SavingThrowProgression) bool {
-	if level < 0 || !isValidSavingThrowProgression(progression) {
+	if level < 0 {
 		return false
 	}
 
-	actualValue := float64(level) * float64(progression)
+	actualIncrement, ok := progression.toRationalValue()
+	if !ok {
+		return false
+	}
+
+	actualIncrement = actualIncrement.MultiplyByInt(level)
 	if progression == SavingThrowGood && !s.goodBaseBonusApplied {
-		actualValue += goodSavingThrowBaseBonus
+		goodBaseBonus, _ := NewRationalValue(goodSavingThrowBaseBonus, 1)
+		actualIncrement = actualIncrement.Add(goodBaseBonus)
 		s.goodBaseBonusApplied = true
 	}
 
-	s.actualValue += actualValue
-	s.value = roundDown(s.actualValue)
+	s.actualValue = s.actualValue.Add(actualIncrement)
+	s.value = s.actualValue.Floor()
 	return true
 }
 
@@ -118,11 +132,13 @@ func isValidSavingThrowID(id SavingThrowID) bool {
 	}
 }
 
-func isValidSavingThrowProgression(progression SavingThrowProgression) bool {
-	switch progression {
-	case SavingThrowPoor, SavingThrowGood:
-		return true
+func (p savingThrowProgression) toRationalValue() (RationalValue, bool) {
+	switch p {
+	case SavingThrowPoor:
+		return NewRationalValue(1, 3)
+	case SavingThrowGood:
+		return NewRationalValue(1, 2)
 	default:
-		return false
+		return rationalValue{}, false
 	}
 }

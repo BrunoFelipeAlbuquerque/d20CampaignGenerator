@@ -41,6 +41,16 @@ func TestSizeGetSpaceAndReach_RespectsTallVsLongBodies(t *testing.T) {
 	}
 }
 
+func TestSizeGetSpaceAndReach_RejectInvalidBodyShapes(t *testing.T) {
+	if _, ok := LargeSize.GetSpace(BodyShape("Blob")); ok {
+		t.Fatal("expected invalid body shape to be rejected for space")
+	}
+
+	if _, ok := LargeSize.GetNaturalReach(BodyShape("Blob")); ok {
+		t.Fatal("expected invalid body shape to be rejected for reach")
+	}
+}
+
 func TestSizeGetTypicalRanges_ExposeImperialAndMetricValues(t *testing.T) {
 	mediumHeight, ok := MediumSize.GetTypicalHeightRange()
 	if !ok {
