@@ -56,38 +56,18 @@ func NewSpeed(
 	return profile, true
 }
 
-func (s speed) GetBurrow() (int, bool) {
-	return getOptionalSpeedValue(s.burrow)
-}
-
-func (s speed) GetClimb() (int, bool) {
-	return getOptionalSpeedValue(s.climb)
-}
-
-func (s speed) GetFly() (int, bool) {
-	return getOptionalSpeedValue(s.fly)
-}
-
-func (s speed) GetLand() (int, bool) {
-	return getOptionalSpeedValue(s.land)
-}
-
-func (s speed) GetSwim() (int, bool) {
-	return getOptionalSpeedValue(s.swim)
-}
-
 func (s speed) GetMovement(kind MovementType) (int, bool) {
 	switch kind {
 	case BurrowMovement:
-		return s.GetBurrow()
+		return getOptionalSpeedValue(s.burrow)
 	case ClimbMovement:
-		return s.GetClimb()
+		return getOptionalSpeedValue(s.climb)
 	case FlyMovement:
-		return s.GetFly()
+		return getOptionalSpeedValue(s.fly)
 	case LandMovement:
-		return s.GetLand()
+		return getOptionalSpeedValue(s.land)
 	case SwimMovement:
-		return s.GetSwim()
+		return getOptionalSpeedValue(s.swim)
 	default:
 		return 0, false
 	}
@@ -101,49 +81,8 @@ func (s speed) GetFlyManeuverability() (FlyManeuverability, bool) {
 	return s.flyManeuverability, true
 }
 
-func (s speed) HasMovement(kind MovementType) bool {
-	_, ok := s.GetMovement(kind)
-	return ok
-}
-
 func (s speed) IsImmovable() bool {
 	return s.land == 0 && s.burrow == 0 && s.climb == 0 && s.fly == 0 && s.swim == 0
-}
-
-func (s *speed) SetMovement(kind MovementType, value int) bool {
-	if value < 0 {
-		return false
-	}
-
-	switch kind {
-	case BurrowMovement:
-		s.burrow = value
-	case ClimbMovement:
-		s.climb = value
-	case FlyMovement:
-		if !isValidFlyConfiguration(value, s.flyManeuverability) {
-			return false
-		}
-		s.fly = value
-	case LandMovement:
-		s.land = value
-	case SwimMovement:
-		s.swim = value
-	default:
-		return false
-	}
-
-	return true
-}
-
-func (s *speed) SetFly(value int, maneuverability FlyManeuverability) bool {
-	if !isValidFlyConfiguration(value, maneuverability) {
-		return false
-	}
-
-	s.fly = value
-	s.flyManeuverability = maneuverability
-	return true
 }
 
 func (s speed) isValidBaseSpeeds() bool {
@@ -156,15 +95,6 @@ func getOptionalSpeedValue(value int) (int, bool) {
 	}
 
 	return value, true
-}
-
-func isValidMovementType(value MovementType) bool {
-	switch value {
-	case BurrowMovement, ClimbMovement, FlyMovement, LandMovement, SwimMovement:
-		return true
-	default:
-		return false
-	}
 }
 
 func isValidFlyManeuverability(value FlyManeuverability) bool {

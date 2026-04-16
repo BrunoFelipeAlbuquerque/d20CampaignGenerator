@@ -89,7 +89,7 @@ func TestExportedAbilityTypesAreUsableOutsidePackage(t *testing.T) {
 	}
 
 	var exportedSpeed ability.Speed = speed
-	flySpeed, ok := exportedSpeed.GetFly()
+	flySpeed, ok := exportedSpeed.GetMovement(ability.FlyMovement)
 	if !ok || flySpeed != 60 {
 		t.Fatalf("expected exported fly speed (60, true), got (%d, %t)", flySpeed, ok)
 	}
