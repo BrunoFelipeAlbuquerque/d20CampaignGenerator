@@ -15,16 +15,22 @@ type baseAttackBonus struct {
 }
 type BaseAttackBonus = baseAttackBonus
 
-func NewBaseAttackBonus(actualValue float64) BaseAttackBonus {
+func NewBaseAttackBonus(actualValue float64) (BaseAttackBonus, bool) {
 	bab := baseAttackBonus{}
-	bab.SetActualValue(actualValue)
-	return bab
+	if !bab.SetActualValue(actualValue) {
+		return baseAttackBonus{}, false
+	}
+
+	return bab, true
 }
 
-func NewBaseAttackBonusByClassLevel(level int, progression BaseAttackBonusProgression) BaseAttackBonus {
+func NewBaseAttackBonusByClassLevel(level int, progression BaseAttackBonusProgression) (BaseAttackBonus, bool) {
 	bab := baseAttackBonus{}
-	bab.SetByClassLevel(level, progression)
-	return bab
+	if !bab.SetByClassLevel(level, progression) {
+		return baseAttackBonus{}, false
+	}
+
+	return bab, true
 }
 
 func (b baseAttackBonus) GetActualValue() float64 {

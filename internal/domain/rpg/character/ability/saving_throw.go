@@ -27,22 +27,26 @@ type savingThrow struct {
 }
 type SavingThrow = savingThrow
 
-func NewSavingThrow(id SavingThrowID, actualValue float64) SavingThrow {
+func NewSavingThrow(id SavingThrowID, actualValue float64) (SavingThrow, bool) {
 	save := savingThrow{}
-	save.SetID(id)
-	save.SetActualValue(actualValue)
-	return save
+	if !save.SetID(id) || !save.SetActualValue(actualValue) {
+		return savingThrow{}, false
+	}
+
+	return save, true
 }
 
 func NewSavingThrowByClassLevel(
 	id SavingThrowID,
 	level int,
 	progression SavingThrowProgression,
-) SavingThrow {
+) (SavingThrow, bool) {
 	save := savingThrow{}
-	save.SetID(id)
-	save.SetByClassLevel(level, progression)
-	return save
+	if !save.SetID(id) || !save.SetByClassLevel(level, progression) {
+		return savingThrow{}, false
+	}
+
+	return save, true
 }
 
 func (s savingThrow) GetID() SavingThrowID {

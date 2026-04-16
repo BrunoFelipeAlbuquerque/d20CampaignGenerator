@@ -19,8 +19,8 @@ type casterLevel struct {
 }
 type CasterLevel = casterLevel
 
-func NewCasterLevel(arcane int, divine int, primal int) CasterLevel {
-	return casterLevel{
+func NewCasterLevel(arcane int, divine int, primal int) (CasterLevel, bool) {
+	level := casterLevel{
 		arcane:      arcane,
 		arcaneValid: true,
 		divine:      divine,
@@ -28,6 +28,12 @@ func NewCasterLevel(arcane int, divine int, primal int) CasterLevel {
 		primal:      primal,
 		primalValid: true,
 	}
+
+	if !isValidCasterLevel(level) {
+		return casterLevel{}, false
+	}
+
+	return level, true
 }
 
 func NewImpossibleCasterLevel() CasterLevel {

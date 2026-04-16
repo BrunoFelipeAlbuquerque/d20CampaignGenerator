@@ -32,12 +32,16 @@ func NewAbilityScoreValue(value int, valid bool) AbilityScoreValue {
 	}
 }
 
-func NewAbilityScore(id AbilityScoreID, value AbilityScoreValue) AbilityScore {
+func NewAbilityScore(id AbilityScoreID, value AbilityScoreValue) (AbilityScore, bool) {
+	if id.GetName() == "" {
+		return abilityScore{}, false
+	}
+
 	return abilityScore{
 		id:    id,
 		name:  id.GetName(),
 		value: value,
-	}
+	}, true
 }
 
 func (id abilityScoreID) GetName() string {

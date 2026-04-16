@@ -3,7 +3,10 @@ package ability
 import "testing"
 
 func TestNewBaseAttackBonus_PreservesActualAndRoundsDownValue(t *testing.T) {
-	bab := NewBaseAttackBonus(0.75)
+	bab, ok := NewBaseAttackBonus(0.75)
+	if !ok {
+		t.Fatal("expected BAB to be constructed")
+	}
 
 	if !almostEqual(bab.GetActualValue(), 0.75) {
 		t.Fatalf("expected actual BAB 0.75, got %.2f", bab.GetActualValue())
@@ -15,7 +18,10 @@ func TestNewBaseAttackBonus_PreservesActualAndRoundsDownValue(t *testing.T) {
 }
 
 func TestNewBaseAttackBonusByClassLevel_UsesFractionalClassProgression(t *testing.T) {
-	bab := NewBaseAttackBonusByClassLevel(2, BaseAttackBonusThreeQuarters)
+	bab, ok := NewBaseAttackBonusByClassLevel(2, BaseAttackBonusThreeQuarters)
+	if !ok {
+		t.Fatal("expected BAB to be constructed")
+	}
 
 	if !almostEqual(bab.GetActualValue(), 1.5) {
 		t.Fatalf("expected actual BAB 1.5, got %.2f", bab.GetActualValue())
@@ -27,7 +33,10 @@ func TestNewBaseAttackBonusByClassLevel_UsesFractionalClassProgression(t *testin
 }
 
 func TestBaseAttackBonusSetByClassLevel_RejectsInvalidProgression(t *testing.T) {
-	bab := NewBaseAttackBonus(1)
+	bab, ok := NewBaseAttackBonus(1)
+	if !ok {
+		t.Fatal("expected BAB to be constructed")
+	}
 
 	if ok := bab.SetByClassLevel(3, BaseAttackBonusProgression(0.6)); ok {
 		t.Fatal("expected invalid BAB progression to be rejected")
@@ -39,7 +48,14 @@ func TestBaseAttackBonusSetByClassLevel_RejectsInvalidProgression(t *testing.T) 
 }
 
 func TestBaseAttackBonusSetActualValue_RejectsNegativeValues(t *testing.T) {
-	bab := NewBaseAttackBonus(2.25)
+	bab, ok := NewBaseAttackBonus(2.25)
+	if !ok {
+		t.Fatal("expected BAB to be constructed")
+	}
+
+	if _, ok := NewBaseAttackBonus(-0.5); ok {
+		t.Fatal("expected invalid BAB constructor input to be rejected")
+	}
 
 	if ok := bab.SetActualValue(-0.5); ok {
 		t.Fatal("expected negative BAB to be rejected")

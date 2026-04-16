@@ -13,12 +13,23 @@ func almostEqual(a, b float64) bool {
 	return diff < epsilon
 }
 
+func mustNewAbilityScore(t *testing.T, id AbilityScoreID, value AbilityScoreValue) AbilityScore {
+	t.Helper()
+
+	score, ok := NewAbilityScore(id, value)
+	if !ok {
+		t.Fatalf("expected ability score %q to be constructed", id)
+	}
+
+	return score
+}
+
 // ==============================
 // CONSTRUCTOR
 // ==============================
 
 func TestNewAbilityScore_DerivesCanonicalMetadata(t *testing.T) {
-	score := NewAbilityScore(
+	score := mustNewAbilityScore(t,
 		StrengthScore,
 		abilityScoreValue{
 			value: 18,
@@ -45,7 +56,7 @@ func TestNewAbilityScore_DerivesCanonicalMetadata(t *testing.T) {
 }
 
 func TestNewAbilityScore_PreservesSuppressedStoredValue(t *testing.T) {
-	score := NewAbilityScore(
+	score := mustNewAbilityScore(t,
 		ConstitutionScore,
 		abilityScoreValue{
 			value: 14,
@@ -92,6 +103,12 @@ func TestAbilityScoreIDGetName_UnknownID(t *testing.T) {
 	}
 }
 
+func TestNewAbilityScore_RejectsUnknownID(t *testing.T) {
+	if _, ok := NewAbilityScore(AbilityScoreID("???"), abilityScoreValue{value: 10, valid: true}); ok {
+		t.Fatal("expected unknown ability score id to be rejected")
+	}
+}
+
 // ==============================
 // VALUE OBJECT
 // ==============================
@@ -125,7 +142,7 @@ func TestAbilityScoreValue_GettersAndSetters(t *testing.T) {
 // ==============================
 
 func TestAbilityScore_SetValue_ReplacesWholeValueObject(t *testing.T) {
-	score := NewAbilityScore(
+	score := mustNewAbilityScore(t,
 		DexterityScore,
 		abilityScoreValue{
 			value: 16,
@@ -145,7 +162,7 @@ func TestAbilityScore_SetValue_ReplacesWholeValueObject(t *testing.T) {
 }
 
 func TestAbilityScore_SetScoreValue_UpdatesStoredValueWithoutChangingState(t *testing.T) {
-	score := NewAbilityScore(
+	score := mustNewAbilityScore(t,
 		WisdomScore,
 		abilityScoreValue{
 			value: 12,
@@ -166,7 +183,7 @@ func TestAbilityScore_SetScoreValue_UpdatesStoredValueWithoutChangingState(t *te
 }
 
 func TestAbilityScore_SetValueValidity_TogglesAvailabilityWithoutErasingStoredValue(t *testing.T) {
-	score := NewAbilityScore(
+	score := mustNewAbilityScore(t,
 		ConstitutionScore,
 		abilityScoreValue{
 			value: 14,
@@ -198,7 +215,7 @@ func TestAbilityScore_SetValueValidity_TogglesAvailabilityWithoutErasingStoredVa
 // ==============================
 
 func TestAbilityScore_GetModifier_WhenScoreIsSuppressed(t *testing.T) {
-	score := NewAbilityScore(
+	score := mustNewAbilityScore(t,
 		ConstitutionScore,
 		abilityScoreValue{
 			value: 18,
@@ -217,7 +234,7 @@ func TestAbilityScore_GetModifier_WhenScoreIsSuppressed(t *testing.T) {
 }
 
 func TestAbilityScore_GetModifier_ZeroScoreStillExists(t *testing.T) {
-	score := NewAbilityScore(
+	score := mustNewAbilityScore(t,
 		ConstitutionScore,
 		abilityScoreValue{
 			value: 0,
@@ -236,7 +253,7 @@ func TestAbilityScore_GetModifier_ZeroScoreStillExists(t *testing.T) {
 }
 
 func TestAbilityScore_GetModifier_RestoresAfterSuppressionEnds(t *testing.T) {
-	score := NewAbilityScore(
+	score := mustNewAbilityScore(t,
 		ConstitutionScore,
 		abilityScoreValue{
 			value: 14,
@@ -296,7 +313,7 @@ func TestCalculateAbilityModifier_Table(t *testing.T) {
 // ==============================
 
 func TestAbilityScore_GetCarryingCapacity_StrengthOnly(t *testing.T) {
-	score := NewAbilityScore(
+	score := mustNewAbilityScore(t,
 		DexterityScore,
 		abilityScoreValue{
 			value: 18,
@@ -310,7 +327,7 @@ func TestAbilityScore_GetCarryingCapacity_StrengthOnly(t *testing.T) {
 }
 
 func TestAbilityScore_GetCarryingCapacity_SuppressedStrength(t *testing.T) {
-	score := NewAbilityScore(
+	score := mustNewAbilityScore(t,
 		StrengthScore,
 		abilityScoreValue{
 			value: 18,
@@ -324,7 +341,7 @@ func TestAbilityScore_GetCarryingCapacity_SuppressedStrength(t *testing.T) {
 }
 
 func TestAbilityScore_GetCarryingCapacity_ZeroStrength(t *testing.T) {
-	score := NewAbilityScore(
+	score := mustNewAbilityScore(t,
 		StrengthScore,
 		abilityScoreValue{
 			value: 0,
@@ -366,7 +383,7 @@ func TestAbilityScore_GetCarryingCapacity_ZeroStrength(t *testing.T) {
 }
 
 func TestAbilityScore_GetCarryingCapacity_UsesMetricStrengthTable(t *testing.T) {
-	score := NewAbilityScore(
+	score := mustNewAbilityScore(t,
 		StrengthScore,
 		abilityScoreValue{
 			value: 18,
@@ -424,7 +441,7 @@ func TestAbilityScore_GetCarryingCapacity_UsesMetricStrengthTable(t *testing.T) 
 }
 
 func TestAbilityScore_GetCarryingCapacity_PlusTenMultipliesByFour(t *testing.T) {
-	score := NewAbilityScore(
+	score := mustNewAbilityScore(t,
 		StrengthScore,
 		abilityScoreValue{
 			value: 39,
@@ -486,7 +503,7 @@ func TestAbilityScore_GetCarryingCapacity_PlusTenMultipliesByFour(t *testing.T) 
 // ==============================
 
 func TestAbilityScore_GetSpellcastingProfile_SuppressedScore(t *testing.T) {
-	score := NewAbilityScore(
+	score := mustNewAbilityScore(t,
 		IntelligenceScore,
 		abilityScoreValue{
 			value: 18,
@@ -500,7 +517,7 @@ func TestAbilityScore_GetSpellcastingProfile_SuppressedScore(t *testing.T) {
 }
 
 func TestAbilityScore_GetSpellcastingProfile_LowCastingScore(t *testing.T) {
-	score := NewAbilityScore(
+	score := mustNewAbilityScore(t,
 		WisdomScore,
 		abilityScoreValue{
 			value: 10,
@@ -523,7 +540,7 @@ func TestAbilityScore_GetSpellcastingProfile_LowCastingScore(t *testing.T) {
 }
 
 func TestAbilityScore_GetSpellcastingProfile_TracksMaxSpellLevelFromScore(t *testing.T) {
-	score := NewAbilityScore(
+	score := mustNewAbilityScore(t,
 		CharismaScore,
 		abilityScoreValue{
 			value: 12,
@@ -550,7 +567,7 @@ func TestAbilityScore_GetSpellcastingProfile_TracksMaxSpellLevelFromScore(t *tes
 }
 
 func TestSpellcastingAbilityProfile_GetBonusSpells_TableProgression(t *testing.T) {
-	score := NewAbilityScore(
+	score := mustNewAbilityScore(t,
 		IntelligenceScore,
 		abilityScoreValue{
 			value: 20,

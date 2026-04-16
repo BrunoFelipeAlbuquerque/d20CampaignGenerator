@@ -8,10 +8,31 @@ import (
 
 func TestExportedAbilityTypesAreUsableOutsidePackage(t *testing.T) {
 	value := ability.NewAbilityScoreValue(18, true)
-	score := ability.NewAbilityScore(ability.StrengthScore, value)
-	bab := ability.NewBaseAttackBonusByClassLevel(2, ability.BaseAttackBonusThreeQuarters)
-	save := ability.NewSavingThrowByClassLevel(ability.FortitudeSave, 1, ability.SavingThrowGood)
-	casterLevel := ability.NewCasterLevel(5, 0, 0)
+	score, ok := ability.NewAbilityScore(ability.StrengthScore, value)
+	if !ok {
+		t.Fatal("expected ability score to be constructed")
+	}
+	bab, ok := ability.NewBaseAttackBonusByClassLevel(2, ability.BaseAttackBonusThreeQuarters)
+	if !ok {
+		t.Fatal("expected BAB to be constructed")
+	}
+	save, ok := ability.NewSavingThrowByClassLevel(ability.FortitudeSave, 1, ability.SavingThrowGood)
+	if !ok {
+		t.Fatal("expected saving throw to be constructed")
+	}
+	casterLevel, ok := ability.NewCasterLevel(5, 0, 0)
+	if !ok {
+		t.Fatal("expected caster level to be constructed")
+	}
+	hd, ok := ability.NewHitDie(0, 1, 0, 0)
+	if !ok {
+		t.Fatal("expected hit die to be constructed")
+	}
+	hp, ok := ability.NewStandardHitPoints(hd, 12)
+	if !ok {
+		t.Fatal("expected hit points to be constructed")
+	}
+	creatureSize := ability.HugeSize
 
 	var exportedID ability.AbilityScoreID = score.GetID()
 	if exportedID != ability.StrengthScore {
@@ -48,6 +69,26 @@ func TestExportedAbilityTypesAreUsableOutsidePackage(t *testing.T) {
 
 	if arcaneCasterLevel != 5 {
 		t.Fatalf("expected exported arcane caster level 5, got %d", arcaneCasterLevel)
+	}
+
+	var exportedHD ability.HitDie = hd
+	if exportedHD.GetAverageBaseHP() != 5 {
+		t.Fatalf("expected exported average base HP 5, got %d", exportedHD.GetAverageBaseHP())
+	}
+
+	var exportedHP ability.HitPoints = hp
+	if exportedHP.GetTotal() != 6 {
+		t.Fatalf("expected exported HP total 6, got %d", exportedHP.GetTotal())
+	}
+
+	var exportedSize ability.Size = creatureSize
+	sizeModifier, ok := exportedSize.GetModifier()
+	if !ok {
+		t.Fatal("expected exported size modifier to be available")
+	}
+
+	if sizeModifier != -2 {
+		t.Fatalf("expected exported size modifier -2, got %d", sizeModifier)
 	}
 
 	var exportedCapacity ability.StrengthCarryingCapacity = capacity

@@ -3,7 +3,10 @@ package ability
 import "testing"
 
 func TestNewCasterLevel_PreservesThreePresentPillars(t *testing.T) {
-	level := NewCasterLevel(4, 2, 7)
+	level, ok := NewCasterLevel(4, 2, 7)
+	if !ok {
+		t.Fatal("expected caster level to be constructed")
+	}
 
 	arcane, arcaneValid := level.GetArcane()
 	divine, divineValid := level.GetDivine()
@@ -36,7 +39,10 @@ func TestNewImpossibleCasterLevel_MarksAllPillarsAsUnavailable(t *testing.T) {
 }
 
 func TestCasterLevelGetCasterLevel_ReturnsWholeValueObject(t *testing.T) {
-	level := NewCasterLevel(3, 5, 1)
+	level, ok := NewCasterLevel(3, 5, 1)
+	if !ok {
+		t.Fatal("expected caster level to be constructed")
+	}
 	got := level.GetCasterLevel()
 
 	arcane, arcaneValid := got.GetArcane()
@@ -54,7 +60,10 @@ func TestCasterLevelGetCasterLevel_ReturnsWholeValueObject(t *testing.T) {
 }
 
 func TestCasterLevelSetters_RejectNegativeValues(t *testing.T) {
-	level := NewCasterLevel(1, 2, 3)
+	level, ok := NewCasterLevel(1, 2, 3)
+	if !ok {
+		t.Fatal("expected caster level to be constructed")
+	}
 
 	if ok := level.SetArcaneCasterLevel(-1); ok {
 		t.Fatal("expected negative arcane caster level to be rejected")
@@ -78,7 +87,10 @@ func TestCasterLevelSetters_RejectNegativeValues(t *testing.T) {
 }
 
 func TestCasterLevelDisablePillar_MakesItUnavailable(t *testing.T) {
-	level := NewCasterLevel(1, 4, 2)
+	level, ok := NewCasterLevel(1, 4, 2)
+	if !ok {
+		t.Fatal("expected caster level to be constructed")
+	}
 
 	level.DisableDivineCasterLevel()
 
@@ -88,7 +100,10 @@ func TestCasterLevelDisablePillar_MakesItUnavailable(t *testing.T) {
 }
 
 func TestCasterLevelSetCasterLevel_ReplacesWholeValueObject(t *testing.T) {
-	level := NewCasterLevel(0, 0, 0)
+	level, ok := NewCasterLevel(0, 0, 0)
+	if !ok {
+		t.Fatal("expected caster level to be constructed")
+	}
 	replacement := NewImpossibleCasterLevel()
 	replacement.SetDivineCasterLevel(4)
 
@@ -159,7 +174,10 @@ func TestCasterLevelAddSpecificPillars_KeepPillarsIndependent(t *testing.T) {
 }
 
 func TestCasterLevelSetCasterLevel_RejectsNegativeWholeValue(t *testing.T) {
-	level := NewCasterLevel(1, 1, 1)
+	level, ok := NewCasterLevel(1, 1, 1)
+	if !ok {
+		t.Fatal("expected caster level to be constructed")
+	}
 
 	invalid := CasterLevel{
 		arcane:      -1,
@@ -179,7 +197,10 @@ func TestCasterLevelSetCasterLevel_RejectsNegativeWholeValue(t *testing.T) {
 }
 
 func TestCasterLevelAddSpecificPillars_RejectNegativeValues(t *testing.T) {
-	level := NewCasterLevel(2, 2, 2)
+	level, ok := NewCasterLevel(2, 2, 2)
+	if !ok {
+		t.Fatal("expected caster level to be constructed")
+	}
 
 	if ok := level.AddArcaneCasterLevel(-1); ok {
 		t.Fatal("expected negative caster level contribution to be rejected")
@@ -190,5 +211,11 @@ func TestCasterLevelAddSpecificPillars_RejectNegativeValues(t *testing.T) {
 	primal, _ := level.GetPrimal()
 	if arcane != 2 || divine != 2 || primal != 2 {
 		t.Fatalf("expected pillars to remain unchanged, got (%d, %d, %d)", arcane, divine, primal)
+	}
+}
+
+func TestNewCasterLevel_RejectsNegativeConstructorValues(t *testing.T) {
+	if _, ok := NewCasterLevel(-1, 0, 0); ok {
+		t.Fatal("expected invalid caster level to be rejected")
 	}
 }

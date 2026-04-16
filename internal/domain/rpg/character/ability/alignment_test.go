@@ -3,7 +3,10 @@ package ability
 import "testing"
 
 func TestNewAlignment_UsesValidAxes(t *testing.T) {
-	alignment := NewAlignment(OrderLawful, MoralityGood)
+	alignment, ok := NewAlignment(OrderLawful, MoralityGood)
+	if !ok {
+		t.Fatal("expected alignment to be constructed")
+	}
 
 	orderAxis, moralityAxis := alignment.GetAlignment()
 	if orderAxis != OrderLawful || moralityAxis != MoralityGood {
@@ -11,17 +14,17 @@ func TestNewAlignment_UsesValidAxes(t *testing.T) {
 	}
 }
 
-func TestNewAlignment_InvalidValuesProduceZeroAlignment(t *testing.T) {
-	alignment := NewAlignment(OrderAxis("Sideways"), MoralityGood)
-
-	orderAxis, moralityAxis := alignment.GetAlignment()
-	if orderAxis != "" || moralityAxis != "" {
-		t.Fatalf("expected zero alignment, got (%q, %q)", orderAxis, moralityAxis)
+func TestNewAlignment_InvalidValuesAreRejected(t *testing.T) {
+	if _, ok := NewAlignment(OrderAxis("Sideways"), MoralityGood); ok {
+		t.Fatal("expected invalid alignment to be rejected")
 	}
 }
 
 func TestAlignmentGetAlignmentName_ReturnsNeutralForTrueNeutral(t *testing.T) {
-	alignment := NewAlignment(OrderNeutral, MoralityNeutral)
+	alignment, ok := NewAlignment(OrderNeutral, MoralityNeutral)
+	if !ok {
+		t.Fatal("expected alignment to be constructed")
+	}
 
 	if got := alignment.GetAlignmentName(); got != "Neutral" {
 		t.Fatalf("expected Neutral, got %q", got)
@@ -29,7 +32,10 @@ func TestAlignmentGetAlignmentName_ReturnsNeutralForTrueNeutral(t *testing.T) {
 }
 
 func TestAlignmentGetAlignmentName_FormatsNonNeutralPairs(t *testing.T) {
-	alignment := NewAlignment(OrderChaotic, MoralityGood)
+	alignment, ok := NewAlignment(OrderChaotic, MoralityGood)
+	if !ok {
+		t.Fatal("expected alignment to be constructed")
+	}
 
 	if got := alignment.GetAlignmentName(); got != "Chaotic Good" {
 		t.Fatalf("expected Chaotic Good, got %q", got)
@@ -37,7 +43,10 @@ func TestAlignmentGetAlignmentName_FormatsNonNeutralPairs(t *testing.T) {
 }
 
 func TestAlignmentSetAlignment_RejectsInvalidPair(t *testing.T) {
-	alignment := NewAlignment(OrderLawful, MoralityGood)
+	alignment, ok := NewAlignment(OrderLawful, MoralityGood)
+	if !ok {
+		t.Fatal("expected alignment to be constructed")
+	}
 
 	if ok := alignment.SetAlignment(OrderAxis("Sideways"), MoralityEvil); ok {
 		t.Fatal("expected invalid alignment update to be rejected")
@@ -50,7 +59,10 @@ func TestAlignmentSetAlignment_RejectsInvalidPair(t *testing.T) {
 }
 
 func TestAlignmentSetOrderAxis_RejectsInvalidValue(t *testing.T) {
-	alignment := NewAlignment(OrderLawful, MoralityNeutral)
+	alignment, ok := NewAlignment(OrderLawful, MoralityNeutral)
+	if !ok {
+		t.Fatal("expected alignment to be constructed")
+	}
 
 	if ok := alignment.SetOrderAxis(OrderAxis("Sideways")); ok {
 		t.Fatal("expected invalid order axis to be rejected")
@@ -62,7 +74,10 @@ func TestAlignmentSetOrderAxis_RejectsInvalidValue(t *testing.T) {
 }
 
 func TestAlignmentSetMoralityAxis_RejectsInvalidValue(t *testing.T) {
-	alignment := NewAlignment(OrderNeutral, MoralityGood)
+	alignment, ok := NewAlignment(OrderNeutral, MoralityGood)
+	if !ok {
+		t.Fatal("expected alignment to be constructed")
+	}
 
 	if ok := alignment.SetMoralityAxis(MoralityAxis("KindOfGood")); ok {
 		t.Fatal("expected invalid morality axis to be rejected")

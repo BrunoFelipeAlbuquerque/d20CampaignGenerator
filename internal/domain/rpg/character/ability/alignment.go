@@ -21,10 +21,13 @@ type alignment struct {
 }
 type Alignment = alignment
 
-func NewAlignment(orderAxis OrderAxis, moralityAxis MoralityAxis) alignment {
-	alignment := alignment{}
-	alignment.SetAlignment(orderAxis, moralityAxis)
-	return alignment
+func NewAlignment(orderAxis OrderAxis, moralityAxis MoralityAxis) (Alignment, bool) {
+	value := alignment{}
+	if !value.SetAlignment(orderAxis, moralityAxis) {
+		return alignment{}, false
+	}
+
+	return value, true
 }
 
 func (a alignment) GetAlignmentName() string {
