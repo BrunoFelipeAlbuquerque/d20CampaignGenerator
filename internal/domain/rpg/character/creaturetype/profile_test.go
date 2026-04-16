@@ -11,6 +11,7 @@ func TestNewCreatureTypeProfile_UsesRacialHDMetadata(t *testing.T) {
 		ability.D10HitDie,
 		ability.BaseAttackBonusFull,
 		[]ability.SavingThrowID{ability.FortitudeSave, ability.ReflexSave},
+		0,
 		2,
 		ability.StandardHitPoints,
 		[]CreatureTypeTraitID{Darkvision60Trait, LowLightVisionTrait},
@@ -35,9 +36,13 @@ func TestNewCreatureTypeProfile_UsesRacialHDMetadata(t *testing.T) {
 		t.Fatalf("expected hit point kind %q, got %q", ability.StandardHitPoints, profile.GetHitPointKind())
 	}
 
-	goodSaves := profile.GetGoodSaves()
-	if len(goodSaves) != 2 || goodSaves[0] != ability.FortitudeSave || goodSaves[1] != ability.ReflexSave {
-		t.Fatalf("expected good saves [Fortitude Reflex], got %v", goodSaves)
+	fixedGoodSaves := profile.GetFixedGoodSaves()
+	if len(fixedGoodSaves) != 2 || fixedGoodSaves[0] != ability.FortitudeSave || fixedGoodSaves[1] != ability.ReflexSave {
+		t.Fatalf("expected fixed good saves [Fortitude Reflex], got %v", fixedGoodSaves)
+	}
+
+	if profile.GetSelectableGoodSaveCount() != 0 {
+		t.Fatalf("expected selectable good save count 0, got %d", profile.GetSelectableGoodSaveCount())
 	}
 
 	if !profile.HasTrait(Darkvision60Trait) {
@@ -50,6 +55,7 @@ func TestNewCreatureTypeProfile_DedupesSavesAndTraits(t *testing.T) {
 		ability.D8HitDie,
 		ability.BaseAttackBonusThreeQuarters,
 		[]ability.SavingThrowID{ability.WillSave, ability.WillSave},
+		0,
 		4,
 		ability.StandardHitPoints,
 		[]CreatureTypeTraitID{Darkvision60Trait, Darkvision60Trait, BreatheEatSleepTrait},
@@ -58,8 +64,8 @@ func TestNewCreatureTypeProfile_DedupesSavesAndTraits(t *testing.T) {
 		t.Fatal("expected creature type profile to be constructed")
 	}
 
-	if len(profile.GetGoodSaves()) != 1 {
-		t.Fatalf("expected deduped good saves length 1, got %d", len(profile.GetGoodSaves()))
+	if len(profile.GetFixedGoodSaves()) != 1 {
+		t.Fatalf("expected deduped fixed good saves length 1, got %d", len(profile.GetFixedGoodSaves()))
 	}
 
 	if len(profile.GetTraitIDs()) != 2 {
@@ -72,6 +78,7 @@ func TestNewCreatureTypeProfile_RejectsInvalidInputs(t *testing.T) {
 		ability.HitDieType("d20"),
 		ability.BaseAttackBonusFull,
 		nil,
+		0,
 		2,
 		ability.StandardHitPoints,
 		nil,
@@ -83,6 +90,7 @@ func TestNewCreatureTypeProfile_RejectsInvalidInputs(t *testing.T) {
 		ability.D8HitDie,
 		ability.BaseAttackBonusProgression("2/1"),
 		nil,
+		0,
 		2,
 		ability.StandardHitPoints,
 		nil,
@@ -94,6 +102,7 @@ func TestNewCreatureTypeProfile_RejectsInvalidInputs(t *testing.T) {
 		ability.D8HitDie,
 		ability.BaseAttackBonusThreeQuarters,
 		[]ability.SavingThrowID{ability.SavingThrowID("Luck")},
+		0,
 		2,
 		ability.StandardHitPoints,
 		nil,
@@ -105,6 +114,7 @@ func TestNewCreatureTypeProfile_RejectsInvalidInputs(t *testing.T) {
 		ability.D8HitDie,
 		ability.BaseAttackBonusThreeQuarters,
 		nil,
+		0,
 		-1,
 		ability.StandardHitPoints,
 		nil,
@@ -116,6 +126,7 @@ func TestNewCreatureTypeProfile_RejectsInvalidInputs(t *testing.T) {
 		ability.D8HitDie,
 		ability.BaseAttackBonusThreeQuarters,
 		nil,
+		0,
 		2,
 		ability.HitPointKind("Vehicle"),
 		nil,
@@ -127,11 +138,24 @@ func TestNewCreatureTypeProfile_RejectsInvalidInputs(t *testing.T) {
 		ability.D8HitDie,
 		ability.BaseAttackBonusThreeQuarters,
 		nil,
+		0,
 		2,
 		ability.StandardHitPoints,
 		[]CreatureTypeTraitID{CreatureTypeTraitID("FastHealing")},
 	); ok {
 		t.Fatal("expected invalid trait id to be rejected")
+	}
+
+	if _, ok := NewCreatureTypeProfile(
+		ability.D8HitDie,
+		ability.BaseAttackBonusThreeQuarters,
+		[]ability.SavingThrowID{ability.WillSave, ability.ReflexSave},
+		2,
+		2,
+		ability.StandardHitPoints,
+		nil,
+	); ok {
+		t.Fatal("expected impossible good save metadata to be rejected")
 	}
 }
 
@@ -167,12 +191,12 @@ func TestGetCreatureTypeProfile_ReturnsCoreProfiles(t *testing.T) {
 		t.Fatal("expected humanoid profile to exist")
 	}
 
-	if len(humanoid.GetGoodSaves()) != 0 {
-		t.Fatalf("expected humanoid fixed good saves to be empty, got %v", humanoid.GetGoodSaves())
+	if len(humanoid.GetFixedGoodSaves()) != 0 {
+		t.Fatalf("expected humanoid fixed good saves to be empty, got %v", humanoid.GetFixedGoodSaves())
 	}
 
-	if !humanoid.HasTrait(OneGoodSaveChoiceTrait) {
-		t.Fatal("expected humanoid to carry one-good-save choice trait")
+	if humanoid.GetSelectableGoodSaveCount() != 1 {
+		t.Fatalf("expected humanoid selectable good save count 1, got %d", humanoid.GetSelectableGoodSaveCount())
 	}
 
 	outsider, ok := GetCreatureTypeProfile(OutsiderType)
@@ -180,12 +204,12 @@ func TestGetCreatureTypeProfile_ReturnsCoreProfiles(t *testing.T) {
 		t.Fatal("expected outsider profile to exist")
 	}
 
-	if len(outsider.GetGoodSaves()) != 0 {
-		t.Fatalf("expected outsider fixed good saves to be empty, got %v", outsider.GetGoodSaves())
+	if len(outsider.GetFixedGoodSaves()) != 0 {
+		t.Fatalf("expected outsider fixed good saves to be empty, got %v", outsider.GetFixedGoodSaves())
 	}
 
-	if !outsider.HasTrait(TwoGoodSaveChoicesTrait) {
-		t.Fatal("expected outsider to carry two-good-saves choice trait")
+	if outsider.GetSelectableGoodSaveCount() != 2 {
+		t.Fatalf("expected outsider selectable good save count 2, got %d", outsider.GetSelectableGoodSaveCount())
 	}
 }
 

@@ -24,11 +24,15 @@ const (
 	ImmunityPolymorphTrait        CreatureTypeTraitID = "ImmunityPolymorph"
 	ImmunityDiseaseTrait          CreatureTypeTraitID = "ImmunityDisease"
 	ImmunityDeathEffectsTrait     CreatureTypeTraitID = "ImmunityDeathEffects"
-	OneGoodSaveChoiceTrait        CreatureTypeTraitID = "OneGoodSaveChoice"
-	TwoGoodSaveChoicesTrait       CreatureTypeTraitID = "TwoGoodSaveChoices"
+	BreathesWaterTrait            CreatureTypeTraitID = "BreathesWater"
+	SwimWithoutChecksTrait        CreatureTypeTraitID = "SwimWithoutChecks"
+	SwimAlwaysClassSkillTrait     CreatureTypeTraitID = "SwimAlwaysClassSkill"
+	ImmunityBleedTrait            CreatureTypeTraitID = "ImmunityBleed"
+	NotSubjectToFlankingTrait     CreatureTypeTraitID = "NotSubjectToFlanking"
+	PrecisionDamageImmuneTrait    CreatureTypeTraitID = "PrecisionDamageImmune"
 )
 
-func isValidCreatureTypeTraitID(value CreatureTypeTraitID) bool {
+func isValidCoreTraitID(value CreatureTypeTraitID) bool {
 	switch value {
 	case Darkvision60Trait,
 		LowLightVisionTrait,
@@ -49,9 +53,25 @@ func isValidCreatureTypeTraitID(value CreatureTypeTraitID) bool {
 		ImmunityStunTrait,
 		ImmunityPolymorphTrait,
 		ImmunityDiseaseTrait,
-		ImmunityDeathEffectsTrait,
-		OneGoodSaveChoiceTrait,
-		TwoGoodSaveChoicesTrait:
+		ImmunityDeathEffectsTrait:
+		return true
+	default:
+		return false
+	}
+}
+
+func isValidResolvedTraitID(value CreatureTypeTraitID) bool {
+	if isValidCoreTraitID(value) {
+		return true
+	}
+
+	switch value {
+	case BreathesWaterTrait,
+		SwimWithoutChecksTrait,
+		SwimAlwaysClassSkillTrait,
+		ImmunityBleedTrait,
+		NotSubjectToFlankingTrait,
+		PrecisionDamageImmuneTrait:
 		return true
 	default:
 		return false

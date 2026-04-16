@@ -12,14 +12,15 @@ const (
 )
 
 type resolvedCreatureRules struct {
-	hitDieType       ability.HitDieType
-	babProgression   ability.BaseAttackBonusProgression
-	goodSaves        []ability.SavingThrowID
-	skillPointsPerHD int
-	hitPointKind     ability.HitPointKind
-	traitIDs         []CreatureTypeTraitID
-	contextualFlags  []ResolvedCreatureRuleFlag
-	augmentedFrom    *CreatureTypeID
+	hitDieType              ability.HitDieType
+	babProgression          ability.BaseAttackBonusProgression
+	fixedGoodSaves          []ability.SavingThrowID
+	selectableGoodSaveCount int
+	skillPointsPerHD        int
+	hitPointKind            ability.HitPointKind
+	traitIDs                []CreatureTypeTraitID
+	contextualFlags         []ResolvedCreatureRuleFlag
+	augmentedFrom           *CreatureTypeID
 }
 
 type ResolvedCreatureRules = resolvedCreatureRules
@@ -32,8 +33,12 @@ func (r resolvedCreatureRules) GetBABProgression() ability.BaseAttackBonusProgre
 	return r.babProgression
 }
 
-func (r resolvedCreatureRules) GetGoodSaves() []ability.SavingThrowID {
-	return append([]ability.SavingThrowID(nil), r.goodSaves...)
+func (r resolvedCreatureRules) GetFixedGoodSaves() []ability.SavingThrowID {
+	return append([]ability.SavingThrowID(nil), r.fixedGoodSaves...)
+}
+
+func (r resolvedCreatureRules) GetSelectableGoodSaveCount() int {
+	return r.selectableGoodSaveCount
 }
 
 func (r resolvedCreatureRules) GetSkillPointsPerHD() int {

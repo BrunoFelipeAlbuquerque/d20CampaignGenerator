@@ -3,12 +3,13 @@ package creaturetype
 import ability "d20campaigngenerator/internal/domain/rpg/character/ability"
 
 type creatureTypeProfile struct {
-	hitDieType       ability.HitDieType
-	babProgression   ability.BaseAttackBonusProgression
-	goodSaves        []ability.SavingThrowID
-	skillPointsPerHD int
-	hitPointKind     ability.HitPointKind
-	traitIDs         []CreatureTypeTraitID
+	hitDieType              ability.HitDieType
+	babProgression          ability.BaseAttackBonusProgression
+	fixedGoodSaves          []ability.SavingThrowID
+	selectableGoodSaveCount int
+	skillPointsPerHD        int
+	hitPointKind            ability.HitPointKind
+	traitIDs                []CreatureTypeTraitID
 }
 
 type CreatureTypeProfile = creatureTypeProfile
@@ -16,7 +17,8 @@ type CreatureTypeProfile = creatureTypeProfile
 func NewCreatureTypeProfile(
 	hitDieType ability.HitDieType,
 	babProgression ability.BaseAttackBonusProgression,
-	goodSaves []ability.SavingThrowID,
+	fixedGoodSaves []ability.SavingThrowID,
+	selectableGoodSaveCount int,
 	skillPointsPerHD int,
 	hitPointKind ability.HitPointKind,
 	traitIDs []CreatureTypeTraitID,
@@ -28,23 +30,28 @@ func NewCreatureTypeProfile(
 		return creatureTypeProfile{}, false
 	}
 
-	dedupedSaves, ok := dedupeGoodSaves(goodSaves)
+	dedupedFixedGoodSaves, ok := dedupeGoodSaves(fixedGoodSaves)
 	if !ok {
 		return creatureTypeProfile{}, false
 	}
 
-	dedupedTraits, ok := dedupeTraitIDs(traitIDs)
+	if !isValidGoodSaveMetadata(dedupedFixedGoodSaves, selectableGoodSaveCount) {
+		return creatureTypeProfile{}, false
+	}
+
+	dedupedTraits, ok := dedupeCoreTraitIDs(traitIDs)
 	if !ok {
 		return creatureTypeProfile{}, false
 	}
 
 	return creatureTypeProfile{
-		hitDieType:       hitDieType,
-		babProgression:   babProgression,
-		goodSaves:        dedupedSaves,
-		skillPointsPerHD: skillPointsPerHD,
-		hitPointKind:     hitPointKind,
-		traitIDs:         dedupedTraits,
+		hitDieType:              hitDieType,
+		babProgression:          babProgression,
+		fixedGoodSaves:          dedupedFixedGoodSaves,
+		selectableGoodSaveCount: selectableGoodSaveCount,
+		skillPointsPerHD:        skillPointsPerHD,
+		hitPointKind:            hitPointKind,
+		traitIDs:                dedupedTraits,
 	}, true
 }
 
@@ -56,8 +63,12 @@ func (p creatureTypeProfile) GetBABProgression() ability.BaseAttackBonusProgress
 	return p.babProgression
 }
 
-func (p creatureTypeProfile) GetGoodSaves() []ability.SavingThrowID {
-	return append([]ability.SavingThrowID(nil), p.goodSaves...)
+func (p creatureTypeProfile) GetFixedGoodSaves() []ability.SavingThrowID {
+	return append([]ability.SavingThrowID(nil), p.fixedGoodSaves...)
+}
+
+func (p creatureTypeProfile) GetSelectableGoodSaveCount() int {
+	return p.selectableGoodSaveCount
 }
 
 func (p creatureTypeProfile) GetSkillPointsPerHD() int {
@@ -80,6 +91,14 @@ func (p creatureTypeProfile) HasTrait(traitID CreatureTypeTraitID) bool {
 	}
 
 	return false
+}
+
+func isValidGoodSaveMetadata(fixedGoodSaves []ability.SavingThrowID, selectableGoodSaveCount int) bool {
+	if selectableGoodSaveCount < 0 || selectableGoodSaveCount > 3 {
+		return false
+	}
+
+	return len(fixedGoodSaves)+selectableGoodSaveCount <= 3
 }
 
 func dedupeGoodSaves(goodSaves []ability.SavingThrowID) ([]ability.SavingThrowID, bool) {
@@ -106,7 +125,7 @@ func dedupeGoodSaves(goodSaves []ability.SavingThrowID) ([]ability.SavingThrowID
 	return deduped, true
 }
 
-func dedupeTraitIDs(traitIDs []CreatureTypeTraitID) ([]CreatureTypeTraitID, bool) {
+func dedupeCoreTraitIDs(traitIDs []CreatureTypeTraitID) ([]CreatureTypeTraitID, bool) {
 	if len(traitIDs) == 0 {
 		return nil, true
 	}
@@ -115,7 +134,7 @@ func dedupeTraitIDs(traitIDs []CreatureTypeTraitID) ([]CreatureTypeTraitID, bool
 	deduped := make([]CreatureTypeTraitID, 0, len(traitIDs))
 
 	for _, traitID := range traitIDs {
-		if !isValidCreatureTypeTraitID(traitID) {
+		if !isValidCoreTraitID(traitID) {
 			return nil, false
 		}
 

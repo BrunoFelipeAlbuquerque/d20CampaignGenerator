@@ -42,6 +42,16 @@ func TestNewCreatureClassification_RejectsInvalidBaseType(t *testing.T) {
 	}
 }
 
+func TestNewCreatureClassification_RejectsInvalidSubtype(t *testing.T) {
+	if _, ok := NewCreatureClassification(
+		AnimalType,
+		[]CreatureSubtypeID{CreatureSubtypeID("Vehicle")},
+		nil,
+	); ok {
+		t.Fatal("expected invalid subtype to be rejected")
+	}
+}
+
 func TestNewCreatureClassification_DedupesSubtypes(t *testing.T) {
 	classification, ok := NewCreatureClassification(
 		AnimalType,

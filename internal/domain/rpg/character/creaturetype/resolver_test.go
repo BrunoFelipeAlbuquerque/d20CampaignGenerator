@@ -12,12 +12,7 @@ func TestResolveCreatureRules_UsesBaseProfileWithoutSubtypeEffects(t *testing.T)
 		t.Fatal("expected classification to be constructed")
 	}
 
-	baseProfile, ok := GetCreatureTypeProfile(AnimalType)
-	if !ok {
-		t.Fatal("expected animal profile to exist")
-	}
-
-	rules, ok := ResolveCreatureRules(classification, baseProfile)
+	rules, ok := ResolveCreatureRules(classification)
 	if !ok {
 		t.Fatal("expected creature rules to resolve")
 	}
@@ -34,12 +29,16 @@ func TestResolveCreatureRules_UsesBaseProfileWithoutSubtypeEffects(t *testing.T)
 		t.Fatalf("expected hit point kind %q, got %q", ability.StandardHitPoints, rules.GetHitPointKind())
 	}
 
+	if len(rules.GetFixedGoodSaves()) != 2 {
+		t.Fatalf("expected 2 fixed good saves, got %d", len(rules.GetFixedGoodSaves()))
+	}
+
 	if !rules.HasTrait(LowLightVisionTrait) {
 		t.Fatal("expected base profile trait to be present")
 	}
 }
 
-func TestResolveCreatureRules_AppliesSubtypeTraitOverridesAndFlags(t *testing.T) {
+func TestResolveCreatureRules_AutomaticallyAppliesSubtypeEffects(t *testing.T) {
 	classification, ok := NewCreatureClassification(
 		OutsiderType,
 		[]CreatureSubtypeID{NativeSubtype, IncorporealSubtype},
@@ -49,17 +48,7 @@ func TestResolveCreatureRules_AppliesSubtypeTraitOverridesAndFlags(t *testing.T)
 		t.Fatal("expected classification to be constructed")
 	}
 
-	baseProfile, ok := GetCreatureTypeProfile(OutsiderType)
-	if !ok {
-		t.Fatal("expected outsider profile to exist")
-	}
-
-	effect, ok := NewCreatureSubtypeEffect(classification, baseProfile)
-	if !ok {
-		t.Fatal("expected subtype effect to be constructed")
-	}
-
-	rules, ok := ResolveCreatureRules(classification, baseProfile, effect)
+	rules, ok := ResolveCreatureRules(classification)
 	if !ok {
 		t.Fatal("expected creature rules to resolve")
 	}
@@ -93,17 +82,7 @@ func TestResolveCreatureRules_PreservesAugmentedFrom(t *testing.T) {
 		t.Fatal("expected classification to be constructed")
 	}
 
-	baseProfile, ok := GetCreatureTypeProfile(OutsiderType)
-	if !ok {
-		t.Fatal("expected outsider profile to exist")
-	}
-
-	effect, ok := NewCreatureSubtypeEffect(classification, baseProfile)
-	if !ok {
-		t.Fatal("expected subtype effect to be constructed")
-	}
-
-	rules, ok := ResolveCreatureRules(classification, baseProfile, effect)
+	rules, ok := ResolveCreatureRules(classification)
 	if !ok {
 		t.Fatal("expected creature rules to resolve")
 	}
@@ -120,12 +99,7 @@ func TestResolveCreatureRules_AddsHumanoidContextualFlag(t *testing.T) {
 		t.Fatal("expected classification to be constructed")
 	}
 
-	baseProfile, ok := GetCreatureTypeProfile(HumanoidType)
-	if !ok {
-		t.Fatal("expected humanoid profile to exist")
-	}
-
-	rules, ok := ResolveCreatureRules(classification, baseProfile)
+	rules, ok := ResolveCreatureRules(classification)
 	if !ok {
 		t.Fatal("expected creature rules to resolve")
 	}
@@ -133,56 +107,41 @@ func TestResolveCreatureRules_AddsHumanoidContextualFlag(t *testing.T) {
 	if !rules.HasContextualFlag(HumanoidRacialHDUsesClassRulesFlag) {
 		t.Fatal("expected humanoid contextual flag to be present")
 	}
+
+	if rules.GetSelectableGoodSaveCount() != 1 {
+		t.Fatalf("expected humanoid selectable good save count 1, got %d", rules.GetSelectableGoodSaveCount())
+	}
+
+	if len(rules.GetFixedGoodSaves()) != 0 {
+		t.Fatalf("expected humanoid fixed good saves to be empty, got %v", rules.GetFixedGoodSaves())
+	}
+
+	if rules.HasTrait(CreatureTypeTraitID("OneGoodSaveChoice")) {
+		t.Fatal("expected humanoid save-choice metadata not to be encoded as a fake trait")
+	}
 }
 
-func TestResolveCreatureRules_RejectsMismatchedBaseProfile(t *testing.T) {
-	classification, ok := NewCreatureClassification(AnimalType, nil, nil)
+func TestResolveCreatureRules_ExposesOutsiderSaveChoiceMetadata(t *testing.T) {
+	classification, ok := NewCreatureClassification(OutsiderType, nil, nil)
 	if !ok {
 		t.Fatal("expected classification to be constructed")
 	}
 
-	mismatchedProfile, ok := GetCreatureTypeProfile(DragonType)
+	rules, ok := ResolveCreatureRules(classification)
 	if !ok {
-		t.Fatal("expected dragon profile to exist")
+		t.Fatal("expected creature rules to resolve")
 	}
 
-	if _, ok := ResolveCreatureRules(classification, mismatchedProfile); ok {
-		t.Fatal("expected mismatched base profile to be rejected")
-	}
-}
-
-func TestResolveCreatureRules_RejectsSubtypeEffectFromDifferentBaseProfile(t *testing.T) {
-	classification, ok := NewCreatureClassification(AnimalType, nil, nil)
-	if !ok {
-		t.Fatal("expected animal classification to be constructed")
+	if rules.GetSelectableGoodSaveCount() != 2 {
+		t.Fatalf("expected outsider selectable good save count 2, got %d", rules.GetSelectableGoodSaveCount())
 	}
 
-	baseProfile, ok := GetCreatureTypeProfile(AnimalType)
-	if !ok {
-		t.Fatal("expected animal profile to exist")
+	if len(rules.GetFixedGoodSaves()) != 0 {
+		t.Fatalf("expected outsider fixed good saves to be empty, got %v", rules.GetFixedGoodSaves())
 	}
 
-	otherClassification, ok := NewCreatureClassification(
-		UndeadType,
-		[]CreatureSubtypeID{IncorporealSubtype},
-		nil,
-	)
-	if !ok {
-		t.Fatal("expected undead classification to be constructed")
-	}
-
-	otherBaseProfile, ok := GetCreatureTypeProfile(UndeadType)
-	if !ok {
-		t.Fatal("expected undead profile to exist")
-	}
-
-	otherEffect, ok := NewCreatureSubtypeEffect(otherClassification, otherBaseProfile)
-	if !ok {
-		t.Fatal("expected undead subtype effect to be constructed")
-	}
-
-	if _, ok := ResolveCreatureRules(classification, baseProfile, otherEffect); ok {
-		t.Fatal("expected mismatched subtype effect to be rejected")
+	if rules.HasTrait(CreatureTypeTraitID("TwoGoodSaveChoices")) {
+		t.Fatal("expected outsider save-choice metadata not to be encoded as a fake trait")
 	}
 }
 
@@ -196,17 +155,7 @@ func TestResolveCreatureRules_MapsSwarmStructuralOverrideToFlag(t *testing.T) {
 		t.Fatal("expected classification to be constructed")
 	}
 
-	baseProfile, ok := GetCreatureTypeProfile(VerminType)
-	if !ok {
-		t.Fatal("expected vermin profile to exist")
-	}
-
-	effect, ok := NewCreatureSubtypeEffect(classification, baseProfile)
-	if !ok {
-		t.Fatal("expected subtype effect to be constructed")
-	}
-
-	rules, ok := ResolveCreatureRules(classification, baseProfile, effect)
+	rules, ok := ResolveCreatureRules(classification)
 	if !ok {
 		t.Fatal("expected creature rules to resolve")
 	}
@@ -214,4 +163,91 @@ func TestResolveCreatureRules_MapsSwarmStructuralOverrideToFlag(t *testing.T) {
 	if !rules.HasContextualFlag(SwarmBodyRulesFlag) {
 		t.Fatal("expected swarm structural flag to be present")
 	}
+}
+
+func TestResolveCreatureRules_RejectsNativeOnNonOutsider(t *testing.T) {
+	classification, ok := NewCreatureClassification(
+		AnimalType,
+		[]CreatureSubtypeID{NativeSubtype},
+		nil,
+	)
+	if !ok {
+		t.Fatal("expected classification to be constructed")
+	}
+
+	if _, ok := ResolveCreatureRules(classification); ok {
+		t.Fatal("expected native subtype on non-outsider to be rejected")
+	}
+}
+
+func TestResolveCreatureRules_DedupesResolvedTraits(t *testing.T) {
+	classification, ok := NewCreatureClassification(
+		OutsiderType,
+		[]CreatureSubtypeID{ElementalSubtype, IncorporealSubtype},
+		nil,
+	)
+	if !ok {
+		t.Fatal("expected classification to be constructed")
+	}
+
+	rules, ok := ResolveCreatureRules(classification)
+	if !ok {
+		t.Fatal("expected creature rules to resolve")
+	}
+
+	if countResolvedTrait(rules.GetTraitIDs(), NotSubjectToCriticalHitsTrait) != 1 {
+		t.Fatalf("expected NotSubjectToCriticalHits to be deduped, got %d", countResolvedTrait(rules.GetTraitIDs(), NotSubjectToCriticalHitsTrait))
+	}
+}
+
+func TestResolveCreatureRules_DedupesResolvedFlags(t *testing.T) {
+	flags, ok := dedupeResolvedRuleFlags([]ResolvedCreatureRuleFlag{
+		SwarmBodyRulesFlag,
+		SwarmBodyRulesFlag,
+	})
+	if !ok {
+		t.Fatal("expected resolved flag dedupe to succeed")
+	}
+
+	if len(flags) != 1 {
+		t.Fatalf("expected 1 deduped flag, got %d", len(flags))
+	}
+}
+
+func TestIsValidResolvedCreatureRules_RejectsInvalidResolvedMetadata(t *testing.T) {
+	if isValidResolvedCreatureRules(resolvedCreatureRules{
+		fixedGoodSaves:          []ability.SavingThrowID{ability.FortitudeSave, ability.ReflexSave},
+		selectableGoodSaveCount: 2,
+	}) {
+		t.Fatal("expected impossible good save metadata to be rejected")
+	}
+
+	if isValidResolvedCreatureRules(resolvedCreatureRules{
+		fixedGoodSaves: []ability.SavingThrowID{ability.SavingThrowID("Luck")},
+	}) {
+		t.Fatal("expected invalid fixed good saves to be rejected")
+	}
+
+	if isValidResolvedCreatureRules(resolvedCreatureRules{
+		traitIDs: []CreatureTypeTraitID{CreatureTypeTraitID("FastHealing")},
+	}) {
+		t.Fatal("expected invalid resolved trait ids to be rejected")
+	}
+
+	if isValidResolvedCreatureRules(resolvedCreatureRules{
+		contextualFlags: []ResolvedCreatureRuleFlag{ResolvedCreatureRuleFlag("Invalid")},
+	}) {
+		t.Fatal("expected invalid contextual flags to be rejected")
+	}
+}
+
+func countResolvedTrait(traitIDs []CreatureTypeTraitID, want CreatureTypeTraitID) int {
+	count := 0
+	for _, current := range traitIDs {
+		if current == want {
+			count++
+		}
+	}
+
+	return count
 }

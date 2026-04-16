@@ -1,75 +1,55 @@
 package creaturetype
 
-import ability "d20campaigngenerator/internal/domain/rpg/character/ability"
+func ResolveCreatureRules(classification CreatureClassification) (ResolvedCreatureRules, bool) {
+	baseProfile, ok := GetCreatureTypeProfile(classification.GetBaseType())
+	if !ok {
+		return resolvedCreatureRules{}, false
+	}
 
-func ResolveCreatureRules(
-	classification CreatureClassification,
-	baseProfile CreatureTypeProfile,
-	effects ...CreatureSubtypeEffect,
-) (ResolvedCreatureRules, bool) {
-	canonicalBaseProfile, ok := GetCreatureTypeProfile(classification.GetBaseType())
-	if !ok || !profilesEqual(baseProfile, canonicalBaseProfile) {
+	subtypeResolution, ok := buildSubtypeResolution(classification)
+	if !ok {
 		return resolvedCreatureRules{}, false
 	}
 
 	traitIDs := baseProfile.GetTraitIDs()
-	contextualFlags := make([]ResolvedCreatureRuleFlag, 0, len(effects)+1)
-	var augmentedFrom *CreatureTypeID
+	traitIDs = applyTraitOverrides(
+		traitIDs,
+		subtypeResolution.removedTraitIDs,
+		subtypeResolution.addedTraitIDs,
+	)
 
-	for _, effect := range effects {
-		if !profilesEqual(effect.GetBaseProfile(), baseProfile) {
-			return resolvedCreatureRules{}, false
-		}
-
-		traitIDs = applyTraitOverrides(
-			traitIDs,
-			effect.GetRemovedTraitIDs(),
-			effect.GetAddedTraitIDs(),
-		)
-
-		for _, structuralEffectID := range effect.GetStructuralEffectIDs() {
-			flag, ok := structuralEffectToFlag(structuralEffectID)
-			if !ok {
-				return resolvedCreatureRules{}, false
-			}
-
-			contextualFlags = append(contextualFlags, flag)
-		}
-
-		if originalType, ok := effect.GetPreservedOriginalType(); ok {
-			if augmentedFrom != nil && *augmentedFrom != originalType {
-				return resolvedCreatureRules{}, false
-			}
-
-			originalCopy := originalType
-			augmentedFrom = &originalCopy
-		}
-	}
+	contextualFlags := append([]ResolvedCreatureRuleFlag(nil), subtypeResolution.contextualFlags...)
 
 	if classification.GetBaseType() == HumanoidType {
 		contextualFlags = append(contextualFlags, HumanoidRacialHDUsesClassRulesFlag)
 	}
 
-	dedupedTraits, ok := dedupeResolvedCreatureTraitIDs(traitIDs)
+	dedupedTraits, ok := dedupeResolvedTraitIDs(traitIDs)
 	if !ok {
 		return resolvedCreatureRules{}, false
 	}
 
-	dedupedFlags, ok := dedupeResolvedCreatureRuleFlags(contextualFlags)
+	dedupedFlags, ok := dedupeResolvedRuleFlags(contextualFlags)
 	if !ok {
 		return resolvedCreatureRules{}, false
 	}
 
-	return resolvedCreatureRules{
-		hitDieType:       baseProfile.GetHitDieType(),
-		babProgression:   baseProfile.GetBABProgression(),
-		goodSaves:        baseProfile.GetGoodSaves(),
-		skillPointsPerHD: baseProfile.GetSkillPointsPerHD(),
-		hitPointKind:     baseProfile.GetHitPointKind(),
-		traitIDs:         dedupedTraits,
-		contextualFlags:  dedupedFlags,
-		augmentedFrom:    augmentedFrom,
-	}, true
+	resolved := resolvedCreatureRules{
+		hitDieType:              baseProfile.GetHitDieType(),
+		babProgression:          baseProfile.GetBABProgression(),
+		fixedGoodSaves:          baseProfile.GetFixedGoodSaves(),
+		selectableGoodSaveCount: baseProfile.GetSelectableGoodSaveCount(),
+		skillPointsPerHD:        baseProfile.GetSkillPointsPerHD(),
+		hitPointKind:            baseProfile.GetHitPointKind(),
+		traitIDs:                dedupedTraits,
+		contextualFlags:         dedupedFlags,
+		augmentedFrom:           subtypeResolution.augmentedFrom,
+	}
+	if !isValidResolvedCreatureRules(resolved) {
+		return resolvedCreatureRules{}, false
+	}
+
+	return resolved, true
 }
 
 func applyTraitOverrides(
@@ -99,20 +79,7 @@ func applyTraitOverrides(
 	return resolved
 }
 
-func structuralEffectToFlag(
-	effectID CreatureSubtypeStructuralEffectID,
-) (ResolvedCreatureRuleFlag, bool) {
-	switch effectID {
-	case IncorporealBodyEffect:
-		return IncorporealBodyRulesFlag, true
-	case SwarmBodyEffect:
-		return SwarmBodyRulesFlag, true
-	default:
-		return "", false
-	}
-}
-
-func dedupeResolvedCreatureRuleFlags(
+func dedupeResolvedRuleFlags(
 	flags []ResolvedCreatureRuleFlag,
 ) ([]ResolvedCreatureRuleFlag, bool) {
 	if len(flags) == 0 {
@@ -138,32 +105,6 @@ func dedupeResolvedCreatureRuleFlags(
 	return deduped, true
 }
 
-func dedupeResolvedCreatureTraitIDs(
-	traitIDs []CreatureTypeTraitID,
-) ([]CreatureTypeTraitID, bool) {
-	if len(traitIDs) == 0 {
-		return nil, true
-	}
-
-	seen := make(map[CreatureTypeTraitID]struct{}, len(traitIDs))
-	deduped := make([]CreatureTypeTraitID, 0, len(traitIDs))
-
-	for _, traitID := range traitIDs {
-		if !isValidSubtypeEffectTraitID(traitID) {
-			return nil, false
-		}
-
-		if _, ok := seen[traitID]; ok {
-			continue
-		}
-
-		seen[traitID] = struct{}{}
-		deduped = append(deduped, traitID)
-	}
-
-	return deduped, true
-}
-
 func isValidResolvedCreatureRuleFlag(flag ResolvedCreatureRuleFlag) bool {
 	switch flag {
 	case HumanoidRacialHDUsesClassRulesFlag,
@@ -175,42 +116,29 @@ func isValidResolvedCreatureRuleFlag(flag ResolvedCreatureRuleFlag) bool {
 	}
 }
 
-func profilesEqual(left CreatureTypeProfile, right CreatureTypeProfile) bool {
-	if left.GetHitDieType() != right.GetHitDieType() ||
-		left.GetBABProgression() != right.GetBABProgression() ||
-		left.GetSkillPointsPerHD() != right.GetSkillPointsPerHD() ||
-		left.GetHitPointKind() != right.GetHitPointKind() {
+func isValidResolvedCreatureRules(r resolvedCreatureRules) bool {
+	if r.selectableGoodSaveCount < 0 || r.selectableGoodSaveCount > 3 {
 		return false
 	}
 
-	if !savingThrowIDsEqual(left.GetGoodSaves(), right.GetGoodSaves()) {
+	if len(r.fixedGoodSaves)+r.selectableGoodSaveCount > 3 {
 		return false
 	}
 
-	return creatureTypeTraitIDsEqual(left.GetTraitIDs(), right.GetTraitIDs())
-}
-
-func savingThrowIDsEqual(left []ability.SavingThrowID, right []ability.SavingThrowID) bool {
-	if len(left) != len(right) {
-		return false
-	}
-
-	for i := range left {
-		if left[i] != right[i] {
+	for _, save := range r.fixedGoodSaves {
+		if !isValidSavingThrowID(save) {
 			return false
 		}
 	}
 
-	return true
-}
-
-func creatureTypeTraitIDsEqual(left []CreatureTypeTraitID, right []CreatureTypeTraitID) bool {
-	if len(left) != len(right) {
-		return false
+	for _, traitID := range r.traitIDs {
+		if !isValidResolvedTraitID(traitID) {
+			return false
+		}
 	}
 
-	for i := range left {
-		if left[i] != right[i] {
+	for _, flag := range r.contextualFlags {
+		if !isValidResolvedCreatureRuleFlag(flag) {
 			return false
 		}
 	}
