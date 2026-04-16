@@ -259,6 +259,41 @@ func TestSetTemporaryHPSource_DifferentSourcesDoNotStackIntoOnePool(t *testing.T
 	}
 }
 
+func TestRemoveTemporaryHPSource_PromotesNextHighestPool(t *testing.T) {
+	hd, ok := NewHitDie(0, 2, 0, 0)
+	if !ok {
+		t.Fatal("expected hit die to be constructed")
+	}
+	hp, ok := NewStandardHitPoints(hd, 12)
+	if !ok {
+		t.Fatal("expected hit points to be constructed")
+	}
+
+	if ok := hp.SetTemporaryHPSource("False Life", 10); !ok {
+		t.Fatal("expected false life temporary HP source to be added")
+	}
+
+	if ok := hp.SetTemporaryHPSource("Aid", 5); !ok {
+		t.Fatal("expected aid temporary HP source to be added")
+	}
+
+	if ok := hp.RemoveTemporaryHPSource("False Life"); !ok {
+		t.Fatal("expected active temporary HP source to be removable")
+	}
+
+	if hp.GetTemporary() != 5 {
+		t.Fatalf("expected next highest temporary HP pool to become active, got %d", hp.GetTemporary())
+	}
+
+	if len(hp.GetTemporarySources()) != 1 {
+		t.Fatalf("expected one temporary HP source to remain, got %d", len(hp.GetTemporarySources()))
+	}
+
+	if hp.GetTemporarySources()[0].GetName() != "Aid" {
+		t.Fatalf("expected Aid to remain as the active temporary HP source, got %q", hp.GetTemporarySources()[0].GetName())
+	}
+}
+
 func TestTakeDamage_NonLethalStacksAsDebtWithoutBecomingLethal(t *testing.T) {
 	hd, ok := NewHitDie(0, 2, 0, 0)
 	if !ok {

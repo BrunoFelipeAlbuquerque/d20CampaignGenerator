@@ -1,5 +1,7 @@
 package ability
 
+// RationalValue stores exact fractional math for Pathfinder progressions so
+// BAB and saving throws do not depend on float rounding behavior.
 type rationalValue struct {
 	numerator   int
 	denominator int

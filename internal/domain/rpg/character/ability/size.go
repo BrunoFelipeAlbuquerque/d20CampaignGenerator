@@ -92,7 +92,7 @@ func (r sizeWeightRange) HasUpperBound() bool {
 	return r.hasUpperBound
 }
 
-func (s size) GetModifier() (int, bool) {
+func (s size) GetAttackAndACModifier() (int, bool) {
 	profile, ok := getSizeProfile(s)
 	if !ok {
 		return 0, false
@@ -101,13 +101,21 @@ func (s size) GetModifier() (int, bool) {
 	return profile.modifier, true
 }
 
-func (s size) GetSpecialModifier() (int, bool) {
+func (s size) GetCMBAndCMDModifier() (int, bool) {
 	profile, ok := getSizeProfile(s)
 	if !ok {
 		return 0, false
 	}
 
 	return profile.specialModifier, true
+}
+
+func (s size) GetModifier() (int, bool) {
+	return s.GetAttackAndACModifier()
+}
+
+func (s size) GetSpecialModifier() (int, bool) {
+	return s.GetCMBAndCMDModifier()
 }
 
 func (s size) GetFlyModifier() (int, bool) {

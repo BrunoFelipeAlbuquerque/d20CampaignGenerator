@@ -3,12 +3,12 @@ package ability
 import "testing"
 
 func TestSizeGetModifiers_UsesPathfinderTable(t *testing.T) {
-	largeModifier, ok := LargeSize.GetModifier()
+	largeModifier, ok := LargeSize.GetAttackAndACModifier()
 	if !ok || largeModifier != -1 {
 		t.Fatalf("expected large size modifier (-1, true), got (%d, %t)", largeModifier, ok)
 	}
 
-	largeSpecialModifier, ok := LargeSize.GetSpecialModifier()
+	largeSpecialModifier, ok := LargeSize.GetCMBAndCMDModifier()
 	if !ok || largeSpecialModifier != 1 {
 		t.Fatalf("expected large special size modifier (1, true), got (%d, %t)", largeSpecialModifier, ok)
 	}
@@ -98,8 +98,8 @@ func TestSizeGetConstructBonusHP_IncludesTitanicHomebrewValue(t *testing.T) {
 }
 
 func TestTitanicSize_UsesOfficializedHomebrewProfile(t *testing.T) {
-	modifier, _ := TitanicSize.GetModifier()
-	specialModifier, _ := TitanicSize.GetSpecialModifier()
+	modifier, _ := TitanicSize.GetAttackAndACModifier()
+	specialModifier, _ := TitanicSize.GetCMBAndCMDModifier()
 	reach, _ := TitanicSize.GetNaturalReach(LongBodyShape)
 	heightRange, _ := TitanicSize.GetTypicalHeightRange()
 	weightRange, _ := TitanicSize.GetTypicalWeightRange()
