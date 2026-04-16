@@ -3,7 +3,7 @@ package ability_test
 import (
 	"testing"
 
-	"d20campaing/internal/domain/rpg/character/ability"
+	"d20campaigngenerator/internal/domain/rpg/character/ability"
 )
 
 func TestExportedAbilityTypesAreUsableOutsidePackage(t *testing.T) {

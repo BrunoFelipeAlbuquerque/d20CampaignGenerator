@@ -177,9 +177,24 @@ func TestModifierResolve_Negatives_Default(t *testing.T) {
 		m("enhancement", -3, "c"),
 	}
 
-	// current behavior: picks max (less negative)
 	got := mods.ModifierResolve()
-	want := -1
+	want := -9
+
+	if got != want {
+		t.Errorf("expected %d, got %d", want, got)
+	}
+}
+
+func TestModifierResolve_DefaultMixedBonusesAndPenalties(t *testing.T) {
+	mods := ModifierList{
+		m("enhancement", 5, "a"),
+		m("enhancement", 3, "b"),
+		m("enhancement", -2, "c"),
+		m("enhancement", -4, "d"),
+	}
+
+	got := mods.ModifierResolve()
+	want := -1 // highest enhancement bonus (5) plus stacking penalties (-6)
 
 	if got != want {
 		t.Errorf("expected %d, got %d", want, got)
@@ -238,9 +253,37 @@ func TestModifierResolve_CircumstanceMixedSameSourceNegative(t *testing.T) {
 		m(ModifierCircumstance, -5, SourceFlanking),
 	}
 
-	// current logic: picks highest (2)
 	got := mods.ModifierResolve()
-	want := 2
+	want := -3
+
+	if got != want {
+		t.Errorf("expected %d, got %d", want, got)
+	}
+}
+
+func TestModifierResolve_CircumstancePenaltiesDifferentSourcesStack(t *testing.T) {
+	mods := ModifierList{
+		m(ModifierCircumstance, -2, SourceFlanking),
+		m(ModifierCircumstance, -1, SourceHigherGround),
+	}
+
+	got := mods.ModifierResolve()
+	want := -3
+
+	if got != want {
+		t.Errorf("expected %d, got %d", want, got)
+	}
+}
+
+func TestModifierResolve_CircumstanceSameSourceKeepsWorstPenalty(t *testing.T) {
+	mods := ModifierList{
+		m(ModifierCircumstance, -2, SourceFlanking),
+		m(ModifierCircumstance, -5, SourceFlanking),
+		m(ModifierCircumstance, -1, SourceFlanking),
+	}
+
+	got := mods.ModifierResolve()
+	want := -5
 
 	if got != want {
 		t.Errorf("expected %d, got %d", want, got)

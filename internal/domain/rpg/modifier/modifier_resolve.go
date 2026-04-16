@@ -44,42 +44,80 @@ func (mods ModifierList) ModifierResolve() int {
 
 func resolveByType(modifierType ModifierType, modifiers []Modifier) int {
 	switch modifierType {
+	case "":
+		return resolveHighestValue(modifiers)
+
 	case ModifierUntyped:
-		sum := 0
-		for _, untypedModifier := range modifiers {
-			sum += untypedModifier.Value
-		}
-		return sum
+		return sumModifiers(modifiers)
 
 	case ModifierDodge:
-		sum := 0
-		for _, dodgeModifier := range modifiers {
-			sum += dodgeModifier.Value
-		}
-		return sum
+		return sumModifiers(modifiers)
 
 	case ModifierCircumstance:
-		bySource := make(map[ModifierSource]int)
+		bySource := make(map[ModifierSource][]Modifier)
 
 		for _, circumstanceModifier := range modifiers {
-			if current, ok := bySource[circumstanceModifier.Source]; !ok || circumstanceModifier.Value > current {
-				bySource[circumstanceModifier.Source] = circumstanceModifier.Value
-			}
+			bySource[circumstanceModifier.Source] = append(bySource[circumstanceModifier.Source], circumstanceModifier)
 		}
 
 		sum := 0
-		for _, value := range bySource {
-			sum += value
+		for _, sourceModifiers := range bySource {
+			sum += resolveHighestBonusAndWorstPenalty(sourceModifiers)
 		}
 		return sum
 
 	default:
-		max := 0
-		for i, modifier := range modifiers {
-			if i == 0 || modifier.Value > max {
-				max = modifier.Value
-			}
-		}
-		return max
+		return resolveHighestBonusAndStackingPenalties(modifiers)
 	}
+}
+
+func sumModifiers(modifiers []Modifier) int {
+	sum := 0
+	for _, modifier := range modifiers {
+		sum += modifier.Value
+	}
+	return sum
+}
+
+func resolveHighestBonusAndStackingPenalties(modifiers []Modifier) int {
+	highestBonus := 0
+	penalties := 0
+
+	for _, modifier := range modifiers {
+		switch {
+		case modifier.Value > highestBonus:
+			highestBonus = modifier.Value
+		case modifier.Value < 0:
+			penalties += modifier.Value
+		}
+	}
+
+	return highestBonus + penalties
+}
+
+func resolveHighestBonusAndWorstPenalty(modifiers []Modifier) int {
+	highestBonus := 0
+	worstPenalty := 0
+
+	for _, modifier := range modifiers {
+		switch {
+		case modifier.Value > highestBonus:
+			highestBonus = modifier.Value
+		case modifier.Value < worstPenalty:
+			worstPenalty = modifier.Value
+		}
+	}
+
+	return highestBonus + worstPenalty
+}
+
+func resolveHighestValue(modifiers []Modifier) int {
+	max := 0
+	for i, modifier := range modifiers {
+		if i == 0 || modifier.Value > max {
+			max = modifier.Value
+		}
+	}
+
+	return max
 }

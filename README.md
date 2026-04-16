@@ -1,4 +1,4 @@
-# d20campaing
+# d20campaigngenerator
 
 Pathfinder 1e character-building and rules-domain project.
 
@@ -165,7 +165,7 @@ Some rules in this project intentionally differ from default Pathfinder 1e.
 
 These are documented in:
 
-[PF1 Differences](/home/brunoalbuquerquemeta/Documentos/stuff/d20campaing/docs/pf1-differences/README.md)
+[PF1 Differences](/home/brunoalbuquerquemeta/Documentos/stuff/d20campaigngenerator/docs/pf1-differences/README.md)
 
 Current notable differences include:
 

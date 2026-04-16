@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	utils "d20campaing/internal/text"
+	utils "d20campaigngenerator/internal/text"
 )
 
 var validModifierSource = regexp.MustCompile(`^[a-z0-9]+(?:_[a-z0-9]+)*(?:\.[a-z0-9]+(?:_[a-z0-9]+)*)+$`)
