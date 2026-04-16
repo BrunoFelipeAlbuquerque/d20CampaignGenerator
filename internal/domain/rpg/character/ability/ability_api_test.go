@@ -35,6 +35,10 @@ func TestExportedAbilityTypesAreUsableOutsidePackage(t *testing.T) {
 	if !ok {
 		t.Fatal("expected hit points to be constructed")
 	}
+	speed, ok := ability.NewSpeed(30, 10, 0, 60, 15, ability.GoodFlyManeuverability)
+	if !ok {
+		t.Fatal("expected speed to be constructed")
+	}
 	creatureSize := ability.HugeSize
 
 	var exportedID ability.AbilityScoreID = score.GetID()
@@ -82,6 +86,22 @@ func TestExportedAbilityTypesAreUsableOutsidePackage(t *testing.T) {
 	var exportedHP ability.HitPoints = hp
 	if exportedHP.GetTotal() != 6 {
 		t.Fatalf("expected exported HP total 6, got %d", exportedHP.GetTotal())
+	}
+
+	var exportedSpeed ability.Speed = speed
+	flySpeed, ok := exportedSpeed.GetFly()
+	if !ok || flySpeed != 60 {
+		t.Fatalf("expected exported fly speed (60, true), got (%d, %t)", flySpeed, ok)
+	}
+
+	maneuverability, ok := exportedSpeed.GetFlyManeuverability()
+	if !ok || maneuverability != ability.GoodFlyManeuverability {
+		t.Fatalf(
+			"expected exported maneuverability (%q, true), got (%q, %t)",
+			ability.GoodFlyManeuverability,
+			maneuverability,
+			ok,
+		)
 	}
 
 	var exportedSize ability.Size = creatureSize
