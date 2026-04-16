@@ -414,6 +414,37 @@ func TestUpdateConstitutionScore_RecalculatesCurrentTotalAndThreshold(t *testing
 	}
 }
 
+func TestUpdateConstitutionScore_RejectsZeroForStandardHitPoints(t *testing.T) {
+	hd, ok := NewHitDie(0, 2, 0, 0)
+	if !ok {
+		t.Fatal("expected hit die to be constructed")
+	}
+	hp, ok := NewStandardHitPoints(hd, 12)
+	if !ok {
+		t.Fatal("expected hit points to be constructed")
+	}
+
+	beforeTotal := hp.GetTotal()
+	beforeCurrent := hp.GetCurrent()
+	beforeThreshold := hp.GetDeathThreshold()
+
+	if ok := hp.UpdateConstitutionScore(0); ok {
+		t.Fatal("expected constitution 0 update to be rejected for standard hit points")
+	}
+
+	if hp.GetTotal() != beforeTotal {
+		t.Fatalf("expected total HP to remain %d, got %d", beforeTotal, hp.GetTotal())
+	}
+
+	if hp.GetCurrent() != beforeCurrent {
+		t.Fatalf("expected current HP to remain %d, got %d", beforeCurrent, hp.GetCurrent())
+	}
+
+	if hp.GetDeathThreshold() != beforeThreshold {
+		t.Fatalf("expected death threshold to remain %d, got %d", beforeThreshold, hp.GetDeathThreshold())
+	}
+}
+
 func TestUpdateCharismaAndSize_RecalculateSpecificLedgerEntries(t *testing.T) {
 	undeadHD, ok := NewHitDie(0, 2, 0, 0)
 	if !ok {
@@ -510,6 +541,10 @@ func TestHitPointConstructors_RejectInvalidInputs(t *testing.T) {
 
 	if _, ok := NewStandardHitPoints(hd, -1); ok {
 		t.Fatal("expected invalid standard HP input to be rejected")
+	}
+
+	if _, ok := NewStandardHitPoints(hd, 0); ok {
+		t.Fatal("expected constitution 0 standard HP input to be rejected")
 	}
 
 	if _, ok := NewUndeadHitPoints(hd, -1); ok {

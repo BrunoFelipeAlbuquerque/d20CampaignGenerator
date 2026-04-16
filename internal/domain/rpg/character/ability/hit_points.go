@@ -72,7 +72,7 @@ func NewHitDie(d6 int, d8 int, d10 int, d12 int) (HitDie, bool) {
 }
 
 func NewStandardHitPoints(hd HitDie, constitutionScore int) (HitPoints, bool) {
-	if constitutionScore < 0 || !isSemanticallyValidHitDie(hd) {
+	if !isValidLivingConstitutionScore(constitutionScore) || !isSemanticallyValidHitDie(hd) {
 		return hitPoints{}, false
 	}
 
@@ -277,13 +277,17 @@ func (h *hitPoints) Heal(amount int) bool {
 }
 
 func (h *hitPoints) UpdateConstitutionScore(score int) bool {
-	if score < 0 || h.kind != StandardHitPoints {
+	if !isValidLivingConstitutionScore(score) || h.kind != StandardHitPoints {
 		return false
 	}
 
 	h.constitution = score
 	h.recalculate(false)
 	return true
+}
+
+func isValidLivingConstitutionScore(score int) bool {
+	return score >= 1
 }
 
 func (h *hitPoints) UpdateCharismaScore(score int) bool {
