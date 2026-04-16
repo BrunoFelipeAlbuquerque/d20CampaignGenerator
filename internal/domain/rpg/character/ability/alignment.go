@@ -52,32 +52,6 @@ func (a *alignment) SetAlignment(orderAxis OrderAxis, moralityAxis MoralityAxis)
 	return true
 }
 
-func (a alignment) GetOrderAxis() OrderAxis {
-	return a.orderAxis
-}
-
-func (a *alignment) SetOrderAxis(orderAxis OrderAxis) bool {
-	if !isValidOrderAxis(orderAxis) {
-		return false
-	}
-
-	a.orderAxis = orderAxis
-	return true
-}
-
-func (a alignment) GetMoralityAxis() MoralityAxis {
-	return a.moralityAxis
-}
-
-func (a *alignment) SetMoralityAxis(moralityAxis MoralityAxis) bool {
-	if !isValidMoralityAxis(moralityAxis) {
-		return false
-	}
-
-	a.moralityAxis = moralityAxis
-	return true
-}
-
 func isValidOrderAxis(orderAxis OrderAxis) bool {
 	switch orderAxis {
 	case OrderLawful, OrderNeutral, OrderChaotic:

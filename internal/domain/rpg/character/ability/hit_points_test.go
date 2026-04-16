@@ -15,6 +15,22 @@ func TestNewHitDie_CalculatesTotalsAndAverageBaseHP(t *testing.T) {
 	if hd.GetAverageBaseHP() != 20 {
 		t.Fatalf("expected average base HP 20, got %d", hd.GetAverageBaseHP())
 	}
+
+	d8Count, ok := hd.GetDieCount(D8HitDie)
+	if !ok || d8Count != 2 {
+		t.Fatalf("expected d8 count (2, true), got (%d, %t)", d8Count, ok)
+	}
+}
+
+func TestHitDie_GetDieCount_RejectsUnknownDieType(t *testing.T) {
+	hd, ok := NewHitDie(1, 0, 0, 0)
+	if !ok {
+		t.Fatal("expected hit die to be constructed")
+	}
+
+	if _, ok := hd.GetDieCount(HitDieType("d20")); ok {
+		t.Fatal("expected unknown hit die type to be rejected")
+	}
 }
 
 func TestNewStandardHitPoints_UsesConstitutionLedgerAndThreshold(t *testing.T) {

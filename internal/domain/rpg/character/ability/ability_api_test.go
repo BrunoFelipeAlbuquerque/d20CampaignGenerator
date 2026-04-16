@@ -83,6 +83,11 @@ func TestExportedAbilityTypesAreUsableOutsidePackage(t *testing.T) {
 		t.Fatalf("expected exported average base HP 5, got %d", exportedHD.GetAverageBaseHP())
 	}
 
+	d8Count, ok := exportedHD.GetDieCount(ability.D8HitDie)
+	if !ok || d8Count != 1 {
+		t.Fatalf("expected exported d8 count (1, true), got (%d, %t)", d8Count, ok)
+	}
+
 	var exportedHP ability.HitPoints = hp
 	if exportedHP.GetTotal() != 6 {
 		t.Fatalf("expected exported HP total 6, got %d", exportedHP.GetTotal())

@@ -9,10 +9,20 @@ type HPSource = hpSource
 type hitPointKind string
 type HitPointKind = hitPointKind
 
+type hitDieType string
+type HitDieType = hitDieType
+
 const (
 	StandardHitPoints  HitPointKind = "Standard"
 	UndeadHitPoints    HitPointKind = "Undead"
 	ConstructHitPoints HitPointKind = "Construct"
+)
+
+const (
+	D6HitDie  HitDieType = "d6"
+	D8HitDie  HitDieType = "d8"
+	D10HitDie HitDieType = "d10"
+	D12HitDie HitDieType = "d12"
 )
 
 type hitDie struct {
@@ -125,20 +135,19 @@ func (h hitDie) GetTotal() int {
 	return h.total
 }
 
-func (h hitDie) GetD6() int {
-	return h.d6
-}
-
-func (h hitDie) GetD8() int {
-	return h.d8
-}
-
-func (h hitDie) GetD10() int {
-	return h.d10
-}
-
-func (h hitDie) GetD12() int {
-	return h.d12
+func (h hitDie) GetDieCount(kind HitDieType) (int, bool) {
+	switch kind {
+	case D6HitDie:
+		return h.d6, true
+	case D8HitDie:
+		return h.d8, true
+	case D10HitDie:
+		return h.d10, true
+	case D12HitDie:
+		return h.d12, true
+	default:
+		return 0, false
+	}
 }
 
 func (h hitDie) GetAverageBaseHP() int {

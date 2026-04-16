@@ -58,32 +58,34 @@ func TestAlignmentSetAlignment_RejectsInvalidPair(t *testing.T) {
 	}
 }
 
-func TestAlignmentSetOrderAxis_RejectsInvalidValue(t *testing.T) {
+func TestAlignmentSetAlignment_RejectsInvalidOrderAxis(t *testing.T) {
 	alignment, ok := NewAlignment(OrderLawful, MoralityNeutral)
 	if !ok {
 		t.Fatal("expected alignment to be constructed")
 	}
 
-	if ok := alignment.SetOrderAxis(OrderAxis("Sideways")); ok {
+	if ok := alignment.SetAlignment(OrderAxis("Sideways"), MoralityNeutral); ok {
 		t.Fatal("expected invalid order axis to be rejected")
 	}
 
-	if alignment.GetOrderAxis() != OrderLawful {
-		t.Fatalf("expected order axis to remain %q, got %q", OrderLawful, alignment.GetOrderAxis())
+	orderAxis, moralityAxis := alignment.GetAlignment()
+	if orderAxis != OrderLawful || moralityAxis != MoralityNeutral {
+		t.Fatalf("expected alignment to remain (%q, %q), got (%q, %q)", OrderLawful, MoralityNeutral, orderAxis, moralityAxis)
 	}
 }
 
-func TestAlignmentSetMoralityAxis_RejectsInvalidValue(t *testing.T) {
+func TestAlignmentSetAlignment_RejectsInvalidMoralityAxis(t *testing.T) {
 	alignment, ok := NewAlignment(OrderNeutral, MoralityGood)
 	if !ok {
 		t.Fatal("expected alignment to be constructed")
 	}
 
-	if ok := alignment.SetMoralityAxis(MoralityAxis("KindOfGood")); ok {
+	if ok := alignment.SetAlignment(OrderNeutral, MoralityAxis("KindOfGood")); ok {
 		t.Fatal("expected invalid morality axis to be rejected")
 	}
 
-	if alignment.GetMoralityAxis() != MoralityGood {
-		t.Fatalf("expected morality axis to remain %q, got %q", MoralityGood, alignment.GetMoralityAxis())
+	orderAxis, moralityAxis := alignment.GetAlignment()
+	if orderAxis != OrderNeutral || moralityAxis != MoralityGood {
+		t.Fatalf("expected alignment to remain (%q, %q), got (%q, %q)", OrderNeutral, MoralityGood, orderAxis, moralityAxis)
 	}
 }
