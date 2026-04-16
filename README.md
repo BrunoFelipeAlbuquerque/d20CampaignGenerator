@@ -64,11 +64,15 @@ The project is intentionally trying not to jump too quickly into giant “charac
 
 ## Main Design Decisions
 
-### Invalid Input Is Impossible To Construct
+### Invalid Input Should Fail Construction
 
 This is one of the most important project rules.
 
 If a domain value is invalid, construction should fail instead of silently creating a fake default object.
+
+In Go, this is a design philosophy and boundary goal, not a strict language-level guarantee.
+
+The project minimizes invalid states through unexported fields, validated constructors, and narrow domain types, but zero values and partially invalid states can still exist inside the module.
 
 In practice, that means constructors usually return:
 
@@ -165,7 +169,7 @@ Some rules in this project intentionally differ from default Pathfinder 1e.
 
 These are documented in:
 
-[PF1 Differences](/home/brunoalbuquerquemeta/Documentos/stuff/d20campaigngenerator/docs/pf1-differences/README.md)
+[PF1 Differences](docs/pf1-differences/README.md)
 
 Current notable differences include:
 
