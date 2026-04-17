@@ -22,6 +22,7 @@ func TestNewRace_ConstructsValidatedRaceChassis(t *testing.T) {
 		ability.MediumSize,
 		30,
 		[]AbilityScoreModifier{strengthModifier, constitutionModifier},
+		0,
 		[]LanguageID{"Common", "Elven"},
 		[]RacialFeatureID{"Keen Senses", "Low-Light Vision"},
 	)
@@ -58,6 +59,34 @@ func TestNewRace_ConstructsValidatedRaceChassis(t *testing.T) {
 	if !race.HasFeature("Keen Senses") {
 		t.Fatal("expected Keen Senses feature to be present")
 	}
+
+	if _, ok := race.GetSelectableAbilityScoreModifier(); ok {
+		t.Fatal("expected fixed-modifier race chassis not to expose selectable ability score modifier metadata")
+	}
+}
+
+func TestNewRace_StoresSelectableAbilityScoreModifierMetadata(t *testing.T) {
+	race, ok := NewRace(
+		RaceID("human"),
+		ability.MediumSize,
+		30,
+		nil,
+		2,
+		[]LanguageID{"Common"},
+		[]RacialFeatureID{"Bonus Feat", "Skilled"},
+	)
+	if !ok {
+		t.Fatal("expected race chassis with selectable ability score modifier metadata to be constructed")
+	}
+
+	selectableModifier, ok := race.GetSelectableAbilityScoreModifier()
+	if !ok {
+		t.Fatal("expected selectable ability score modifier metadata to be present")
+	}
+
+	if selectableModifier != 2 {
+		t.Fatalf("expected selectable ability score modifier 2, got %d", selectableModifier)
+	}
 }
 
 func TestNewRace_DedupesModifiersLanguagesAndFeatures(t *testing.T) {
@@ -71,6 +100,7 @@ func TestNewRace_DedupesModifiersLanguagesAndFeatures(t *testing.T) {
 		ability.SmallSize,
 		20,
 		[]AbilityScoreModifier{intelligenceModifier, intelligenceModifier},
+		0,
 		[]LanguageID{"Common", "Gnome", "Common"},
 		[]RacialFeatureID{"Defensive Training", "Defensive Training", "Keen Senses"},
 	)
@@ -105,16 +135,20 @@ func TestNewRace_RejectsInvalidInputs(t *testing.T) {
 		t.Fatal("expected dexterity modifier to be constructed")
 	}
 
-	if _, ok := NewRace("", ability.MediumSize, 30, nil, nil, nil); ok {
+	if _, ok := NewRace("", ability.MediumSize, 30, nil, 0, nil, nil); ok {
 		t.Fatal("expected empty race id to be rejected")
 	}
 
-	if _, ok := NewRace(RaceID("human"), ability.Size("Gigantic"), 30, nil, nil, nil); ok {
+	if _, ok := NewRace(RaceID("human"), ability.Size("Gigantic"), 30, nil, 0, nil, nil); ok {
 		t.Fatal("expected invalid size to be rejected")
 	}
 
-	if _, ok := NewRace(RaceID("human"), ability.MediumSize, 0, nil, nil, nil); ok {
+	if _, ok := NewRace(RaceID("human"), ability.MediumSize, 0, nil, 0, nil, nil); ok {
 		t.Fatal("expected non-positive base speed to be rejected")
+	}
+
+	if _, ok := NewRace(RaceID("human"), ability.MediumSize, 30, nil, -2, nil, nil); ok {
+		t.Fatal("expected negative selectable ability score modifier to be rejected")
 	}
 
 	if _, ok := NewRace(
@@ -122,6 +156,7 @@ func TestNewRace_RejectsInvalidInputs(t *testing.T) {
 		ability.MediumSize,
 		30,
 		[]AbilityScoreModifier{{scoreID: ability.AbilityScoreID("LCK"), modifier: 2}},
+		0,
 		nil,
 		nil,
 	); ok {
@@ -133,6 +168,7 @@ func TestNewRace_RejectsInvalidInputs(t *testing.T) {
 		ability.MediumSize,
 		30,
 		[]AbilityScoreModifier{validModifier},
+		0,
 		[]LanguageID{""},
 		nil,
 	); ok {
@@ -144,6 +180,7 @@ func TestNewRace_RejectsInvalidInputs(t *testing.T) {
 		ability.MediumSize,
 		30,
 		[]AbilityScoreModifier{validModifier},
+		0,
 		nil,
 		[]RacialFeatureID{""},
 	); ok {
@@ -162,6 +199,7 @@ func TestRace_GettersReturnDefensiveCopies(t *testing.T) {
 		ability.SmallSize,
 		20,
 		[]AbilityScoreModifier{dexterityModifier},
+		0,
 		[]LanguageID{"Common", "Halfling"},
 		[]RacialFeatureID{"Sure-Footed"},
 	)
