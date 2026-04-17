@@ -219,9 +219,12 @@ For each item:
 9. Run:
    - `git add .`
    - `git commit -m "{commit message according what was done}"`
+10. If running locally:
    - `git push -u origin <branch-name>`
-10. Read `.github/pull_request_template.md` and output the PR message.
-11. Stop.
+11. . If running in Codex Cloud:
+   - Create PR through connected GitHub
+12. Read `.github/pull_request_template.md` and output the PR message.
+13. Stop.
 
 Do not continue automatically to the next item.
 
