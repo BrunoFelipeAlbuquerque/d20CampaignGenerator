@@ -25,7 +25,7 @@
   - racial languages
   - racial features container (no APG traits)
 
-- [ ] Seed the 7 core races only:
+- [X] Seed the 7 core races only:
   - dwarf
   - elf
   - gnome
