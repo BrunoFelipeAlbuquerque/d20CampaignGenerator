@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Do not be creative. Follow backlog order and project rules.
+Do not be creative. Follow backlog, issues, and project rules.
 
 ---
 
@@ -25,10 +25,88 @@ Do not skip steps.
 
 ## Source of truth
 
-- `BACKLOG.md` is the only task source.
-- Always pick the first unchecked item.
+- `BACKLOG.md` is the primary task source.
+- `ISSUES.md` defines interruptions and corrections.
 - Do not invent tasks.
-- Do not reorder priorities.
+- Do not reorder priorities unless required by `ISSUES.md`.
+
+---
+
+## Issue-driven workflow
+
+Before touching the backlog, ALWAYS process `ISSUES.md`.
+
+### 1. NEED issues (mandatory)
+
+- Check if any `NEED` issue exists.
+- If yes:
+  - Treat it as a blocking item.
+  - Execute it immediately.
+  - Do not proceed to backlog.
+- `NEED` overrides backlog order.
+
+### 2. SHOULD issues (conditional)
+
+- If there is no `NEED` issue and there are `SHOULD` issues:
+  - Ask the user whether to:
+    - continue with the backlog
+    - or tackle the `SHOULD` issue
+- Do not decide autonomously.
+
+### 3. CAN issues (explicit only)
+
+- Ignore `CAN` issues by default.
+- Only tackle `CAN` issues if explicitly requested by the user.
+
+---
+
+## Backlog rules
+
+- Only execute backlog work if no blocking `NEED` issue exists.
+- Always pick the first unchecked backlog item.
+- Do not skip items.
+- Do not reorder items.
+
+---
+
+## Branching rules
+
+When starting any task, always create/reset the branch first with `git checkout -B`.
+
+### If the task comes from an issue
+
+~~~bash
+git checkout -B issue/{issue-name}
+~~~
+
+### If the task comes from the backlog
+
+~~~bash
+git checkout -B feat/{backlog-name}
+~~~
+
+Rules:
+
+- `{issue-name}` and `{backlog-name}` must be short, descriptive, and kebab-case.
+- Always run branch creation before making changes.
+- Do not reuse unrelated branch names.
+
+---
+
+## Commit and push rules
+
+After the task is done, always run:
+
+~~~bash
+git add .
+git commit -m "{commit message according what was done}"
+git push -u origin <branch-name>
+~~~
+
+Rules:
+
+- Commit message must describe exactly what was done.
+- Do not use generic commit messages.
 
 ---
 
@@ -56,14 +134,14 @@ Do not skip steps.
 
 ## Scope rules
 
-- One backlog item at a time.
+- One item at a time.
 - Each item = one PR-sized change.
-- Do not fix unrelated issues.
+- Do not fix unrelated problems.
 - Do not add extra features.
 
 ### Core-only rule
 
-If an item says "core", use Core Rulebook only.
+If an item says `core`, use Core Rulebook only.
 
 Do not use:
 
@@ -77,7 +155,7 @@ Do not use:
 
 ## Task types
 
-Each backlog item is one of:
+Each item must be one of:
 
 ### domain/chassis
 
@@ -118,21 +196,34 @@ Also follow:
 
 ## Execution pipeline
 
-For each backlog item:
+For each item:
 
-1. Read the first unchecked item only from `BACKLOG.md`.
-2. Restate using Product Owner:
+1. Read `ISSUES.md` first.
+2. Decide task source:
+   - `NEED` issue → mandatory
+   - `SHOULD` issue → only if user chooses it
+   - backlog → only if no blocking `NEED` exists
+3. Create/reset the branch:
+   - issue → `git checkout -B issue/{issue-name}`
+   - backlog → `git checkout -B feat/{backlog-name}`
+4. Restate using Product Owner:
    - scope
    - constraints
    - acceptance criteria
-3. Implement using Senior Developer.
-4. Run tests.
-5. Review using Tech Lead.
-6. If approved, update `BACKLOG.md` by marking only that item as done.
-7. Read `.github/pull_request_template.md` and output the PR message.
-8. Stop.
+5. Implement using Senior Developer.
+6. Run tests.
+7. Review using Tech Lead.
+8. If approved:
+   - if backlog item, update `BACKLOG.md` by marking only that item as done
+   - if issue, update `ISSUES.md` accordingly
+9. Run:
+   - `git add .`
+   - `git commit -m "{commit message according what was done}"`
+   - `git push -u origin <branch-name>`
+10. Read `.github/pull_request_template.md` and output the PR message.
+11. Stop.
 
-Do not continue to next item unless explicitly told.
+Do not continue automatically to the next item.
 
 ---
 
@@ -140,7 +231,9 @@ Do not continue to next item unless explicitly told.
 
 Run:
 
-`go test ./...`
+~~~bash
+go test ./...
+~~~
 
 If tests fail:
 
@@ -155,7 +248,7 @@ If tests fail:
 - Keep changes minimal.
 - Prefer explicit code.
 - No speculative abstractions.
-- If blocked, implement smallest safe version and leave short note.
+- If blocked, implement the smallest safe version and leave a short note.
 - Do not skip tests.
 
 ---
@@ -170,7 +263,7 @@ Check:
 - architectural drift
 - technical debt
 
-Do not request redesign unless rules are violated.
+Do not request redesign unless project rules are violated.
 
 ---
 
@@ -178,10 +271,10 @@ Do not request redesign unless rules are violated.
 
 Stop when:
 
-- backlog item is complete
+- the item is complete
 - tests pass
 - further work requires redesign
 - further work introduces non-core content
-- next step is unrelated
+- the next step is unrelated
 
-Do not continue beyond the item.
+Do not continue beyond the current item.
