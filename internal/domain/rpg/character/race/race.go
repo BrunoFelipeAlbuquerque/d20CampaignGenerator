@@ -107,7 +107,7 @@ func (r race) GetRacialFeatures() []RacialFeatureID {
 	return append([]RacialFeatureID(nil), r.racialFeatures...)
 }
 
-func (r race) HasRacialFeature(featureID RacialFeatureID) bool {
+func (r race) HasFeature(featureID RacialFeatureID) bool {
 	for _, current := range r.racialFeatures {
 		if current == featureID {
 			return true
@@ -115,6 +115,10 @@ func (r race) HasRacialFeature(featureID RacialFeatureID) bool {
 	}
 
 	return false
+}
+
+func (r race) HasRacialFeature(featureID RacialFeatureID) bool {
+	return r.HasFeature(featureID)
 }
 
 func isValidRaceID(value RaceID) bool {

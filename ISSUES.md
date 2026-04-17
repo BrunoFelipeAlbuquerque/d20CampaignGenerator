@@ -11,12 +11,12 @@
 
 ## NEED
 
-- [ ] Restore backlog alignment before adding more domains or composition:
+- [X] Restore backlog alignment before adding more domains or composition:
   - the first unchecked backlog item is still Race query helpers
   - repo work has already moved into composition and off-backlog surfaces
   - `BACKLOG.md` must stay trustworthy as the project source of truth
 
-- [ ] Complete the missing Race query slice:
+- [X] Complete the missing Race query slice:
   - add `GetRaceByID`
   - expose the backlog query surface for seeded core races
   - keep returned race data defensive-copy safe

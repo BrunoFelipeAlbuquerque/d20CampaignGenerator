@@ -14,6 +14,15 @@ const (
 
 var coreRaces = mustBuildCoreRaces()
 
+func GetRaceByID(id RaceID) (Race, bool) {
+	value, ok := coreRaces[id]
+	if !ok {
+		return race{}, false
+	}
+
+	return cloneRace(value), true
+}
+
 func mustBuildCoreRaces() map[RaceID]Race {
 	return map[RaceID]Race{
 		DwarfRaceID: mustNewRace(
@@ -140,6 +149,17 @@ func mustBuildCoreRaces() map[RaceID]Race {
 				"Flexible Ability Bonus",
 			},
 		),
+	}
+}
+
+func cloneRace(value Race) Race {
+	return race{
+		id:                    value.id,
+		size:                  value.size,
+		baseSpeed:             value.baseSpeed,
+		abilityScoreModifiers: append([]AbilityScoreModifier(nil), value.abilityScoreModifiers...),
+		racialLanguages:       append([]LanguageID(nil), value.racialLanguages...),
+		racialFeatures:        append([]RacialFeatureID(nil), value.racialFeatures...),
 	}
 }
 

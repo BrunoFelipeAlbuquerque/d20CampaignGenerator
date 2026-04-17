@@ -56,7 +56,7 @@ func TestCoreRaces_SeedsSevenCoreEntries(t *testing.T) {
 			}
 		}
 
-		if !race.HasRacialFeature(tc.featureName) {
+		if !race.HasFeature(tc.featureName) {
 			t.Fatalf("expected race %q to have feature %q", tc.id, tc.featureName)
 		}
 	}
@@ -132,8 +132,57 @@ func TestCoreRaces_UsesFlexibleAbilityBonusFeatureForVariableBonuses(t *testing.
 			t.Fatalf("expected race %q to have no fixed ability score modifiers in this seed, got %d", raceID, len(race.GetAbilityScoreModifiers()))
 		}
 
-		if !race.HasRacialFeature("Flexible Ability Bonus") {
+		if !race.HasFeature("Flexible Ability Bonus") {
 			t.Fatalf("expected race %q to carry Flexible Ability Bonus marker", raceID)
 		}
+	}
+}
+
+func TestGetRaceByID_ReturnsSeededCoreRace(t *testing.T) {
+	race, ok := GetRaceByID(ElfRaceID)
+	if !ok {
+		t.Fatal("expected elf to be returned from core race lookup")
+	}
+
+	if race.GetID() != ElfRaceID {
+		t.Fatalf("expected race id %q, got %q", ElfRaceID, race.GetID())
+	}
+
+	if !race.HasFeature("Elven Immunities") {
+		t.Fatal("expected looked up elf to expose feature queries")
+	}
+}
+
+func TestGetRaceByID_ReturnsDetachedCopy(t *testing.T) {
+	first, ok := GetRaceByID(DwarfRaceID)
+	if !ok {
+		t.Fatal("expected dwarf to be returned from core race lookup")
+	}
+
+	first.abilityScoreModifiers[0].modifier = 99
+	first.racialLanguages[0] = "Changed"
+	first.racialFeatures[0] = "Changed"
+
+	second, ok := GetRaceByID(DwarfRaceID)
+	if !ok {
+		t.Fatal("expected dwarf to be returned from core race lookup")
+	}
+
+	if second.abilityScoreModifiers[0].modifier != 2 {
+		t.Fatalf("expected stored dwarf constitution modifier to remain 2, got %d", second.abilityScoreModifiers[0].modifier)
+	}
+
+	if second.racialLanguages[0] != "Common" {
+		t.Fatalf("expected stored dwarf language to remain Common, got %q", second.racialLanguages[0])
+	}
+
+	if second.racialFeatures[0] != "Slow and Steady" {
+		t.Fatalf("expected stored dwarf feature to remain Slow and Steady, got %q", second.racialFeatures[0])
+	}
+}
+
+func TestGetRaceByID_RejectsUnknownRace(t *testing.T) {
+	if _, ok := GetRaceByID(RaceID("android")); ok {
+		t.Fatal("expected unknown race lookup to fail")
 	}
 }
