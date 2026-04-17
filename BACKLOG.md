@@ -34,7 +34,7 @@
   - halfling
   - human
 
-- [ ] Add race query helpers:
+- [X] Add race query helpers:
   - GetRaceByID
   - HasFeature
   - defensive-copy getters

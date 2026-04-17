@@ -55,7 +55,7 @@ func TestNewRace_ConstructsValidatedRaceChassis(t *testing.T) {
 		t.Fatalf("expected racial languages [Common Elven], got %v", languages)
 	}
 
-	if !race.HasRacialFeature("Keen Senses") {
+	if !race.HasFeature("Keen Senses") {
 		t.Fatal("expected Keen Senses feature to be present")
 	}
 }
