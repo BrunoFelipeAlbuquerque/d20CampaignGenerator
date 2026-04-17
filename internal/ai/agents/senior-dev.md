@@ -17,6 +17,7 @@ Rules:
 - Do NOT suggest improvements
 - Do NOT explain
 - Do NOT explore alternatives
+- Do NOT edit `BACKLOG.md`
 
 Code rules:
 

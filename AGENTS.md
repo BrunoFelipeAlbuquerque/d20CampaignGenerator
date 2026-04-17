@@ -120,7 +120,7 @@ Also follow:
 
 For each backlog item:
 
-1. Read the item only.
+1. Read the first unchecked item only from `BACKLOG.md`.
 2. Restate using Product Owner:
    - scope
    - constraints
@@ -128,7 +128,9 @@ For each backlog item:
 3. Implement using Senior Developer.
 4. Run tests.
 5. Review using Tech Lead.
-6. Stop.
+6. If approved, update `BACKLOG.md` by marking only that item as done.
+7. Read `.github/pull_request_template.md` and output the PR message.
+8. Stop.
 
 Do not continue to next item unless explicitly told.
 
