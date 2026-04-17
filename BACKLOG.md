@@ -16,7 +16,7 @@
 
 ### Race
 
-- [ ] Create the Race domain chassis:
+- [X] Create the Race domain chassis:
   - RaceID
   - validated constructor
   - size
