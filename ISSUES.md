@@ -21,7 +21,7 @@
   - expose the backlog query surface for seeded core races
   - keep returned race data defensive-copy safe
 
-- [ ] Fix core race seed correctness:
+- [X] Fix core race seed correctness:
   - gnome is missing `Keen Senses`
   - half-elf is missing `Elven Immunities`
   - half-elf is missing `Keen Senses`

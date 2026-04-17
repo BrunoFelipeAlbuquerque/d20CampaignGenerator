@@ -62,6 +62,27 @@ func TestCoreRaces_SeedsSevenCoreEntries(t *testing.T) {
 	}
 }
 
+func TestCoreRaces_SeedsCorrectedCoreFeaturePresence(t *testing.T) {
+	testCases := []struct {
+		id       RaceID
+		features []RacialFeatureID
+	}{
+		{GnomeRaceID, []RacialFeatureID{"Gnome Magic", "Keen Senses"}},
+		{HalfElfRaceID, []RacialFeatureID{"Elven Immunities", "Keen Senses", "Multitalented"}},
+		{HalfOrcRaceID, []RacialFeatureID{"Orc Ferocity", "Intimidating"}},
+	}
+
+	for _, tc := range testCases {
+		race := coreRaces[tc.id]
+
+		for _, featureID := range tc.features {
+			if !race.HasFeature(featureID) {
+				t.Fatalf("expected race %q to have feature %q", tc.id, featureID)
+			}
+		}
+	}
+}
+
 func TestCoreRaces_SeedsAbilityScoreModifiersWhereFixed(t *testing.T) {
 	testCases := []struct {
 		id        RaceID
@@ -122,7 +143,7 @@ func TestCoreRaces_SeedsAbilityScoreModifiersWhereFixed(t *testing.T) {
 	}
 }
 
-func TestCoreRaces_UsesFlexibleAbilityBonusFeatureForVariableBonuses(t *testing.T) {
+func TestCoreRaces_SeedsSelectableAbilityScoreModifierForVariableBonuses(t *testing.T) {
 	testCases := []RaceID{HalfElfRaceID, HalfOrcRaceID, HumanRaceID}
 
 	for _, raceID := range testCases {
@@ -132,8 +153,17 @@ func TestCoreRaces_UsesFlexibleAbilityBonusFeatureForVariableBonuses(t *testing.
 			t.Fatalf("expected race %q to have no fixed ability score modifiers in this seed, got %d", raceID, len(race.GetAbilityScoreModifiers()))
 		}
 
-		if !race.HasFeature("Flexible Ability Bonus") {
-			t.Fatalf("expected race %q to carry Flexible Ability Bonus marker", raceID)
+		selectableModifier, ok := race.GetSelectableAbilityScoreModifier()
+		if !ok {
+			t.Fatalf("expected race %q to expose selectable ability score modifier metadata", raceID)
+		}
+
+		if selectableModifier != 2 {
+			t.Fatalf("expected race %q selectable ability score modifier to be 2, got %d", raceID, selectableModifier)
+		}
+
+		if race.HasFeature("Flexible Ability Bonus") {
+			t.Fatalf("expected race %q variable ability bonus not to be encoded as a feature marker", raceID)
 		}
 	}
 }
@@ -150,6 +180,22 @@ func TestGetRaceByID_ReturnsSeededCoreRace(t *testing.T) {
 
 	if !race.HasFeature("Elven Immunities") {
 		t.Fatal("expected looked up elf to expose feature queries")
+	}
+}
+
+func TestGetRaceByID_ReturnsSelectableAbilityScoreModifierMetadata(t *testing.T) {
+	race, ok := GetRaceByID(HumanRaceID)
+	if !ok {
+		t.Fatal("expected human to be returned from core race lookup")
+	}
+
+	selectableModifier, ok := race.GetSelectableAbilityScoreModifier()
+	if !ok {
+		t.Fatal("expected looked up human to expose selectable ability score modifier metadata")
+	}
+
+	if selectableModifier != 2 {
+		t.Fatalf("expected looked up human selectable ability score modifier to be 2, got %d", selectableModifier)
 	}
 }
 

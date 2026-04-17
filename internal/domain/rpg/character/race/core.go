@@ -34,6 +34,7 @@ func mustBuildCoreRaces() map[RaceID]Race {
 				mustNewAbilityScoreModifier(ability.WisdomScore, 2),
 				mustNewAbilityScoreModifier(ability.CharismaScore, -2),
 			),
+			0,
 			[]LanguageID{"Common", "Dwarven"},
 			[]RacialFeatureID{
 				"Slow and Steady",
@@ -56,6 +57,7 @@ func mustBuildCoreRaces() map[RaceID]Race {
 				mustNewAbilityScoreModifier(ability.IntelligenceScore, 2),
 				mustNewAbilityScoreModifier(ability.ConstitutionScore, -2),
 			),
+			0,
 			[]LanguageID{"Common", "Elven"},
 			[]RacialFeatureID{
 				"Medium",
@@ -76,6 +78,7 @@ func mustBuildCoreRaces() map[RaceID]Race {
 				mustNewAbilityScoreModifier(ability.CharismaScore, 2),
 				mustNewAbilityScoreModifier(ability.StrengthScore, -2),
 			),
+			0,
 			[]LanguageID{"Common", "Gnome", "Sylvan"},
 			[]RacialFeatureID{
 				"Small",
@@ -87,6 +90,7 @@ func mustBuildCoreRaces() map[RaceID]Race {
 				"Weapon Familiarity",
 				"Obsessive",
 				"Gnome Magic",
+				"Keen Senses",
 			},
 		),
 		HalfElfRaceID: mustNewRace(
@@ -94,13 +98,15 @@ func mustBuildCoreRaces() map[RaceID]Race {
 			ability.MediumSize,
 			30,
 			nil,
+			2,
 			[]LanguageID{"Common", "Elven"},
 			[]RacialFeatureID{
 				"Adaptability",
 				"Elf Blood",
-				"Multitalented",
 				"Low-Light Vision",
-				"Flexible Ability Bonus",
+				"Elven Immunities",
+				"Keen Senses",
+				"Multitalented",
 			},
 		),
 		HalfOrcRaceID: mustNewRace(
@@ -108,13 +114,14 @@ func mustBuildCoreRaces() map[RaceID]Race {
 			ability.MediumSize,
 			30,
 			nil,
+			2,
 			[]LanguageID{"Common", "Orc"},
 			[]RacialFeatureID{
 				"Orc Blood",
 				"Darkvision",
+				"Orc Ferocity",
 				"Weapon Familiarity",
 				"Intimidating",
-				"Flexible Ability Bonus",
 			},
 		),
 		HalflingRaceID: mustNewRace(
@@ -126,6 +133,7 @@ func mustBuildCoreRaces() map[RaceID]Race {
 				mustNewAbilityScoreModifier(ability.CharismaScore, 2),
 				mustNewAbilityScoreModifier(ability.StrengthScore, -2),
 			),
+			0,
 			[]LanguageID{"Common", "Halfling"},
 			[]RacialFeatureID{
 				"Small",
@@ -142,11 +150,11 @@ func mustBuildCoreRaces() map[RaceID]Race {
 			ability.MediumSize,
 			30,
 			nil,
+			2,
 			[]LanguageID{"Common"},
 			[]RacialFeatureID{
 				"Bonus Feat",
 				"Skilled",
-				"Flexible Ability Bonus",
 			},
 		),
 	}
@@ -154,12 +162,13 @@ func mustBuildCoreRaces() map[RaceID]Race {
 
 func cloneRace(value Race) Race {
 	return race{
-		id:                    value.id,
-		size:                  value.size,
-		baseSpeed:             value.baseSpeed,
-		abilityScoreModifiers: append([]AbilityScoreModifier(nil), value.abilityScoreModifiers...),
-		racialLanguages:       append([]LanguageID(nil), value.racialLanguages...),
-		racialFeatures:        append([]RacialFeatureID(nil), value.racialFeatures...),
+		id:                             value.id,
+		size:                           value.size,
+		baseSpeed:                      value.baseSpeed,
+		abilityScoreModifiers:          append([]AbilityScoreModifier(nil), value.abilityScoreModifiers...),
+		selectableAbilityScoreModifier: value.selectableAbilityScoreModifier,
+		racialLanguages:                append([]LanguageID(nil), value.racialLanguages...),
+		racialFeatures:                 append([]RacialFeatureID(nil), value.racialFeatures...),
 	}
 }
 
@@ -168,10 +177,19 @@ func mustNewRace(
 	size ability.Size,
 	baseSpeed int,
 	abilityScoreModifiers []AbilityScoreModifier,
+	selectableAbilityScoreModifier int,
 	racialLanguages []LanguageID,
 	racialFeatures []RacialFeatureID,
 ) Race {
-	race, ok := NewRace(id, size, baseSpeed, abilityScoreModifiers, racialLanguages, racialFeatures)
+	race, ok := NewRace(
+		id,
+		size,
+		baseSpeed,
+		abilityScoreModifiers,
+		selectableAbilityScoreModifier,
+		racialLanguages,
+		racialFeatures,
+	)
 	if !ok {
 		panic("invalid core race seed")
 	}

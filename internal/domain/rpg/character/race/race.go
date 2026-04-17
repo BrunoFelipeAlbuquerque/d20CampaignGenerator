@@ -18,12 +18,13 @@ type abilityScoreModifier struct {
 type AbilityScoreModifier = abilityScoreModifier
 
 type race struct {
-	id                    raceID
-	size                  ability.Size
-	baseSpeed             int
-	abilityScoreModifiers []abilityScoreModifier
-	racialLanguages       []languageID
-	racialFeatures        []racialFeatureID
+	id                             raceID
+	size                           ability.Size
+	baseSpeed                      int
+	abilityScoreModifiers          []abilityScoreModifier
+	selectableAbilityScoreModifier int
+	racialLanguages                []languageID
+	racialFeatures                 []racialFeatureID
 }
 type Race = race
 
@@ -43,10 +44,11 @@ func NewRace(
 	size ability.Size,
 	baseSpeed int,
 	abilityScoreModifiers []AbilityScoreModifier,
+	selectableAbilityScoreModifier int,
 	racialLanguages []LanguageID,
 	racialFeatures []RacialFeatureID,
 ) (Race, bool) {
-	if !isValidRaceID(id) || !isValidSize(size) || baseSpeed <= 0 {
+	if !isValidRaceID(id) || !isValidSize(size) || baseSpeed <= 0 || selectableAbilityScoreModifier < 0 {
 		return race{}, false
 	}
 
@@ -66,12 +68,13 @@ func NewRace(
 	}
 
 	return race{
-		id:                    id,
-		size:                  size,
-		baseSpeed:             baseSpeed,
-		abilityScoreModifiers: dedupedModifiers,
-		racialLanguages:       dedupedLanguages,
-		racialFeatures:        dedupedFeatures,
+		id:                             id,
+		size:                           size,
+		baseSpeed:                      baseSpeed,
+		abilityScoreModifiers:          dedupedModifiers,
+		selectableAbilityScoreModifier: selectableAbilityScoreModifier,
+		racialLanguages:                dedupedLanguages,
+		racialFeatures:                 dedupedFeatures,
 	}, true
 }
 
@@ -97,6 +100,14 @@ func (r race) GetBaseSpeed() int {
 
 func (r race) GetAbilityScoreModifiers() []AbilityScoreModifier {
 	return append([]AbilityScoreModifier(nil), r.abilityScoreModifiers...)
+}
+
+func (r race) GetSelectableAbilityScoreModifier() (int, bool) {
+	if r.selectableAbilityScoreModifier == 0 {
+		return 0, false
+	}
+
+	return r.selectableAbilityScoreModifier, true
 }
 
 func (r race) GetRacialLanguages() []LanguageID {
