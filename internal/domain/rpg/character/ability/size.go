@@ -1,7 +1,6 @@
 package ability
 
-const inchesPerFoot = 12
-const metersPerInch = 0.0254
+const metersPerFoot = 0.3048
 
 type size string
 type Size = size
@@ -28,7 +27,7 @@ const (
 )
 
 type lengthValue struct {
-	inches int
+	feet float64
 }
 type LengthValue = lengthValue
 
@@ -61,11 +60,11 @@ type sizeProfile struct {
 }
 
 func (l lengthValue) GetFeet() float64 {
-	return float64(l.inches) / inchesPerFoot
+	return l.feet
 }
 
 func (l lengthValue) GetMeters() float64 {
-	return float64(l.inches) * metersPerInch
+	return l.feet * metersPerFoot
 }
 
 func (r lengthRange) GetMin() LengthValue {
@@ -208,11 +207,11 @@ func getSizeProfile(value Size) (sizeProfile, bool) {
 	return profile, ok
 }
 
-func feet(value int) lengthValue {
-	return lengthValue{inches: value * inchesPerFoot}
+func feet(value float64) lengthValue {
+	return lengthValue{feet: value}
 }
 
-func heightRange(minFeet int, maxFeet int, hasUpperBound bool) lengthRange {
+func heightRange(minFeet float64, maxFeet float64, hasUpperBound bool) lengthRange {
 	return lengthRange{
 		min:           feet(minFeet),
 		max:           feet(maxFeet),
@@ -251,11 +250,11 @@ var sizeProfiles = map[Size]sizeProfile{
 		flyModifier:      8,
 		stealthModifier:  16,
 		constructBonusHP: 0,
-		spaceTall:        feet(0),
-		spaceLong:        feet(0),
+		spaceTall:        feet(0.5),
+		spaceLong:        feet(0.5),
 		reachTall:        feet(0),
 		reachLong:        feet(0),
-		heightRange:      lengthRange{max: lengthValue{inches: 6}, hasUpperBound: true},
+		heightRange:      lengthRange{max: feet(0.5), hasUpperBound: true},
 		weightRange:      weightRangePounds(0, 0.125, true),
 	},
 	DiminutiveSize: {
@@ -264,11 +263,11 @@ var sizeProfiles = map[Size]sizeProfile{
 		flyModifier:      6,
 		stealthModifier:  12,
 		constructBonusHP: 0,
-		spaceTall:        lengthValue{inches: 12},
-		spaceLong:        lengthValue{inches: 12},
+		spaceTall:        feet(1),
+		spaceLong:        feet(1),
 		reachTall:        feet(0),
 		reachLong:        feet(0),
-		heightRange:      lengthRange{min: lengthValue{inches: 6}, max: lengthValue{inches: 12}, hasUpperBound: true},
+		heightRange:      lengthRange{min: feet(0.5), max: feet(1), hasUpperBound: true},
 		weightRange:      weightRangePounds(0.125, 1, true),
 	},
 	TinySize: {
@@ -277,8 +276,8 @@ var sizeProfiles = map[Size]sizeProfile{
 		flyModifier:      4,
 		stealthModifier:  8,
 		constructBonusHP: 5,
-		spaceTall:        lengthValue{inches: 30},
-		spaceLong:        lengthValue{inches: 30},
+		spaceTall:        feet(2.5),
+		spaceLong:        feet(2.5),
 		reachTall:        feet(0),
 		reachLong:        feet(0),
 		heightRange:      heightRange(1, 2, true),

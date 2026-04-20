@@ -25,6 +25,11 @@ func TestSizeGetModifiers_UsesPathfinderTable(t *testing.T) {
 }
 
 func TestSizeGetSpaceAndReach_RespectsTallVsLongBodies(t *testing.T) {
+	fineSpace, ok := FineSize.GetSpace(TallBodyShape)
+	if !ok || fineSpace.GetFeet() != 0.5 {
+		t.Fatalf("expected fine space (0.5, true), got (%.1f, %t)", fineSpace.GetFeet(), ok)
+	}
+
 	largeTallReach, ok := LargeSize.GetNaturalReach(TallBodyShape)
 	if !ok || largeTallReach.GetFeet() != 10 {
 		t.Fatalf("expected large tall reach (10, true), got (%.1f, %t)", largeTallReach.GetFeet(), ok)
