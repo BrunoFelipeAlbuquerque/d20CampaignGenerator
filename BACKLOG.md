@@ -39,11 +39,26 @@
   - HasFeature
   - defensive-copy getters
 
-- [ ] Add race tests:
+- [X] Add race tests:
   - valid IDs
   - invalid construction
   - core lookup
   - feature presence
+
+---
+
+### Modifier
+
+- [X] Create the Modifier domain chassis:
+  - ModifierType
+  - ModifierSource
+  - Modifier entry with target and condition slots
+  - circumstance source registry
+
+- [X] Add modifier tests:
+  - source normalization and validation
+  - circumstance registry behavior
+  - stacking and penalty resolution
 
 ---
 

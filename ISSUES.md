@@ -55,7 +55,7 @@
   - `README.md` emphasizes extensibility and homebrew
   - `AGENTS.md` and `BACKLOG.md` enforce backlog-first, core-first delivery
 
-- [ ] Make backlog status match repo reality:
+- [X] Make backlog status match repo reality:
   - some unchecked Race helper and test work already exists
   - repo packages like `modifier` are not represented in `BACKLOG.md`
 
