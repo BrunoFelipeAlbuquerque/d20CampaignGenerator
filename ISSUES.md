@@ -28,7 +28,7 @@
   - half-orc is missing `Orc Ferocity`
   - human, half-elf, and half-orc still represent the variable `+2` racial bonus as marker text instead of rules data
 
-- [ ] Stop duplicating structural race facts as ad-hoc racial features:
+- [X] Stop duplicating structural race facts as ad-hoc racial features:
   - size already exists as `size`
   - speed already exists as `baseSpeed`
   - current seeds mix `Medium`, `Small`, `Normal Speed`, and `Slow Speed` into feature lists inconsistently

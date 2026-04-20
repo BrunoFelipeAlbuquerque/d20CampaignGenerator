@@ -60,8 +60,6 @@ func mustBuildCoreRaces() map[RaceID]Race {
 			0,
 			[]LanguageID{"Common", "Elven"},
 			[]RacialFeatureID{
-				"Medium",
-				"Normal Speed",
 				"Low-Light Vision",
 				"Elven Immunities",
 				"Keen Senses",
@@ -81,8 +79,6 @@ func mustBuildCoreRaces() map[RaceID]Race {
 			0,
 			[]LanguageID{"Common", "Gnome", "Sylvan"},
 			[]RacialFeatureID{
-				"Small",
-				"Slow Speed",
 				"Low-Light Vision",
 				"Defensive Training",
 				"Illusion Resistance",
@@ -136,8 +132,6 @@ func mustBuildCoreRaces() map[RaceID]Race {
 			0,
 			[]LanguageID{"Common", "Halfling"},
 			[]RacialFeatureID{
-				"Small",
-				"Slow Speed",
 				"Fearless",
 				"Halfling Luck",
 				"Keen Senses",
