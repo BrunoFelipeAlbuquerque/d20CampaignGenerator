@@ -51,7 +51,7 @@
   - current validation only rejects empty strings
   - typo and casing drift will leak into query helpers
 
-- [ ] Bring repository documentation back in sync with repo rules:
+- [X] Bring repository documentation back in sync with repo rules:
   - `README.md` emphasizes extensibility and homebrew
   - `AGENTS.md` and `BACKLOG.md` enforce backlog-first, core-first delivery
 
