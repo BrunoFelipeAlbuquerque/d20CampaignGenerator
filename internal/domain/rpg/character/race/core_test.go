@@ -18,13 +18,13 @@ func TestCoreRaces_SeedsSevenCoreEntries(t *testing.T) {
 		languages   []LanguageID
 		featureName RacialFeatureID
 	}{
-		{DwarfRaceID, ability.MediumSize, 20, []LanguageID{"Common", "Dwarven"}, "Stonecunning"},
-		{ElfRaceID, ability.MediumSize, 30, []LanguageID{"Common", "Elven"}, "Elven Immunities"},
-		{GnomeRaceID, ability.SmallSize, 20, []LanguageID{"Common", "Gnome", "Sylvan"}, "Gnome Magic"},
-		{HalfElfRaceID, ability.MediumSize, 30, []LanguageID{"Common", "Elven"}, "Multitalented"},
-		{HalfOrcRaceID, ability.MediumSize, 30, []LanguageID{"Common", "Orc"}, "Intimidating"},
-		{HalflingRaceID, ability.SmallSize, 20, []LanguageID{"Common", "Halfling"}, "Halfling Luck"},
-		{HumanRaceID, ability.MediumSize, 30, []LanguageID{"Common"}, "Bonus Feat"},
+		{DwarfRaceID, ability.MediumSize, 20, []LanguageID{CommonLanguageID, DwarvenLanguageID}, StonecunningFeatureID},
+		{ElfRaceID, ability.MediumSize, 30, []LanguageID{CommonLanguageID, ElvenLanguageID}, ElvenImmunitiesFeatureID},
+		{GnomeRaceID, ability.SmallSize, 20, []LanguageID{CommonLanguageID, GnomeLanguageID, SylvanLanguageID}, GnomeMagicFeatureID},
+		{HalfElfRaceID, ability.MediumSize, 30, []LanguageID{CommonLanguageID, ElvenLanguageID}, MultitalentedFeatureID},
+		{HalfOrcRaceID, ability.MediumSize, 30, []LanguageID{CommonLanguageID, OrcLanguageID}, IntimidatingFeatureID},
+		{HalflingRaceID, ability.SmallSize, 20, []LanguageID{CommonLanguageID, HalflingLanguageID}, HalflingLuckFeatureID},
+		{HumanRaceID, ability.MediumSize, 30, []LanguageID{CommonLanguageID}, BonusFeatFeatureID},
 	}
 
 	for _, tc := range testCases {
@@ -67,9 +67,9 @@ func TestCoreRaces_SeedsCorrectedCoreFeaturePresence(t *testing.T) {
 		id       RaceID
 		features []RacialFeatureID
 	}{
-		{GnomeRaceID, []RacialFeatureID{"Gnome Magic", "Keen Senses"}},
-		{HalfElfRaceID, []RacialFeatureID{"Elven Immunities", "Keen Senses", "Multitalented"}},
-		{HalfOrcRaceID, []RacialFeatureID{"Orc Ferocity", "Intimidating"}},
+		{GnomeRaceID, []RacialFeatureID{GnomeMagicFeatureID, KeenSensesFeatureID}},
+		{HalfElfRaceID, []RacialFeatureID{ElvenImmunitiesFeatureID, KeenSensesFeatureID, MultitalentedFeatureID}},
+		{HalfOrcRaceID, []RacialFeatureID{OrcFerocityFeatureID, IntimidatingFeatureID}},
 	}
 
 	for _, tc := range testCases {
@@ -179,7 +179,7 @@ func TestCoreRaces_SeedsSelectableAbilityScoreModifierForVariableBonuses(t *test
 			t.Fatalf("expected race %q selectable ability score modifier to be 2, got %d", raceID, selectableModifier)
 		}
 
-		if race.HasFeature("Flexible Ability Bonus") {
+		if race.HasFeature(RacialFeatureID("Flexible Ability Bonus")) {
 			t.Fatalf("expected race %q variable ability bonus not to be encoded as a feature marker", raceID)
 		}
 	}
@@ -195,7 +195,7 @@ func TestGetRaceByID_ReturnsSeededCoreRace(t *testing.T) {
 		t.Fatalf("expected race id %q, got %q", ElfRaceID, race.GetID())
 	}
 
-	if !race.HasFeature("Elven Immunities") {
+	if !race.HasFeature(ElvenImmunitiesFeatureID) {
 		t.Fatal("expected looked up elf to expose feature queries")
 	}
 }
@@ -235,11 +235,11 @@ func TestGetRaceByID_ReturnsDetachedCopy(t *testing.T) {
 		t.Fatalf("expected stored dwarf constitution modifier to remain 2, got %d", second.abilityScoreModifiers[0].modifier)
 	}
 
-	if second.racialLanguages[0] != "Common" {
+	if second.racialLanguages[0] != CommonLanguageID {
 		t.Fatalf("expected stored dwarf language to remain Common, got %q", second.racialLanguages[0])
 	}
 
-	if second.racialFeatures[0] != "Slow and Steady" {
+	if second.racialFeatures[0] != SlowAndSteadyFeatureID {
 		t.Fatalf("expected stored dwarf feature to remain Slow and Steady, got %q", second.racialFeatures[0])
 	}
 }

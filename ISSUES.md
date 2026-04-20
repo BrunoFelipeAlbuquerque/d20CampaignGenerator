@@ -47,7 +47,7 @@
   - source-bucket caster levels
   - these should not blur what is core-only work vs project-specific rules
 
-- [ ] Replace free-form race language and feature strings with canonical IDs before expanding lookup usage:
+- [X] Replace free-form race language and feature strings with canonical IDs before expanding lookup usage:
   - current validation only rejects empty strings
   - typo and casing drift will leak into query helpers
 

@@ -23,8 +23,8 @@ func TestNewRace_ConstructsValidatedRaceChassis(t *testing.T) {
 		30,
 		[]AbilityScoreModifier{strengthModifier, constitutionModifier},
 		0,
-		[]LanguageID{"Common", "Elven"},
-		[]RacialFeatureID{"Keen Senses", "Low-Light Vision"},
+		[]LanguageID{CommonLanguageID, ElvenLanguageID},
+		[]RacialFeatureID{KeenSensesFeatureID, LowLightVisionFeatureID},
 	)
 	if !ok {
 		t.Fatal("expected race chassis to be constructed")
@@ -52,11 +52,11 @@ func TestNewRace_ConstructsValidatedRaceChassis(t *testing.T) {
 	}
 
 	languages := race.GetRacialLanguages()
-	if len(languages) != 2 || languages[0] != "Common" || languages[1] != "Elven" {
+	if len(languages) != 2 || languages[0] != CommonLanguageID || languages[1] != ElvenLanguageID {
 		t.Fatalf("expected racial languages [Common Elven], got %v", languages)
 	}
 
-	if !race.HasFeature("Keen Senses") {
+	if !race.HasFeature(KeenSensesFeatureID) {
 		t.Fatal("expected Keen Senses feature to be present")
 	}
 
@@ -72,8 +72,8 @@ func TestNewRace_StoresSelectableAbilityScoreModifierMetadata(t *testing.T) {
 		30,
 		nil,
 		2,
-		[]LanguageID{"Common"},
-		[]RacialFeatureID{"Bonus Feat", "Skilled"},
+		[]LanguageID{CommonLanguageID},
+		[]RacialFeatureID{BonusFeatFeatureID, SkilledFeatureID},
 	)
 	if !ok {
 		t.Fatal("expected race chassis with selectable ability score modifier metadata to be constructed")
@@ -101,8 +101,8 @@ func TestNewRace_DedupesModifiersLanguagesAndFeatures(t *testing.T) {
 		20,
 		[]AbilityScoreModifier{intelligenceModifier, intelligenceModifier},
 		0,
-		[]LanguageID{"Common", "Gnome", "Common"},
-		[]RacialFeatureID{"Defensive Training", "Defensive Training", "Keen Senses"},
+		[]LanguageID{CommonLanguageID, GnomeLanguageID, CommonLanguageID},
+		[]RacialFeatureID{DefensiveTrainingFeatureID, DefensiveTrainingFeatureID, KeenSensesFeatureID},
 	)
 	if !ok {
 		t.Fatal("expected race chassis to be constructed")
@@ -169,10 +169,10 @@ func TestNewRace_RejectsInvalidInputs(t *testing.T) {
 		30,
 		[]AbilityScoreModifier{validModifier},
 		0,
-		[]LanguageID{""},
+		[]LanguageID{LanguageID("common")},
 		nil,
 	); ok {
-		t.Fatal("expected empty racial language to be rejected")
+		t.Fatal("expected unknown racial language to be rejected")
 	}
 
 	if _, ok := NewRace(
@@ -182,9 +182,9 @@ func TestNewRace_RejectsInvalidInputs(t *testing.T) {
 		[]AbilityScoreModifier{validModifier},
 		0,
 		nil,
-		[]RacialFeatureID{""},
+		[]RacialFeatureID{RacialFeatureID("keen senses")},
 	); ok {
-		t.Fatal("expected empty racial feature to be rejected")
+		t.Fatal("expected unknown racial feature to be rejected")
 	}
 }
 
@@ -200,8 +200,8 @@ func TestRace_GettersReturnDefensiveCopies(t *testing.T) {
 		20,
 		[]AbilityScoreModifier{dexterityModifier},
 		0,
-		[]LanguageID{"Common", "Halfling"},
-		[]RacialFeatureID{"Sure-Footed"},
+		[]LanguageID{CommonLanguageID, HalflingLanguageID},
+		[]RacialFeatureID{SureFootedFeatureID},
 	)
 	if !ok {
 		t.Fatal("expected race chassis to be constructed")
@@ -219,11 +219,11 @@ func TestRace_GettersReturnDefensiveCopies(t *testing.T) {
 		t.Fatal("expected ability score modifiers getter to return a defensive copy")
 	}
 
-	if race.GetRacialLanguages()[0] != "Common" {
+	if race.GetRacialLanguages()[0] != CommonLanguageID {
 		t.Fatal("expected racial languages getter to return a defensive copy")
 	}
 
-	if race.GetRacialFeatures()[0] != "Sure-Footed" {
+	if race.GetRacialFeatures()[0] != SureFootedFeatureID {
 		t.Fatal("expected racial features getter to return a defensive copy")
 	}
 }
