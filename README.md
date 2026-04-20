@@ -6,15 +6,14 @@ This repository is aiming for a rules-aware domain model, not just a loose bag o
 
 - explicit
 - validated
-- extensible
-- friendly to homebrew
-- safe to evolve as more Pathfinder systems are added
+- core-first
+- safe to compose as more Pathfinder systems are added
 
-The project is still growing, but the direction is already clear: build small domain objects with strong invariants, then compose them into larger character systems later.
+The project follows `BACKLOG.md` as the source of truth. Current delivery is backlog-first and core-only: finish the small validated foundation domains, then add core seed data, then add query logic, and only then expand composition under `character`.
 
 ## What This Project Is Trying To Achieve
 
-The long-term goal is to model Pathfinder 1e characters and creature logic in a way that stays maintainable even as the rules get ugly.
+The current goal is to model Pathfinder 1e characters and creature logic in a way that stays maintainable as the core rules surface grows one slice at a time.
 
 Pathfinder is full of systems that look simple on the surface but become hard once you combine:
 
@@ -22,8 +21,7 @@ Pathfinder is full of systems that look simple on the surface but become hard on
 - racial rules
 - monster rules
 - exceptional cases
-- optional rules
-- homebrew
+- later composition pressure
 
 Because of that, this project prefers a domain-first approach:
 
@@ -117,21 +115,21 @@ This avoids:
 - awkward equality checks
 - hidden rounding errors in multiclass calculations
 
-### Support Homebrew Without Forcing Core Refactors
+### Keep Later Expansion From Driving Current Scope
 
-A recurring design goal is flexibility.
+A recurring design goal is to keep the current core backlog from forcing rewrites later.
 
-If a future homebrew class, creature type, or spellcasting source is added, the project should not require rewriting core stat containers just to make room for it.
+If a later class, creature type, or spellcasting source is added, the project should not require rewriting the core stat containers already built from the backlog.
 
 That is why some types are intentionally generic.
 
 Example:
 
-- `CasterLevel` stores `Arcane`, `Divine`, and `Primal` source totals
+- `CasterLevel` stores `Arcane`, `Divine`, and `Primal` source totals already present in the repo
 - it does not hardcode class names into itself
-- classes are expected to contribute to those totals elsewhere
+- classes are expected to contribute to those totals elsewhere when that work is actually scheduled
 
-This makes the system more reusable and less brittle.
+This keeps existing domains stable without changing the current core-first delivery order.
 
 ### Keep Exact Value And Display Value When The Rules Need Both
 
@@ -163,21 +161,23 @@ It keeps sources like:
 
 That makes recalculation and debugging much easier than storing only one final integer.
 
-## Current House Rules And Project Conventions
+## Current Scope And Project-Specific Differences
 
-Some rules in this project intentionally differ from default Pathfinder 1e.
+The active backlog is core-only. The repository also contains some project-specific rules and conventions that are documented separately so they do not become the default direction for upcoming backlog work.
 
 These are documented in:
 
 [PF1 Differences](docs/pf1-differences/README.md)
 
-Current notable differences include:
+Current repo-specific differences include:
 
 - caster level tracked by source instead of by individual class
 - custom construct bonus HP table
 - `Titanic` as an officialized project creature size
 - project-authored metric conversions for creature size ranges
 - fixed average hit die values for HP calculations
+
+Those differences exist in the repository, but they are not the source of truth for current delivery priority. `BACKLOG.md` and `AGENTS.md` are.
 
 ## Current Domain Snapshot
 
@@ -220,7 +220,7 @@ Important notes:
 
 ### `CasterLevel`
 
-Represents source-based caster level totals.
+Represents the repository's current source-based caster level totals.
 
 Important notes:
 
@@ -262,7 +262,7 @@ Important notes:
 - includes construct HP bonus
 - includes space and reach by body shape
 - includes typical height and weight ranges in imperial and metric
-- includes the homebrew `Titanic` size
+- includes the repo-specific `Titanic` size entry
 
 ## Glossary
 
