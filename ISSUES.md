@@ -41,7 +41,7 @@
 
 ## SHOULD
 
-- [ ] Quarantine project house rules from upcoming core backlog work:
+- [X] Quarantine project house rules from upcoming core backlog work:
   - `TitanicSize`
   - custom construct bonus HP table
   - source-bucket caster levels
