@@ -65,5 +65,5 @@
 
 - [ ] Run a later audit pass over the already-built foundation domains after P0 Race, Skill, and Class are aligned
 
-- [ ] Collapse duplicated helper logic only if it becomes active maintenance pain:
+- [X] Collapse duplicated helper logic only if it becomes active maintenance pain:
   - example: ability modifier math is duplicated in more than one place
