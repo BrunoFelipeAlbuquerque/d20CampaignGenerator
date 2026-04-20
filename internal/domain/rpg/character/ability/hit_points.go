@@ -363,7 +363,7 @@ func (h hitPoints) resolveCoreState() ([]hpSource, int, int) {
 
 	switch h.kind {
 	case UndeadHitPoints:
-		charismaBonus := getAbilityModifier(h.charisma) * h.hd.total
+		charismaBonus := calculateAbilityModifier(h.charisma) * h.hd.total
 		sources = append(sources, hpSource{name: "Charisma (Undead)", value: charismaBonus})
 		total += charismaBonus
 		total = applyMinimumHitPointFloor(total, minimumHitPoints, &sources)
@@ -376,7 +376,7 @@ func (h hitPoints) resolveCoreState() ([]hpSource, int, int) {
 		return sources, total, 0
 
 	default:
-		constitutionBonus := getAbilityModifier(h.constitution) * h.hd.total
+		constitutionBonus := calculateAbilityModifier(h.constitution) * h.hd.total
 		sources = append(sources, hpSource{name: "Constitution", value: constitutionBonus})
 		total += constitutionBonus
 		total = applyMinimumHitPointFloor(total, minimumHitPoints, &sources)
@@ -440,15 +440,6 @@ func applyMinimumHitPointFloor(total int, minimum int, sources *[]hpSource) int 
 	adjustment := minimum - total
 	*sources = append(*sources, hpSource{name: "Minimum 1 HP per Hit Die", value: adjustment})
 	return minimum
-}
-
-func getAbilityModifier(score int) int {
-	delta := score - 10
-	if delta >= 0 || delta%2 == 0 {
-		return delta / 2
-	}
-
-	return (delta / 2) - 1
 }
 
 func isSemanticallyValidHitDie(hd HitDie) bool {
