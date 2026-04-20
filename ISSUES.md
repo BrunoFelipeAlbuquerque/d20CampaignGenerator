@@ -33,7 +33,7 @@
   - speed already exists as `baseSpeed`
   - current seeds mix `Medium`, `Small`, `Normal Speed`, and `Slow Speed` into feature lists inconsistently
 
-- [ ] Correct the `Fine` size rules entry:
+- [X] Correct the `Fine` size rules entry:
   - current space is `0 ft`
   - Pathfinder size data expects `0.5 ft` space
 
