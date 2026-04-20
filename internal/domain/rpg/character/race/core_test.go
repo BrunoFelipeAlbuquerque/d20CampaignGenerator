@@ -83,6 +83,23 @@ func TestCoreRaces_SeedsCorrectedCoreFeaturePresence(t *testing.T) {
 	}
 }
 
+func TestCoreRaces_DoesNotDuplicateStructuralFactsAsFeatures(t *testing.T) {
+	structuralFeatureMarkers := []RacialFeatureID{
+		"Medium",
+		"Small",
+		"Normal Speed",
+		"Slow Speed",
+	}
+
+	for raceID, race := range coreRaces {
+		for _, featureID := range structuralFeatureMarkers {
+			if race.HasFeature(featureID) {
+				t.Fatalf("expected race %q not to encode structural fact %q as a racial feature", raceID, featureID)
+			}
+		}
+	}
+}
+
 func TestCoreRaces_SeedsAbilityScoreModifiersWhereFixed(t *testing.T) {
 	testCases := []struct {
 		id        RaceID
