@@ -142,11 +142,13 @@ func isValidSize(value ability.Size) bool {
 }
 
 func isValidLanguageID(value LanguageID) bool {
-	return value != ""
+	_, ok := validLanguageIDs[value]
+	return ok
 }
 
 func isValidRacialFeatureID(value RacialFeatureID) bool {
-	return value != ""
+	_, ok := validRacialFeatureIDs[value]
+	return ok
 }
 
 func dedupeAbilityScoreModifiers(modifiers []AbilityScoreModifier) ([]AbilityScoreModifier, bool) {
