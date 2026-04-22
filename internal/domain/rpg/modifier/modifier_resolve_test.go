@@ -100,6 +100,48 @@ func TestNewTargetRefAndConditionRef_RejectInvalidIDs(t *testing.T) {
 	}
 }
 
+func TestNewModifier_RejectsZeroValuedExportedRefs(t *testing.T) {
+	var target TargetRef
+	if _, ok := NewModifier(ModifierDodge, 1, "", target, nil); ok {
+		t.Fatal("expected zero-valued exported target ref to be rejected")
+	}
+
+	validTarget, ok := NewTargetRef("attack_roll")
+	if !ok {
+		t.Fatal("expected target ref to be constructed")
+	}
+
+	var condition ConditionRef
+	if _, ok := NewModifier(ModifierDodge, 1, "", validTarget, ModifierCondition{condition}); ok {
+		t.Fatal("expected zero-valued exported condition ref to be rejected")
+	}
+}
+
+func TestModifierResolve_RejectsZeroValuedExportedRefs(t *testing.T) {
+	var invalidTarget TargetRef
+	mods := ModifierList{
+		{modifierType: ModifierDodge, value: 1, target: invalidTarget},
+	}
+
+	if _, ok := mods.ModifierResolve(); ok {
+		t.Fatal("expected modifier list with zero-valued exported target ref to be rejected")
+	}
+
+	validTarget, ok := NewTargetRef("attack_roll")
+	if !ok {
+		t.Fatal("expected target ref to be constructed")
+	}
+
+	var invalidCondition ConditionRef
+	mods = ModifierList{
+		{modifierType: ModifierDodge, value: 1, target: validTarget, condition: ModifierCondition{invalidCondition}},
+	}
+
+	if _, ok := mods.ModifierResolve(); ok {
+		t.Fatal("expected modifier list with zero-valued exported condition ref to be rejected")
+	}
+}
+
 // ==============================
 // DODGE (STACK ALL)
 // ==============================

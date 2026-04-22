@@ -11,7 +11,7 @@
 
 ## NEED
 
-- [ ] Validate exported modifier target and condition refs before `Modifier` construction accepts them:
+- [X] Validate exported modifier target and condition refs before `Modifier` construction accepts them:
   - `NewTargetRef` and `NewConditionRef` now exist as validated entry points
   - `NewModifier` still accepts zero-valued exported `TargetRef` and `ConditionRef` without checking them
   - this reopens the invalid-state path that the modifier chassis was supposed to close
