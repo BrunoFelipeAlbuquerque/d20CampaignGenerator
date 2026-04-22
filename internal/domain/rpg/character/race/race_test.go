@@ -24,6 +24,7 @@ func TestNewRace_ConstructsValidatedRaceChassis(t *testing.T) {
 		[]AbilityScoreModifier{strengthModifier, constitutionModifier},
 		0,
 		[]LanguageID{CommonLanguageID, ElvenLanguageID},
+		mustBonusLanguageChoiceForTest(t, []LanguageID{SylvanLanguageID}, false),
 		[]RacialFeatureID{KeenSensesFeatureID, LowLightVisionFeatureID},
 	)
 	if !ok {
@@ -56,6 +57,15 @@ func TestNewRace_ConstructsValidatedRaceChassis(t *testing.T) {
 		t.Fatalf("expected racial languages [Common Elven], got %v", languages)
 	}
 
+	bonusChoice, ok := race.GetBonusLanguageChoice()
+	if !ok {
+		t.Fatal("expected bonus language choice metadata to be present")
+	}
+
+	if len(bonusChoice.GetLanguageIDs()) != 1 || bonusChoice.GetLanguageIDs()[0] != SylvanLanguageID {
+		t.Fatalf("expected bonus language choice [Sylvan], got %v", bonusChoice.GetLanguageIDs())
+	}
+
 	if !race.HasFeature(KeenSensesFeatureID) {
 		t.Fatal("expected Keen Senses feature to be present")
 	}
@@ -73,6 +83,7 @@ func TestNewRace_StoresSelectableAbilityScoreModifierMetadata(t *testing.T) {
 		nil,
 		2,
 		[]LanguageID{CommonLanguageID},
+		mustBonusLanguageChoiceForTest(t, nil, true),
 		[]RacialFeatureID{BonusFeatFeatureID, SkilledFeatureID},
 	)
 	if !ok {
@@ -102,6 +113,7 @@ func TestNewRace_DedupesModifiersLanguagesAndFeatures(t *testing.T) {
 		[]AbilityScoreModifier{intelligenceModifier, intelligenceModifier},
 		0,
 		[]LanguageID{CommonLanguageID, GnomeLanguageID, CommonLanguageID},
+		mustBonusLanguageChoiceForTest(t, []LanguageID{ElvenLanguageID, ElvenLanguageID}, false),
 		[]RacialFeatureID{DefensiveTrainingFeatureID, DefensiveTrainingFeatureID, KeenSensesFeatureID},
 	)
 	if !ok {
@@ -114,6 +126,15 @@ func TestNewRace_DedupesModifiersLanguagesAndFeatures(t *testing.T) {
 
 	if len(race.GetRacialLanguages()) != 2 {
 		t.Fatalf("expected deduped racial languages length 2, got %d", len(race.GetRacialLanguages()))
+	}
+
+	bonusChoice, ok := race.GetBonusLanguageChoice()
+	if !ok {
+		t.Fatal("expected bonus language choice metadata to be present")
+	}
+
+	if len(bonusChoice.GetLanguageIDs()) != 1 {
+		t.Fatalf("expected deduped bonus language choice length 1, got %d", len(bonusChoice.GetLanguageIDs()))
 	}
 
 	if len(race.GetRacialFeatures()) != 2 {
@@ -135,23 +156,23 @@ func TestNewRace_RejectsInvalidInputs(t *testing.T) {
 		t.Fatal("expected dexterity modifier to be constructed")
 	}
 
-	if _, ok := NewRace("", ability.MediumSize, 30, nil, 0, nil, nil); ok {
+	if _, ok := NewRace("", ability.MediumSize, 30, nil, 0, nil, bonusLanguageChoice{}, nil); ok {
 		t.Fatal("expected empty race id to be rejected")
 	}
 
-	if _, ok := NewRace(RaceID("human"), ability.Size("Gigantic"), 30, nil, 0, nil, nil); ok {
+	if _, ok := NewRace(RaceID("human"), ability.Size("Gigantic"), 30, nil, 0, nil, bonusLanguageChoice{}, nil); ok {
 		t.Fatal("expected invalid size to be rejected")
 	}
 
-	if _, ok := NewRace(RaceID("human"), ability.MediumSize, 0, nil, 0, nil, nil); ok {
+	if _, ok := NewRace(RaceID("human"), ability.MediumSize, 0, nil, 0, nil, bonusLanguageChoice{}, nil); ok {
 		t.Fatal("expected non-positive base speed to be rejected")
 	}
 
-	if _, ok := NewRace(RaceID("human"), ability.MediumSize, 30, nil, -2, nil, nil); ok {
+	if _, ok := NewRace(RaceID("human"), ability.MediumSize, 30, nil, -2, nil, bonusLanguageChoice{}, nil); ok {
 		t.Fatal("expected negative selectable ability score modifier to be rejected")
 	}
 
-	if _, ok := NewRace(RaceID("human"), ability.MediumSize, 30, nil, 1, nil, nil); ok {
+	if _, ok := NewRace(RaceID("human"), ability.MediumSize, 30, nil, 1, nil, bonusLanguageChoice{}, nil); ok {
 		t.Fatal("expected unsupported selectable ability score modifier to be rejected")
 	}
 
@@ -162,6 +183,7 @@ func TestNewRace_RejectsInvalidInputs(t *testing.T) {
 		[]AbilityScoreModifier{{scoreID: ability.AbilityScoreID("LCK"), modifier: 2}},
 		0,
 		nil,
+		bonusLanguageChoice{},
 		nil,
 	); ok {
 		t.Fatal("expected invalid ability score modifier entry to be rejected")
@@ -174,6 +196,7 @@ func TestNewRace_RejectsInvalidInputs(t *testing.T) {
 		[]AbilityScoreModifier{validModifier},
 		2,
 		nil,
+		bonusLanguageChoice{},
 		nil,
 	); ok {
 		t.Fatal("expected fixed and selectable ability score modifiers to be rejected together")
@@ -186,6 +209,7 @@ func TestNewRace_RejectsInvalidInputs(t *testing.T) {
 		[]AbilityScoreModifier{validModifier},
 		0,
 		[]LanguageID{LanguageID("common")},
+		bonusLanguageChoice{},
 		nil,
 	); ok {
 		t.Fatal("expected unknown racial language to be rejected")
@@ -198,6 +222,20 @@ func TestNewRace_RejectsInvalidInputs(t *testing.T) {
 		[]AbilityScoreModifier{validModifier},
 		0,
 		nil,
+		BonusLanguageChoice{languageIDs: []LanguageID{LanguageID("unknown")}},
+		nil,
+	); ok {
+		t.Fatal("expected invalid bonus language choice to be rejected")
+	}
+
+	if _, ok := NewRace(
+		RaceID("human"),
+		ability.MediumSize,
+		30,
+		[]AbilityScoreModifier{validModifier},
+		0,
+		nil,
+		bonusLanguageChoice{},
 		[]RacialFeatureID{RacialFeatureID("keen senses")},
 	); ok {
 		t.Fatal("expected unknown racial feature to be rejected")
@@ -217,6 +255,7 @@ func TestRace_GettersReturnDefensiveCopies(t *testing.T) {
 		[]AbilityScoreModifier{dexterityModifier},
 		0,
 		[]LanguageID{CommonLanguageID, HalflingLanguageID},
+		mustBonusLanguageChoiceForTest(t, []LanguageID{ElvenLanguageID}, false),
 		[]RacialFeatureID{SureFootedFeatureID},
 	)
 	if !ok {
@@ -225,10 +264,12 @@ func TestRace_GettersReturnDefensiveCopies(t *testing.T) {
 
 	modifiers := race.GetAbilityScoreModifiers()
 	languages := race.GetRacialLanguages()
+	bonusChoice, _ := race.GetBonusLanguageChoice()
 	features := race.GetRacialFeatures()
 
 	modifiers[0] = AbilityScoreModifier{}
 	languages[0] = "Changed"
+	bonusChoice.languageIDs[0] = "Changed"
 	features[0] = "Changed"
 
 	if race.GetAbilityScoreModifiers()[0].GetScoreID() != ability.DexterityScore {
@@ -239,7 +280,23 @@ func TestRace_GettersReturnDefensiveCopies(t *testing.T) {
 		t.Fatal("expected racial languages getter to return a defensive copy")
 	}
 
+	storedBonusChoice, ok := race.GetBonusLanguageChoice()
+	if !ok || storedBonusChoice.GetLanguageIDs()[0] != ElvenLanguageID {
+		t.Fatal("expected bonus language choice getter to return a defensive copy")
+	}
+
 	if race.GetRacialFeatures()[0] != SureFootedFeatureID {
 		t.Fatal("expected racial features getter to return a defensive copy")
 	}
+}
+
+func mustBonusLanguageChoiceForTest(t *testing.T, languageIDs []LanguageID, anyNonSecret bool) BonusLanguageChoice {
+	t.Helper()
+
+	value, ok := NewBonusLanguageChoice(languageIDs, anyNonSecret)
+	if !ok {
+		t.Fatal("expected bonus language choice to be constructed")
+	}
+
+	return value
 }

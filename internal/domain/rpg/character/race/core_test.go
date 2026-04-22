@@ -16,15 +16,16 @@ func TestCoreRaces_SeedsSevenCoreEntries(t *testing.T) {
 		size        ability.Size
 		baseSpeed   int
 		languages   []LanguageID
+		bonusChoice BonusLanguageChoice
 		featureName RacialFeatureID
 	}{
-		{DwarfRaceID, ability.MediumSize, 20, []LanguageID{CommonLanguageID, DwarvenLanguageID}, StonecunningFeatureID},
-		{ElfRaceID, ability.MediumSize, 30, []LanguageID{CommonLanguageID, ElvenLanguageID}, ElvenImmunitiesFeatureID},
-		{GnomeRaceID, ability.SmallSize, 20, []LanguageID{CommonLanguageID, GnomeLanguageID, SylvanLanguageID}, GnomeMagicFeatureID},
-		{HalfElfRaceID, ability.MediumSize, 30, []LanguageID{CommonLanguageID, ElvenLanguageID}, MultitalentedFeatureID},
-		{HalfOrcRaceID, ability.MediumSize, 30, []LanguageID{CommonLanguageID, OrcLanguageID}, IntimidatingFeatureID},
-		{HalflingRaceID, ability.SmallSize, 20, []LanguageID{CommonLanguageID, HalflingLanguageID}, HalflingLuckFeatureID},
-		{HumanRaceID, ability.MediumSize, 30, []LanguageID{CommonLanguageID}, BonusFeatFeatureID},
+		{DwarfRaceID, ability.MediumSize, 20, []LanguageID{CommonLanguageID, DwarvenLanguageID}, mustCoreBonusLanguageChoice(t, []LanguageID{GiantLanguageID, GnomeLanguageID, GoblinLanguageID, OrcLanguageID, TerranLanguageID, UndercommonLanguageID}, false), StonecunningFeatureID},
+		{ElfRaceID, ability.MediumSize, 30, []LanguageID{CommonLanguageID, ElvenLanguageID}, mustCoreBonusLanguageChoice(t, []LanguageID{CelestialLanguageID, DraconicLanguageID, GnollLanguageID, GnomeLanguageID, GoblinLanguageID, OrcLanguageID, SylvanLanguageID}, false), ElvenImmunitiesFeatureID},
+		{GnomeRaceID, ability.SmallSize, 20, []LanguageID{CommonLanguageID, GnomeLanguageID, SylvanLanguageID}, mustCoreBonusLanguageChoice(t, []LanguageID{DraconicLanguageID, DwarvenLanguageID, ElvenLanguageID, GiantLanguageID, GoblinLanguageID, OrcLanguageID}, false), GnomeMagicFeatureID},
+		{HalfElfRaceID, ability.MediumSize, 30, []LanguageID{CommonLanguageID, ElvenLanguageID}, mustCoreBonusLanguageChoice(t, nil, true), MultitalentedFeatureID},
+		{HalfOrcRaceID, ability.MediumSize, 30, []LanguageID{CommonLanguageID, OrcLanguageID}, mustCoreBonusLanguageChoice(t, []LanguageID{AbyssalLanguageID, DraconicLanguageID, GiantLanguageID, GnollLanguageID, GoblinLanguageID}, false), IntimidatingFeatureID},
+		{HalflingRaceID, ability.SmallSize, 20, []LanguageID{CommonLanguageID, HalflingLanguageID}, mustCoreBonusLanguageChoice(t, []LanguageID{DwarvenLanguageID, ElvenLanguageID, GnomeLanguageID, GoblinLanguageID, OrcLanguageID}, false), HalflingLuckFeatureID},
+		{HumanRaceID, ability.MediumSize, 30, []LanguageID{CommonLanguageID}, mustCoreBonusLanguageChoice(t, nil, true), BonusFeatFeatureID},
 	}
 
 	for _, tc := range testCases {
@@ -53,6 +54,27 @@ func TestCoreRaces_SeedsSevenCoreEntries(t *testing.T) {
 		for i, language := range tc.languages {
 			if languages[i] != language {
 				t.Fatalf("expected race %q language at %d to be %q, got %q", tc.id, i, language, languages[i])
+			}
+		}
+
+		bonusChoice, ok := race.GetBonusLanguageChoice()
+		if !ok {
+			t.Fatalf("expected race %q bonus language choice metadata", tc.id)
+		}
+
+		if bonusChoice.AllowsAnyNonSecret() != tc.bonusChoice.AllowsAnyNonSecret() {
+			t.Fatalf("expected race %q any-non-secret=%t, got %t", tc.id, tc.bonusChoice.AllowsAnyNonSecret(), bonusChoice.AllowsAnyNonSecret())
+		}
+
+		actualBonusLanguages := bonusChoice.GetLanguageIDs()
+		expectedBonusLanguages := tc.bonusChoice.GetLanguageIDs()
+		if len(actualBonusLanguages) != len(expectedBonusLanguages) {
+			t.Fatalf("expected race %q to have %d bonus languages, got %d", tc.id, len(expectedBonusLanguages), len(actualBonusLanguages))
+		}
+
+		for i, language := range expectedBonusLanguages {
+			if actualBonusLanguages[i] != language {
+				t.Fatalf("expected race %q bonus language at %d to be %q, got %q", tc.id, i, language, actualBonusLanguages[i])
 			}
 		}
 
@@ -224,7 +246,8 @@ func TestGetRaceByID_ReturnsDetachedCopy(t *testing.T) {
 	}
 
 	first.abilityScoreModifiers[0].modifier = 99
-	first.racialLanguages[0] = "Changed"
+	first.automaticLanguages[0] = "Changed"
+	first.bonusLanguageChoice.languageIDs[0] = "Changed"
 	first.racialFeatures[0] = "Changed"
 
 	second, ok := GetRaceByID(DwarfRaceID)
@@ -236,8 +259,12 @@ func TestGetRaceByID_ReturnsDetachedCopy(t *testing.T) {
 		t.Fatalf("expected stored dwarf constitution modifier to remain 2, got %d", second.abilityScoreModifiers[0].modifier)
 	}
 
-	if second.racialLanguages[0] != CommonLanguageID {
-		t.Fatalf("expected stored dwarf language to remain Common, got %q", second.racialLanguages[0])
+	if second.automaticLanguages[0] != CommonLanguageID {
+		t.Fatalf("expected stored dwarf language to remain Common, got %q", second.automaticLanguages[0])
+	}
+
+	if second.bonusLanguageChoice.languageIDs[0] != GiantLanguageID {
+		t.Fatalf("expected stored dwarf bonus language to remain Giant, got %q", second.bonusLanguageChoice.languageIDs[0])
 	}
 
 	if second.racialFeatures[0] != SlowAndSteadyFeatureID {
@@ -268,12 +295,17 @@ func TestGetRaces_ReturnsDetachedCopies(t *testing.T) {
 	first := GetRaces()
 	second := GetRaces()
 
-	first[0].racialLanguages[0] = "Changed"
+	first[0].automaticLanguages[0] = "Changed"
+	first[0].bonusLanguageChoice.languageIDs[0] = "Changed"
 	first[0].racialFeatures[0] = "Changed"
 	first[0].abilityScoreModifiers[0].modifier = 99
 
-	if second[0].racialLanguages[0] != CommonLanguageID {
-		t.Fatalf("expected stored race language to remain %q, got %q", CommonLanguageID, second[0].racialLanguages[0])
+	if second[0].automaticLanguages[0] != CommonLanguageID {
+		t.Fatalf("expected stored race language to remain %q, got %q", CommonLanguageID, second[0].automaticLanguages[0])
+	}
+
+	if second[0].bonusLanguageChoice.languageIDs[0] != GiantLanguageID {
+		t.Fatalf("expected stored race bonus language to remain %q, got %q", GiantLanguageID, second[0].bonusLanguageChoice.languageIDs[0])
 	}
 
 	if second[0].racialFeatures[0] != SlowAndSteadyFeatureID {
@@ -283,4 +315,15 @@ func TestGetRaces_ReturnsDetachedCopies(t *testing.T) {
 	if second[0].abilityScoreModifiers[0].modifier != 2 {
 		t.Fatalf("expected stored race modifier to remain 2, got %d", second[0].abilityScoreModifiers[0].modifier)
 	}
+}
+
+func mustCoreBonusLanguageChoice(t *testing.T, languageIDs []LanguageID, anyNonSecret bool) BonusLanguageChoice {
+	t.Helper()
+
+	value, ok := NewBonusLanguageChoice(languageIDs, anyNonSecret)
+	if !ok {
+		t.Fatal("expected core bonus language choice to be constructed")
+	}
+
+	return value
 }

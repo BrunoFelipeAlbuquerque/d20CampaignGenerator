@@ -11,7 +11,7 @@
 
 ## NEED
 
-- [ ] Split race language metadata before character language composition hardens around the wrong shape:
+- [X] Split race language metadata before character language composition hardens around the wrong shape:
   - `Race` currently stores a single `racialLanguages []LanguageID` list
   - the seeds only model automatic starting languages and cannot represent core bonus-language choices
   - core races like dwarf, elf, gnome, half-elf, half-orc, halfling, and human therefore lose rule-important language selection metadata

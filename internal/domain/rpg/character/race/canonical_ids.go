@@ -1,13 +1,21 @@
 package race
 
 const (
-	CommonLanguageID   LanguageID = "Common"
-	DwarvenLanguageID  LanguageID = "Dwarven"
-	ElvenLanguageID    LanguageID = "Elven"
-	GnomeLanguageID    LanguageID = "Gnome"
-	SylvanLanguageID   LanguageID = "Sylvan"
-	OrcLanguageID      LanguageID = "Orc"
-	HalflingLanguageID LanguageID = "Halfling"
+	CommonLanguageID      LanguageID = "Common"
+	AbyssalLanguageID     LanguageID = "Abyssal"
+	CelestialLanguageID   LanguageID = "Celestial"
+	DraconicLanguageID    LanguageID = "Draconic"
+	DwarvenLanguageID     LanguageID = "Dwarven"
+	ElvenLanguageID       LanguageID = "Elven"
+	GiantLanguageID       LanguageID = "Giant"
+	GnomeLanguageID       LanguageID = "Gnome"
+	GnollLanguageID       LanguageID = "Gnoll"
+	GoblinLanguageID      LanguageID = "Goblin"
+	TerranLanguageID      LanguageID = "Terran"
+	UndercommonLanguageID LanguageID = "Undercommon"
+	SylvanLanguageID      LanguageID = "Sylvan"
+	OrcLanguageID         LanguageID = "Orc"
+	HalflingLanguageID    LanguageID = "Halfling"
 )
 
 const (
@@ -42,13 +50,21 @@ const (
 )
 
 var validLanguageIDs = map[LanguageID]struct{}{
-	CommonLanguageID:   {},
-	DwarvenLanguageID:  {},
-	ElvenLanguageID:    {},
-	GnomeLanguageID:    {},
-	SylvanLanguageID:   {},
-	OrcLanguageID:      {},
-	HalflingLanguageID: {},
+	CommonLanguageID:      {},
+	AbyssalLanguageID:     {},
+	CelestialLanguageID:   {},
+	DraconicLanguageID:    {},
+	DwarvenLanguageID:     {},
+	ElvenLanguageID:       {},
+	GiantLanguageID:       {},
+	GnomeLanguageID:       {},
+	GnollLanguageID:       {},
+	GoblinLanguageID:      {},
+	TerranLanguageID:      {},
+	UndercommonLanguageID: {},
+	SylvanLanguageID:      {},
+	OrcLanguageID:         {},
+	HalflingLanguageID:    {},
 }
 
 var validRacialFeatureIDs = map[RacialFeatureID]struct{}{
