@@ -109,13 +109,25 @@ Example: Humanoid
 
 * Must NOT:
 
-  * block hit die construction
-  * decide final rule here
+  * resolve full class behavior here
+  * silently expose the wrong convenience path when the higher layer must decide
 
 Correct:
 
 * expose metadata
+* reject misleading convenience APIs that normalize the wrong model
 * let higher layer decide
+
+---
+
+## Anti-Loop Guard
+
+When fixing a modeling issue:
+
+* prefer making the wrong shape unrepresentable
+* fix constructors and public APIs before patching callers
+* add one regression test and one misuse-boundary test when applicable
+* do not leave semantically wrong convenience methods available just because callers can avoid them manually
 
 ---
 

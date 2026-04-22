@@ -253,6 +253,56 @@ If tests fail:
 
 ---
 
+## Anti-loop rules
+
+Use these to reduce the pattern of:
+
+- finding issues
+- fixing issues
+- the fix introducing more issues
+
+For every fix, prefer closing a whole misuse path, not only today's symptom.
+
+### Fix shape before behavior
+
+- If the problem comes from an invalid model shape, fix the constructor or public API first.
+- Do not leave a semantically wrong shape available just because callers can "remember" not to use it.
+- Prefer removing the wrong convenience path over documenting the caveat.
+
+### Make the violated rule explicit
+
+- When fixing an issue, identify the rule that was violated:
+  - invariant
+  - domain boundary
+  - composition boundary
+  - misuse boundary
+  - core-rules correctness
+- Encode that rule in code or tests so the same mistake is harder to reintroduce.
+
+### Required anti-regression coverage for issue fixes
+
+An issue fix should usually include all applicable items below:
+
+- constructor or API guard
+- corrected seed or resolved metadata
+- regression test for the observed bug
+- misuse-boundary test for the wrong modeling path
+
+Do not close an issue with only a happy-path test if the wrong path is still easy to call.
+
+### Review each fix for issue-creation risk
+
+Before finishing a task, check:
+
+- what wrong modeling path is now impossible?
+- what caller misuse is still possible?
+- did this change add a new public surface that still permits the old mistake in another form?
+- did this fix move responsibility to the correct domain instead of smearing it across callers?
+
+If the answer shows the wrong path is still open, the fix is incomplete.
+
+---
+
 ## Review rules
 
 Check:
@@ -262,6 +312,7 @@ Check:
 - API misuse risk
 - architectural drift
 - technical debt
+- whether the fix removed the wrong modeling path or only patched the symptom
 
 Do not request redesign unless project rules are violated.
 

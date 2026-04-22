@@ -39,6 +39,8 @@ Rules:
 - Fail fast on invalid input.
 - Prefer validated constructors.
 - Prefer resolved metadata over raw cross-domain coupling.
+- Prefer removing misleading convenience paths over documenting caveats.
+- For issue fixes, add misuse-boundary protection when the wrong call path is part of the bug.
 
 ## Output Rules
 
