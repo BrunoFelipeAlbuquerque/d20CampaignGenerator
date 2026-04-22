@@ -22,12 +22,7 @@ func IsProjectHouseRuleSize(value Size) bool {
 }
 
 func IsProjectConstructBonusHPTableSize(value Size) bool {
-	switch value {
-	case LargeSize, HugeSize, GargantuanSize, ColossalSize, TitanicSize:
-		return true
-	default:
-		return false
-	}
+	return value == TitanicSize
 }
 
 func IsCoreCasterSource(source CasterSource) bool {

@@ -80,6 +80,10 @@ func TestBuildSubtypeResolution_ElementalOverridesLivingNeedsAndAddsStructuralTr
 		t.Fatal("expected elemental effect to remove BreatheEatSleep")
 	}
 
+	if !hasTraitID(resolution.removedTraitIDs, BreatheNoNeedToEatSleepTrait) {
+		t.Fatal("expected elemental effect to remove outsider breathing-without-eat-sleep trait")
+	}
+
 	if !hasTraitID(resolution.addedTraitIDs, ImmunityBleedTrait) {
 		t.Fatal("expected elemental effect to add ImmunityBleed")
 	}
@@ -132,8 +136,8 @@ func TestBuildSubtypeResolution_NativeIsOnlyValidForOutsiders(t *testing.T) {
 		t.Fatal("expected native effect to add BreatheEatSleep")
 	}
 
-	if !hasTraitID(resolution.removedTraitIDs, NoNeedToEatSleepBreatheTrait) {
-		t.Fatal("expected native effect to remove NoNeedToEatSleepBreathe")
+	if !hasTraitID(resolution.removedTraitIDs, BreatheNoNeedToEatSleepTrait) {
+		t.Fatal("expected native effect to remove outsider breathing-without-eat-sleep trait")
 	}
 
 	animalClassification, ok := NewCreatureClassification(

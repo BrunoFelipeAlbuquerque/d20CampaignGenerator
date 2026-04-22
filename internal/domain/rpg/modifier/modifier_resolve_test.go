@@ -19,12 +19,21 @@ func (mockCondition) isCondition() {}
 // ==============================
 
 func m(t ModifierType, v int, src ModifierSource) Modifier {
-	return Modifier{
-		Type:   t,
-		Value:  v,
-		Source: src,
-		Target: mockTarget{},
+	modifier, ok := NewModifier(t, v, src, mockTarget{}, nil)
+	if !ok {
+		panic("invalid test modifier")
 	}
+
+	return modifier
+}
+
+func mustResolve(mods ModifierList) int {
+	total, ok := mods.ModifierResolve()
+	if !ok {
+		panic("expected modifier list to resolve")
+	}
+
+	return total
 }
 
 // ==============================
@@ -38,7 +47,7 @@ func TestModifierResolve_DodgeStacks(t *testing.T) {
 		m(ModifierDodge, 3, "c"),
 	}
 
-	got := mods.ModifierResolve()
+	got := mustResolve(mods)
 	want := 6
 
 	if got != want {
@@ -57,7 +66,7 @@ func TestModifierResolve_DefaultMax(t *testing.T) {
 		m("enhancement", 3, "c"),
 	}
 
-	got := mods.ModifierResolve()
+	got := mustResolve(mods)
 	want := 5
 
 	if got != want {
@@ -75,7 +84,7 @@ func TestModifierResolve_CircumstanceDifferentSources(t *testing.T) {
 		m(ModifierCircumstance, 1, SourceHigherGround),
 	}
 
-	got := mods.ModifierResolve()
+	got := mustResolve(mods)
 	want := 3
 
 	if got != want {
@@ -90,7 +99,7 @@ func TestModifierResolve_CircumstanceSameSourceTakeHighest(t *testing.T) {
 		m(ModifierCircumstance, 2, SourceFlanking),
 	}
 
-	got := mods.ModifierResolve()
+	got := mustResolve(mods)
 	want := 3
 
 	if got != want {
@@ -114,7 +123,7 @@ func TestModifierResolve_MixedTypes(t *testing.T) {
 		m(ModifierCircumstance, 1, SourceHigherGround),
 	}
 
-	got := mods.ModifierResolve()
+	got := mustResolve(mods)
 	want := 3 + 5 + 3 // dodge(3) + enhancement(5) + circumstance(3)
 
 	if got != want {
@@ -133,7 +142,7 @@ func TestModifierResolve_UntypedPenaltiesStack(t *testing.T) {
 		m(ModifierUntyped, -3, "environment.hampered"),
 	}
 
-	got := mods.ModifierResolve()
+	got := mustResolve(mods)
 	want := -9
 
 	if got != want {
@@ -148,7 +157,7 @@ func TestModifierResolve_UntypedValuesStackArithmetically(t *testing.T) {
 		m(ModifierUntyped, 3, "custom.momentum"),
 	}
 
-	got := mods.ModifierResolve()
+	got := mustResolve(mods)
 	want := 4
 
 	if got != want {
@@ -156,17 +165,14 @@ func TestModifierResolve_UntypedValuesStackArithmetically(t *testing.T) {
 	}
 }
 
-func TestModifierResolve_EmptyTypeDoesNotBehaveAsUntyped(t *testing.T) {
+func TestModifierResolve_RejectsEmptyType(t *testing.T) {
 	mods := ModifierList{
-		m("", -1, "condition.fatigued"),
-		m("", -5, "condition.exhausted"),
+		{value: -1},
+		{value: -5},
 	}
 
-	got := mods.ModifierResolve()
-	want := -1
-
-	if got != want {
-		t.Errorf("expected %d, got %d", want, got)
+	if _, ok := mods.ModifierResolve(); ok {
+		t.Fatal("expected empty modifier type to be rejected")
 	}
 }
 
@@ -177,7 +183,7 @@ func TestModifierResolve_Negatives_Default(t *testing.T) {
 		m("enhancement", -3, "c"),
 	}
 
-	got := mods.ModifierResolve()
+	got := mustResolve(mods)
 	want := -9
 
 	if got != want {
@@ -193,7 +199,7 @@ func TestModifierResolve_DefaultMixedBonusesAndPenalties(t *testing.T) {
 		m("enhancement", -4, "d"),
 	}
 
-	got := mods.ModifierResolve()
+	got := mustResolve(mods)
 	want := -1 // highest enhancement bonus (5) plus stacking penalties (-6)
 
 	if got != want {
@@ -207,7 +213,7 @@ func TestModifierResolve_Negatives_Dodge(t *testing.T) {
 		m(ModifierDodge, -2, "b"),
 	}
 
-	got := mods.ModifierResolve()
+	got := mustResolve(mods)
 	want := -3
 
 	if got != want {
@@ -222,7 +228,7 @@ func TestModifierResolve_Negatives_Dodge(t *testing.T) {
 func TestModifierResolve_Empty(t *testing.T) {
 	var mods ModifierList
 
-	got := mods.ModifierResolve()
+	got := mustResolve(mods)
 	if got != 0 {
 		t.Errorf("expected 0, got %d", got)
 	}
@@ -237,7 +243,7 @@ func TestModifierResolve_Single(t *testing.T) {
 		m("enhancement", 7, "a"),
 	}
 
-	got := mods.ModifierResolve()
+	got := mustResolve(mods)
 	if got != 7 {
 		t.Errorf("expected 7, got %d", got)
 	}
@@ -253,7 +259,7 @@ func TestModifierResolve_CircumstanceMixedSameSourceNegative(t *testing.T) {
 		m(ModifierCircumstance, -5, SourceFlanking),
 	}
 
-	got := mods.ModifierResolve()
+	got := mustResolve(mods)
 	want := -3
 
 	if got != want {
@@ -267,7 +273,7 @@ func TestModifierResolve_CircumstancePenaltiesDifferentSourcesStack(t *testing.T
 		m(ModifierCircumstance, -1, SourceHigherGround),
 	}
 
-	got := mods.ModifierResolve()
+	got := mustResolve(mods)
 	want := -3
 
 	if got != want {
@@ -282,11 +288,85 @@ func TestModifierResolve_CircumstanceSameSourceKeepsWorstPenalty(t *testing.T) {
 		m(ModifierCircumstance, -1, SourceFlanking),
 	}
 
-	got := mods.ModifierResolve()
+	got := mustResolve(mods)
 	want := -5
 
 	if got != want {
 		t.Errorf("expected %d, got %d", want, got)
+	}
+}
+
+// ==============================
+// VALIDATION
+// ==============================
+
+func TestNewModifier_RejectsUnknownType(t *testing.T) {
+	if _, ok := NewModifier(ModifierType("typo"), 1, "", mockTarget{}, nil); ok {
+		t.Fatal("expected unknown modifier type to be rejected")
+	}
+}
+
+func TestNewModifier_RejectsInvalidCircumstanceSource(t *testing.T) {
+	if _, ok := NewModifier(ModifierCircumstance, 1, "flanking", mockTarget{}, nil); ok {
+		t.Fatal("expected invalid circumstance source to be rejected")
+	}
+}
+
+func TestModifierResolve_RejectsUnknownModifierEntry(t *testing.T) {
+	mods := ModifierList{
+		{modifierType: ModifierType("typo"), value: 1},
+	}
+
+	if _, ok := mods.ModifierResolve(); ok {
+		t.Fatal("expected invalid modifier entry to be rejected")
+	}
+}
+
+func TestNewModifier_DefensivelyCopiesConditions(t *testing.T) {
+	condition := ModifierCondition{mockCondition{}}
+
+	modifier, ok := NewModifier(ModifierDodge, 1, "", mockTarget{}, condition)
+	if !ok {
+		t.Fatal("expected modifier to be constructed")
+	}
+
+	condition[0] = nil
+
+	gotCondition := modifier.GetCondition()
+	if len(gotCondition) != 1 || gotCondition[0] == nil {
+		t.Fatal("expected modifier to keep an internal copy of conditions")
+	}
+
+	gotCondition[0] = nil
+	if modifier.GetCondition()[0] == nil {
+		t.Fatal("expected condition getter to return a defensive copy")
+	}
+}
+
+func TestNewModifier_ExposesStoredFields(t *testing.T) {
+	modifier, ok := NewModifier(ModifierDodge, 2, "", mockTarget{}, nil)
+	if !ok {
+		t.Fatal("expected modifier to be constructed")
+	}
+
+	if modifier.GetType() != ModifierDodge {
+		t.Fatalf("expected type %q, got %q", ModifierDodge, modifier.GetType())
+	}
+
+	if modifier.GetValue() != 2 {
+		t.Fatalf("expected value 2, got %d", modifier.GetValue())
+	}
+
+	if modifier.GetTarget() == nil {
+		t.Fatal("expected target to be preserved")
+	}
+
+	if modifier.GetSource() != "" {
+		t.Fatalf("expected empty source, got %q", modifier.GetSource())
+	}
+
+	if len(modifier.GetCondition()) != 0 {
+		t.Fatalf("expected empty condition list, got %d entries", len(modifier.GetCondition()))
 	}
 }
 
@@ -301,7 +381,7 @@ func TestModifierResolve_Stress(t *testing.T) {
 		mods = append(mods, m(ModifierDodge, 1, "a"))
 	}
 
-	got := mods.ModifierResolve()
+	got := mustResolve(mods)
 	want := 1000
 
 	if got != want {

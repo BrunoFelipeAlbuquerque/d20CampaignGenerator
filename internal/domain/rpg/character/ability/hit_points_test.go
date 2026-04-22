@@ -12,8 +12,8 @@ func TestNewHitDie_CalculatesTotalsAndAverageBaseHP(t *testing.T) {
 		t.Fatalf("expected total HD 4, got %d", hd.GetTotal())
 	}
 
-	if hd.GetAverageBaseHP() != 20 {
-		t.Fatalf("expected average base HP 20, got %d", hd.GetAverageBaseHP())
+	if hd.GetAverageBaseHP() != 18 {
+		t.Fatalf("expected average base HP 18, got %d", hd.GetAverageBaseHP())
 	}
 
 	d8Count, ok := hd.GetDieCount(D8HitDie)
@@ -83,8 +83,8 @@ func TestNewStandardHitPoints_UsesConstitutionLedgerAndThreshold(t *testing.T) {
 		t.Fatal("expected hit points to be constructed")
 	}
 
-	if hp.GetTotal() != 14 || hp.GetCurrent() != 14 {
-		t.Fatalf("expected total/current 14, got total %d current %d", hp.GetTotal(), hp.GetCurrent())
+	if hp.GetTotal() != 13 || hp.GetCurrent() != 13 {
+		t.Fatalf("expected total/current 13, got total %d current %d", hp.GetTotal(), hp.GetCurrent())
 	}
 
 	if hp.GetDeathThreshold() != -14 {
@@ -96,8 +96,8 @@ func TestNewStandardHitPoints_UsesConstitutionLedgerAndThreshold(t *testing.T) {
 		t.Fatalf("expected 2 HP sources, got %d", len(sources))
 	}
 
-	if sources[0].GetName() != "Base Dice" || sources[0].GetValue() != 10 {
-		t.Fatalf("expected base dice source 10, got %q = %d", sources[0].GetName(), sources[0].GetValue())
+	if sources[0].GetName() != "Base Dice" || sources[0].GetValue() != 9 {
+		t.Fatalf("expected base dice source 9, got %q = %d", sources[0].GetName(), sources[0].GetValue())
 	}
 
 	if sources[1].GetName() != "Constitution" || sources[1].GetValue() != 4 {
@@ -115,8 +115,8 @@ func TestNewUndeadHitPoints_UsesCharismaAndIgnoresNonLethal(t *testing.T) {
 		t.Fatal("expected hit points to be constructed")
 	}
 
-	if hp.GetTotal() != 16 || hp.GetDeathThreshold() != 0 {
-		t.Fatalf("expected undead total 16 and threshold 0, got total %d and threshold %d", hp.GetTotal(), hp.GetDeathThreshold())
+	if hp.GetTotal() != 15 || hp.GetDeathThreshold() != 0 {
+		t.Fatalf("expected undead total 15 and threshold 0, got total %d and threshold %d", hp.GetTotal(), hp.GetDeathThreshold())
 	}
 
 	if !hp.IsNonLethalImmune() {
@@ -134,8 +134,8 @@ func TestNewConstructHitPoints_UsesSizeBonus(t *testing.T) {
 		t.Fatal("expected hit points to be constructed")
 	}
 
-	if hp.GetTotal() != 32 {
-		t.Fatalf("expected construct total 32, got %d", hp.GetTotal())
+	if hp.GetTotal() != 31 {
+		t.Fatalf("expected construct total 31, got %d", hp.GetTotal())
 	}
 
 	sources := hp.GetSources()
@@ -148,7 +148,7 @@ func TestNewConstructHitPoints_UsesSizeBonus(t *testing.T) {
 	}
 }
 
-func TestNewConstructHitPoints_UsesBuffedLargeSizesAndTitanic(t *testing.T) {
+func TestNewConstructHitPoints_UsesCoreLargeSizesAndProjectTitanic(t *testing.T) {
 	hd, ok := NewHitDie(0, 0, 2, 0)
 	if !ok {
 		t.Fatal("expected hit die to be constructed")
@@ -162,19 +162,19 @@ func TestNewConstructHitPoints_UsesBuffedLargeSizesAndTitanic(t *testing.T) {
 		t.Fatal("expected titanic construct hit points to be constructed")
 	}
 
-	if huge.GetTotal() != 62 {
-		t.Fatalf("expected huge construct total 62, got %d", huge.GetTotal())
+	if huge.GetTotal() != 51 {
+		t.Fatalf("expected huge construct total 51, got %d", huge.GetTotal())
 	}
 
-	if titanic.GetTotal() != 222 {
-		t.Fatalf("expected titanic construct total 222, got %d", titanic.GetTotal())
+	if titanic.GetTotal() != 221 {
+		t.Fatalf("expected titanic construct total 221, got %d", titanic.GetTotal())
 	}
 
 	hugeSources := huge.GetSources()
 	titanicSources := titanic.GetSources()
 
-	if hugeSources[1].GetValue() != 50 {
-		t.Fatalf("expected huge construct size bonus 50, got %d", hugeSources[1].GetValue())
+	if hugeSources[1].GetValue() != 40 {
+		t.Fatalf("expected huge construct size bonus 40, got %d", hugeSources[1].GetValue())
 	}
 
 	if titanicSources[1].GetValue() != 210 {
@@ -201,8 +201,8 @@ func TestStandardHitPoints_AppliesMinimumOnePerHitDieFloor(t *testing.T) {
 		t.Fatalf("expected floor adjustment source, got %d sources", len(sources))
 	}
 
-	if sources[2].GetName() != "Minimum 1 HP per Hit Die" || sources[2].GetValue() != 2 {
-		t.Fatalf("expected minimum floor adjustment 2, got %q = %d", sources[2].GetName(), sources[2].GetValue())
+	if sources[2].GetName() != "Minimum 1 HP per Hit Die" || sources[2].GetValue() != 3 {
+		t.Fatalf("expected minimum floor adjustment 3, got %q = %d", sources[2].GetName(), sources[2].GetValue())
 	}
 }
 
@@ -457,11 +457,11 @@ func TestUpdateConstitutionScore_RecalculatesCurrentTotalAndThreshold(t *testing
 		t.Fatal("expected constitution update to be accepted")
 	}
 
-	if hp.GetTotal() != 16 {
-		t.Fatalf("expected total HP 16 after constitution update, got %d", hp.GetTotal())
+	if hp.GetTotal() != 15 {
+		t.Fatalf("expected total HP 15 after constitution update, got %d", hp.GetTotal())
 	}
 
-	if hp.GetCurrent() != 12 {
+	if hp.GetCurrent() != 11 {
 		t.Fatalf("expected current HP to rise with total HP, got %d", hp.GetCurrent())
 	}
 
@@ -523,16 +523,16 @@ func TestUpdateCharismaAndSize_RecalculateSpecificLedgerEntries(t *testing.T) {
 		t.Fatal("expected charisma update to be accepted")
 	}
 
-	if undead.GetTotal() != 16 {
-		t.Fatalf("expected undead total HP 16 after charisma update, got %d", undead.GetTotal())
+	if undead.GetTotal() != 15 {
+		t.Fatalf("expected undead total HP 15 after charisma update, got %d", undead.GetTotal())
 	}
 
 	if ok := construct.UpdateSize(HugeSize); !ok {
 		t.Fatal("expected size update to be accepted")
 	}
 
-	if construct.GetTotal() != 62 {
-		t.Fatalf("expected construct total HP 62 after size update, got %d", construct.GetTotal())
+	if construct.GetTotal() != 51 {
+		t.Fatalf("expected construct total HP 51 after size update, got %d", construct.GetTotal())
 	}
 
 	constructSources := construct.GetSources()
@@ -540,9 +540,9 @@ func TestUpdateCharismaAndSize_RecalculateSpecificLedgerEntries(t *testing.T) {
 		t.Fatalf("expected 2 construct HP sources, got %d", len(constructSources))
 	}
 
-	if constructSources[1].GetName() != "Construct Size Bonus" || constructSources[1].GetValue() != 50 {
+	if constructSources[1].GetName() != "Construct Size Bonus" || constructSources[1].GetValue() != 40 {
 		t.Fatalf(
-			"expected construct size source to update to 50, got %q = %d",
+			"expected construct size source to update to 40, got %q = %d",
 			constructSources[1].GetName(),
 			constructSources[1].GetValue(),
 		)
@@ -552,8 +552,8 @@ func TestUpdateCharismaAndSize_RecalculateSpecificLedgerEntries(t *testing.T) {
 		t.Fatal("expected titanic size update to be accepted")
 	}
 
-	if construct.GetTotal() != 222 {
-		t.Fatalf("expected construct total HP 222 after titanic update, got %d", construct.GetTotal())
+	if construct.GetTotal() != 221 {
+		t.Fatalf("expected construct total HP 221 after titanic update, got %d", construct.GetTotal())
 	}
 
 	constructSources = construct.GetSources()

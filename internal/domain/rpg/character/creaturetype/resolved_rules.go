@@ -49,6 +49,10 @@ func (r resolvedCreatureRules) GetHitPointKind() ability.HitPointKind {
 	return r.hitPointKind
 }
 
+func (r resolvedCreatureRules) UsesClassRulesForRacialHitDice() bool {
+	return r.HasContextualFlag(HumanoidRacialHDUsesClassRulesFlag)
+}
+
 func (r resolvedCreatureRules) NewRacialHitDie(hitDieCount int) (ability.HitDie, bool) {
 	return ability.NewUniformHitDie(r.hitDieType, hitDieCount)
 }

@@ -12,5 +12,9 @@ func NewRacialHitPoints(
 	charismaScore int,
 	size ability.Size,
 ) (ability.HitPoints, bool) {
+	if rules.UsesClassRulesForRacialHitDice() {
+		return ability.HitPoints{}, false
+	}
+
 	return rules.NewRacialHitPoints(racialHitDieCount, constitutionScore, charismaScore, size)
 }

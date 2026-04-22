@@ -13,12 +13,12 @@ func TestIsCoreSize_ExcludesProjectHouseRuleSize(t *testing.T) {
 }
 
 func TestIsProjectConstructBonusHPTableSize_SeparatesCustomTable(t *testing.T) {
-	if !IsProjectConstructBonusHPTableSize(ColossalSize) {
-		t.Fatal("expected colossal to use custom construct bonus HP table")
-	}
-
 	if !IsProjectConstructBonusHPTableSize(TitanicSize) {
 		t.Fatal("expected titanic to use custom construct bonus HP table")
+	}
+
+	if IsProjectConstructBonusHPTableSize(ColossalSize) {
+		t.Fatal("expected colossal to use the core construct bonus HP table")
 	}
 
 	if IsProjectConstructBonusHPTableSize(MediumSize) {

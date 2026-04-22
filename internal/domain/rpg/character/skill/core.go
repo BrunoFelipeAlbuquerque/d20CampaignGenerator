@@ -2,6 +2,54 @@ package skill
 
 var coreSkills = mustBuildCoreSkills()
 
+var coreSkillOrder = []SkillID{
+	AcrobaticsSkillID,
+	AppraiseSkillID,
+	BluffSkillID,
+	ClimbSkillID,
+	CraftSkillID,
+	DiplomacySkillID,
+	DisableDeviceSkillID,
+	DisguiseSkillID,
+	EscapeArtistSkillID,
+	FlySkillID,
+	HandleAnimalSkillID,
+	HealSkillID,
+	IntimidateSkillID,
+	KnowledgeSkillID,
+	LinguisticsSkillID,
+	PerceptionSkillID,
+	PerformSkillID,
+	ProfessionSkillID,
+	RideSkillID,
+	SenseMotiveSkillID,
+	SleightOfHandSkillID,
+	SpellcraftSkillID,
+	StealthSkillID,
+	SurvivalSkillID,
+	SwimSkillID,
+	UseMagicDeviceSkillID,
+}
+
+func GetSkillByID(id SkillID) (Skill, bool) {
+	value, ok := coreSkills[id]
+	if !ok {
+		return skill{}, false
+	}
+
+	return value, true
+}
+
+func GetSkills() []Skill {
+	skills := make([]Skill, 0, len(coreSkillOrder))
+
+	for _, id := range coreSkillOrder {
+		skills = append(skills, coreSkills[id])
+	}
+
+	return skills
+}
+
 func mustBuildCoreSkills() map[SkillID]Skill {
 	return map[SkillID]Skill{
 		AcrobaticsSkillID:     mustNewSkill(AcrobaticsSkillID, false, true, false),

@@ -23,7 +23,8 @@ const (
 	LowLightVisionFeatureID     RacialFeatureID = "Low-Light Vision"
 	ElvenImmunitiesFeatureID    RacialFeatureID = "Elven Immunities"
 	KeenSensesFeatureID         RacialFeatureID = "Keen Senses"
-	MagicFeatureID              RacialFeatureID = "Magic"
+	ElvenMagicFeatureID         RacialFeatureID = "Elven Magic"
+	MagicFeatureID              RacialFeatureID = ElvenMagicFeatureID
 	IllusionResistanceFeatureID RacialFeatureID = "Illusion Resistance"
 	ObsessiveFeatureID          RacialFeatureID = "Obsessive"
 	GnomeMagicFeatureID         RacialFeatureID = "Gnome Magic"
@@ -63,7 +64,7 @@ var validRacialFeatureIDs = map[RacialFeatureID]struct{}{
 	LowLightVisionFeatureID:     {},
 	ElvenImmunitiesFeatureID:    {},
 	KeenSensesFeatureID:         {},
-	MagicFeatureID:              {},
+	ElvenMagicFeatureID:         {},
 	IllusionResistanceFeatureID: {},
 	ObsessiveFeatureID:          {},
 	GnomeMagicFeatureID:         {},

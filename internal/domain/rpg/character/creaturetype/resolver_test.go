@@ -57,8 +57,8 @@ func TestResolveCreatureRules_AutomaticallyAppliesSubtypeEffects(t *testing.T) {
 		t.Fatal("expected native override to add BreatheEatSleep")
 	}
 
-	if rules.HasTrait(NoNeedToEatSleepBreatheTrait) {
-		t.Fatal("expected native override to remove NoNeedToEatSleepBreathe")
+	if rules.HasTrait(BreatheNoNeedToEatSleepTrait) {
+		t.Fatal("expected native override to remove outsider no-eat-sleep breathing trait")
 	}
 
 	if !rules.HasTrait(PrecisionDamageImmuneTrait) {
@@ -138,6 +138,14 @@ func TestResolveCreatureRules_ExposesOutsiderSaveChoiceMetadata(t *testing.T) {
 
 	if len(rules.GetFixedGoodSaves()) != 0 {
 		t.Fatalf("expected outsider fixed good saves to be empty, got %v", rules.GetFixedGoodSaves())
+	}
+
+	if !rules.HasTrait(BreatheNoNeedToEatSleepTrait) {
+		t.Fatal("expected outsider base rules to keep breathing without eat/sleep need")
+	}
+
+	if rules.HasTrait(NoNeedToEatSleepBreatheTrait) {
+		t.Fatal("expected outsider base rules to still require breathing")
 	}
 
 	if rules.HasTrait(CreatureTypeTraitID("TwoGoodSaveChoices")) {
@@ -255,6 +263,10 @@ func TestResolvedCreatureRules_NewRacialHitDie_HumanoidStillExposesFlagButBuilds
 		t.Fatal("expected humanoid contextual flag to still be present")
 	}
 
+	if !rules.UsesClassRulesForRacialHitDice() {
+		t.Fatal("expected humanoid rules to expose class-rule racial hit dice boundary")
+	}
+
 	hd, ok := rules.NewRacialHitDie(1)
 	if !ok {
 		t.Fatal("expected humanoid racial hit die construction to succeed")
@@ -263,6 +275,36 @@ func TestResolvedCreatureRules_NewRacialHitDie_HumanoidStillExposesFlagButBuilds
 	d8Count, ok := hd.GetDieCount(ability.D8HitDie)
 	if !ok || d8Count != 1 {
 		t.Fatalf("expected humanoid racial hit dice (1 d8, true), got (%d, %t)", d8Count, ok)
+	}
+}
+
+func TestResolvedCreatureRules_UsesClassRulesForRacialHitDice_OnlyForHumanoids(t *testing.T) {
+	humanoidClassification, ok := NewCreatureClassification(HumanoidType, nil, nil)
+	if !ok {
+		t.Fatal("expected humanoid classification to be constructed")
+	}
+
+	humanoidRules, ok := ResolveCreatureRules(humanoidClassification)
+	if !ok {
+		t.Fatal("expected humanoid rules to resolve")
+	}
+
+	if !humanoidRules.UsesClassRulesForRacialHitDice() {
+		t.Fatal("expected humanoid rules to require class-rule racial hit dice handling")
+	}
+
+	animalClassification, ok := NewCreatureClassification(AnimalType, nil, nil)
+	if !ok {
+		t.Fatal("expected animal classification to be constructed")
+	}
+
+	animalRules, ok := ResolveCreatureRules(animalClassification)
+	if !ok {
+		t.Fatal("expected animal rules to resolve")
+	}
+
+	if animalRules.UsesClassRulesForRacialHitDice() {
+		t.Fatal("expected animal rules to allow direct racial hit dice handling")
 	}
 }
 
@@ -344,8 +386,8 @@ func TestResolvedCreatureRules_NewRacialHitPoints_BridgesResolvedCreatureRules(t
 		t.Fatalf("expected standard hit point kind %q, got %q", ability.StandardHitPoints, hp.GetKind())
 	}
 
-	if hp.GetTotal() != 14 {
-		t.Fatalf("expected animal racial hit points total 14, got %d", hp.GetTotal())
+	if hp.GetTotal() != 13 {
+		t.Fatalf("expected animal racial hit points total 13, got %d", hp.GetTotal())
 	}
 }
 

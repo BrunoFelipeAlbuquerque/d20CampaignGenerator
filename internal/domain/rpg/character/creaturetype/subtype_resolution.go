@@ -39,6 +39,7 @@ var subtypeResolutionSpecs = map[CreatureSubtypeID]subtypeResolutionSpec{
 		},
 		removedTraitIDs: []CreatureTypeTraitID{
 			BreatheEatSleepTrait,
+			BreatheNoNeedToEatSleepTrait,
 		},
 	},
 	IncorporealSubtype: {
@@ -56,7 +57,7 @@ var subtypeResolutionSpecs = map[CreatureSubtypeID]subtypeResolutionSpec{
 			BreatheEatSleepTrait,
 		},
 		removedTraitIDs: []CreatureTypeTraitID{
-			NoNeedToEatSleepBreatheTrait,
+			BreatheNoNeedToEatSleepTrait,
 		},
 	},
 	SwarmSubtype: {

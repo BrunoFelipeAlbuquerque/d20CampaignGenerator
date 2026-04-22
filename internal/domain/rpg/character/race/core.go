@@ -14,6 +14,16 @@ const (
 
 var coreRaces = mustBuildCoreRaces()
 
+var coreRaceOrder = []RaceID{
+	DwarfRaceID,
+	ElfRaceID,
+	GnomeRaceID,
+	HalfElfRaceID,
+	HalfOrcRaceID,
+	HalflingRaceID,
+	HumanRaceID,
+}
+
 func GetRaceByID(id RaceID) (Race, bool) {
 	value, ok := coreRaces[id]
 	if !ok {
@@ -21,6 +31,16 @@ func GetRaceByID(id RaceID) (Race, bool) {
 	}
 
 	return cloneRace(value), true
+}
+
+func GetRaces() []Race {
+	races := make([]Race, 0, len(coreRaceOrder))
+
+	for _, id := range coreRaceOrder {
+		races = append(races, cloneRace(coreRaces[id]))
+	}
+
+	return races
 }
 
 func mustBuildCoreRaces() map[RaceID]Race {
@@ -64,7 +84,7 @@ func mustBuildCoreRaces() map[RaceID]Race {
 				ElvenImmunitiesFeatureID,
 				KeenSensesFeatureID,
 				WeaponFamiliarityFeatureID,
-				MagicFeatureID,
+				ElvenMagicFeatureID,
 			},
 		),
 		GnomeRaceID: mustNewRace(

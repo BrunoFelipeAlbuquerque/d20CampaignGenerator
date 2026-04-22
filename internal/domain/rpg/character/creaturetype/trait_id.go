@@ -7,6 +7,7 @@ const (
 	Darkvision60Trait             CreatureTypeTraitID = "Darkvision60"
 	LowLightVisionTrait           CreatureTypeTraitID = "LowLightVision"
 	BreatheEatSleepTrait          CreatureTypeTraitID = "BreatheEatSleep"
+	BreatheNoNeedToEatSleepTrait  CreatureTypeTraitID = "BreatheNoNeedToEatSleep"
 	NoNeedToEatSleepBreatheTrait  CreatureTypeTraitID = "NoNeedToEatSleepBreathe"
 	NoConstitutionTrait           CreatureTypeTraitID = "NoConstitution"
 	NoIntelligenceTrait           CreatureTypeTraitID = "NoIntelligence"
@@ -37,6 +38,7 @@ func isValidCoreTraitID(value CreatureTypeTraitID) bool {
 	case Darkvision60Trait,
 		LowLightVisionTrait,
 		BreatheEatSleepTrait,
+		BreatheNoNeedToEatSleepTrait,
 		NoNeedToEatSleepBreatheTrait,
 		NoConstitutionTrait,
 		NoIntelligenceTrait,

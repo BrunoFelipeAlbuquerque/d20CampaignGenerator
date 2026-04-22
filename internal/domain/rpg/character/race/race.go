@@ -57,6 +57,12 @@ func NewRace(
 		return race{}, false
 	}
 
+	if selectableAbilityScoreModifier != 0 {
+		if selectableAbilityScoreModifier != 2 || len(dedupedModifiers) != 0 {
+			return race{}, false
+		}
+	}
+
 	dedupedLanguages, ok := dedupeLanguageIDs(racialLanguages)
 	if !ok {
 		return race{}, false
