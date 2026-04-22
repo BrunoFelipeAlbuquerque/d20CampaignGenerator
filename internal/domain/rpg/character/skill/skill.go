@@ -36,6 +36,8 @@ const (
 
 type skill struct {
 	id                       skillID
+	familyID                 skillID
+	specialization           string
 	trainedOnly              bool
 	armorCheckPenaltyApplies bool
 	grouped                  bool
@@ -43,12 +45,15 @@ type skill struct {
 type Skill = skill
 
 func NewSkill(id SkillID, trainedOnly bool, armorCheckPenaltyApplies bool, grouped bool) (Skill, bool) {
-	if !isValidSkillID(id) || grouped != isGroupedSkillID(id) {
+	familyID, specialization, ok := parseSkillID(id)
+	if !ok || grouped != isGroupedSkillID(familyID) {
 		return skill{}, false
 	}
 
 	return skill{
 		id:                       id,
+		familyID:                 familyID,
+		specialization:           specialization,
 		trainedOnly:              trainedOnly,
 		armorCheckPenaltyApplies: armorCheckPenaltyApplies,
 		grouped:                  grouped,
@@ -56,6 +61,19 @@ func NewSkill(id SkillID, trainedOnly bool, armorCheckPenaltyApplies bool, group
 }
 
 func (id skillID) GetName() string {
+	familyID, specialization, ok := parseSkillID(SkillID(id))
+	if !ok {
+		return ""
+	}
+
+	if specialization != "" {
+		return string(familyID) + " (" + specialization + ")"
+	}
+
+	return familyID.GetBaseName()
+}
+
+func (id skillID) GetBaseName() string {
 	name := strings.TrimSpace(string(id))
 	if name == "" || name != string(id) {
 		return ""
@@ -98,6 +116,18 @@ func (s skill) GetID() SkillID {
 	return s.id
 }
 
+func (s skill) GetFamilyID() SkillID {
+	return s.familyID
+}
+
+func (s skill) GetSpecialization() (string, bool) {
+	if s.specialization == "" {
+		return "", false
+	}
+
+	return s.specialization, true
+}
+
 func (s skill) IsTrainedOnly() bool {
 	return s.trainedOnly
 }
@@ -111,7 +141,8 @@ func (s skill) IsGrouped() bool {
 }
 
 func isValidSkillID(id SkillID) bool {
-	return id.GetName() != ""
+	_, _, ok := parseSkillID(id)
+	return ok
 }
 
 func isGroupedSkillID(id SkillID) bool {
@@ -121,4 +152,32 @@ func isGroupedSkillID(id SkillID) bool {
 	default:
 		return false
 	}
+}
+
+func parseSkillID(id SkillID) (SkillID, string, bool) {
+	if baseName := id.GetBaseName(); baseName != "" {
+		return SkillID(baseName), "", true
+	}
+
+	value := string(id)
+	openIndex := strings.Index(value, " (")
+	if openIndex <= 0 || !strings.HasSuffix(value, ")") {
+		return "", "", false
+	}
+
+	familyID := SkillID(value[:openIndex])
+	if !isGroupedSkillID(familyID) {
+		return "", "", false
+	}
+
+	specialization := value[openIndex+2 : len(value)-1]
+	if specialization == "" || strings.TrimSpace(specialization) != specialization {
+		return "", "", false
+	}
+
+	if strings.ContainsRune(specialization, '(') || strings.ContainsRune(specialization, ')') {
+		return "", "", false
+	}
+
+	return familyID, specialization, true
 }

@@ -56,6 +56,17 @@ func mustBuildCoreRaces() map[RaceID]Race {
 			),
 			0,
 			[]LanguageID{CommonLanguageID, DwarvenLanguageID},
+			mustNewBonusLanguageChoice(
+				[]LanguageID{
+					GiantLanguageID,
+					GnomeLanguageID,
+					GoblinLanguageID,
+					OrcLanguageID,
+					TerranLanguageID,
+					UndercommonLanguageID,
+				},
+				false,
+			),
 			[]RacialFeatureID{
 				SlowAndSteadyFeatureID,
 				DarkvisionFeatureID,
@@ -79,6 +90,18 @@ func mustBuildCoreRaces() map[RaceID]Race {
 			),
 			0,
 			[]LanguageID{CommonLanguageID, ElvenLanguageID},
+			mustNewBonusLanguageChoice(
+				[]LanguageID{
+					CelestialLanguageID,
+					DraconicLanguageID,
+					GnollLanguageID,
+					GnomeLanguageID,
+					GoblinLanguageID,
+					OrcLanguageID,
+					SylvanLanguageID,
+				},
+				false,
+			),
 			[]RacialFeatureID{
 				LowLightVisionFeatureID,
 				ElvenImmunitiesFeatureID,
@@ -98,6 +121,17 @@ func mustBuildCoreRaces() map[RaceID]Race {
 			),
 			0,
 			[]LanguageID{CommonLanguageID, GnomeLanguageID, SylvanLanguageID},
+			mustNewBonusLanguageChoice(
+				[]LanguageID{
+					DraconicLanguageID,
+					DwarvenLanguageID,
+					ElvenLanguageID,
+					GiantLanguageID,
+					GoblinLanguageID,
+					OrcLanguageID,
+				},
+				false,
+			),
 			[]RacialFeatureID{
 				LowLightVisionFeatureID,
 				DefensiveTrainingFeatureID,
@@ -116,6 +150,7 @@ func mustBuildCoreRaces() map[RaceID]Race {
 			nil,
 			2,
 			[]LanguageID{CommonLanguageID, ElvenLanguageID},
+			mustNewBonusLanguageChoice(nil, true),
 			[]RacialFeatureID{
 				AdaptabilityFeatureID,
 				ElfBloodFeatureID,
@@ -132,6 +167,16 @@ func mustBuildCoreRaces() map[RaceID]Race {
 			nil,
 			2,
 			[]LanguageID{CommonLanguageID, OrcLanguageID},
+			mustNewBonusLanguageChoice(
+				[]LanguageID{
+					AbyssalLanguageID,
+					DraconicLanguageID,
+					GiantLanguageID,
+					GnollLanguageID,
+					GoblinLanguageID,
+				},
+				false,
+			),
 			[]RacialFeatureID{
 				OrcBloodFeatureID,
 				DarkvisionFeatureID,
@@ -151,6 +196,16 @@ func mustBuildCoreRaces() map[RaceID]Race {
 			),
 			0,
 			[]LanguageID{CommonLanguageID, HalflingLanguageID},
+			mustNewBonusLanguageChoice(
+				[]LanguageID{
+					DwarvenLanguageID,
+					ElvenLanguageID,
+					GnomeLanguageID,
+					GoblinLanguageID,
+					OrcLanguageID,
+				},
+				false,
+			),
 			[]RacialFeatureID{
 				FearlessFeatureID,
 				HalflingLuckFeatureID,
@@ -166,6 +221,7 @@ func mustBuildCoreRaces() map[RaceID]Race {
 			nil,
 			2,
 			[]LanguageID{CommonLanguageID},
+			mustNewBonusLanguageChoice(nil, true),
 			[]RacialFeatureID{
 				BonusFeatFeatureID,
 				SkilledFeatureID,
@@ -181,7 +237,8 @@ func cloneRace(value Race) Race {
 		baseSpeed:                      value.baseSpeed,
 		abilityScoreModifiers:          append([]AbilityScoreModifier(nil), value.abilityScoreModifiers...),
 		selectableAbilityScoreModifier: value.selectableAbilityScoreModifier,
-		racialLanguages:                append([]LanguageID(nil), value.racialLanguages...),
+		automaticLanguages:             append([]LanguageID(nil), value.automaticLanguages...),
+		bonusLanguageChoice:            cloneBonusLanguageChoice(value.bonusLanguageChoice),
 		racialFeatures:                 append([]RacialFeatureID(nil), value.racialFeatures...),
 	}
 }
@@ -192,7 +249,8 @@ func mustNewRace(
 	baseSpeed int,
 	abilityScoreModifiers []AbilityScoreModifier,
 	selectableAbilityScoreModifier int,
-	racialLanguages []LanguageID,
+	automaticLanguages []LanguageID,
+	bonusLanguageChoice BonusLanguageChoice,
 	racialFeatures []RacialFeatureID,
 ) Race {
 	race, ok := NewRace(
@@ -201,7 +259,8 @@ func mustNewRace(
 		baseSpeed,
 		abilityScoreModifiers,
 		selectableAbilityScoreModifier,
-		racialLanguages,
+		automaticLanguages,
+		bonusLanguageChoice,
 		racialFeatures,
 	)
 	if !ok {
@@ -213,6 +272,15 @@ func mustNewRace(
 
 func mustAbilityScoreModifiers(modifiers ...AbilityScoreModifier) []AbilityScoreModifier {
 	return modifiers
+}
+
+func mustNewBonusLanguageChoice(languageIDs []LanguageID, anyNonSecret bool) BonusLanguageChoice {
+	value, ok := NewBonusLanguageChoice(languageIDs, anyNonSecret)
+	if !ok {
+		panic("invalid core race bonus language choice")
+	}
+
+	return value
 }
 
 func mustNewAbilityScoreModifier(scoreID ability.AbilityScoreID, modifier int) AbilityScoreModifier {

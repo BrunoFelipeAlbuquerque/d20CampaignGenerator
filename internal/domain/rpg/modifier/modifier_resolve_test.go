@@ -36,6 +36,70 @@ func mustResolve(mods ModifierList) int {
 	return total
 }
 
+func TestNewTargetRef_ConstructsUsableTargetValueObject(t *testing.T) {
+	target, ok := NewTargetRef("armor_class")
+	if !ok {
+		t.Fatal("expected target ref to be constructed")
+	}
+
+	if target.GetID() != TargetID("armor_class") {
+		t.Fatalf("expected target id %q, got %q", TargetID("armor_class"), target.GetID())
+	}
+
+	modifier, ok := NewModifier(ModifierDodge, 1, "", target, nil)
+	if !ok {
+		t.Fatal("expected modifier to accept exported target ref")
+	}
+
+	if modifier.GetTarget() == nil {
+		t.Fatal("expected modifier target to be preserved")
+	}
+}
+
+func TestNewConditionRef_ConstructsUsableConditionValueObject(t *testing.T) {
+	condition, ok := NewConditionRef("while_charging")
+	if !ok {
+		t.Fatal("expected condition ref to be constructed")
+	}
+
+	if condition.GetID() != ConditionID("while_charging") {
+		t.Fatalf("expected condition id %q, got %q", ConditionID("while_charging"), condition.GetID())
+	}
+
+	target, ok := NewTargetRef("attack_roll")
+	if !ok {
+		t.Fatal("expected target ref to be constructed")
+	}
+
+	modifier, ok := NewModifier(ModifierDodge, 1, "", target, ModifierCondition{condition})
+	if !ok {
+		t.Fatal("expected modifier to accept exported condition ref")
+	}
+
+	storedConditions := modifier.GetCondition()
+	if len(storedConditions) != 1 {
+		t.Fatalf("expected 1 stored condition, got %d", len(storedConditions))
+	}
+}
+
+func TestNewTargetRefAndConditionRef_RejectInvalidIDs(t *testing.T) {
+	if _, ok := NewTargetRef(""); ok {
+		t.Fatal("expected empty target id to be rejected")
+	}
+
+	if _, ok := NewTargetRef(" attack_roll"); ok {
+		t.Fatal("expected target id with surrounding whitespace to be rejected")
+	}
+
+	if _, ok := NewConditionRef(""); ok {
+		t.Fatal("expected empty condition id to be rejected")
+	}
+
+	if _, ok := NewConditionRef(" while_charging "); ok {
+		t.Fatal("expected condition id with surrounding whitespace to be rejected")
+	}
+}
+
 // ==============================
 // DODGE (STACK ALL)
 // ==============================

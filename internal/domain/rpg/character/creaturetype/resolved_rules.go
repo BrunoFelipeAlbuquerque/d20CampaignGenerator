@@ -54,6 +54,10 @@ func (r resolvedCreatureRules) UsesClassRulesForRacialHitDice() bool {
 }
 
 func (r resolvedCreatureRules) NewRacialHitDie(hitDieCount int) (ability.HitDie, bool) {
+	if r.UsesClassRulesForRacialHitDice() {
+		return ability.HitDie{}, false
+	}
+
 	return ability.NewUniformHitDie(r.hitDieType, hitDieCount)
 }
 

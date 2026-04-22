@@ -11,6 +11,12 @@ type LanguageID = languageID
 type racialFeatureID string
 type RacialFeatureID = racialFeatureID
 
+type bonusLanguageChoice struct {
+	languageIDs  []languageID
+	anyNonSecret bool
+}
+type BonusLanguageChoice = bonusLanguageChoice
+
 type abilityScoreModifier struct {
 	scoreID  ability.AbilityScoreID
 	modifier int
@@ -23,7 +29,8 @@ type race struct {
 	baseSpeed                      int
 	abilityScoreModifiers          []abilityScoreModifier
 	selectableAbilityScoreModifier int
-	racialLanguages                []languageID
+	automaticLanguages             []languageID
+	bonusLanguageChoice            bonusLanguageChoice
 	racialFeatures                 []racialFeatureID
 }
 type Race = race
@@ -39,13 +46,33 @@ func NewAbilityScoreModifier(scoreID ability.AbilityScoreID, modifier int) (Abil
 	}, true
 }
 
+func NewBonusLanguageChoice(
+	languageIDs []LanguageID,
+	anyNonSecret bool,
+) (BonusLanguageChoice, bool) {
+	dedupedLanguages, ok := dedupeLanguageIDs(languageIDs)
+	if !ok {
+		return bonusLanguageChoice{}, false
+	}
+
+	if len(dedupedLanguages) == 0 && !anyNonSecret {
+		return bonusLanguageChoice{}, false
+	}
+
+	return bonusLanguageChoice{
+		languageIDs:  dedupedLanguages,
+		anyNonSecret: anyNonSecret,
+	}, true
+}
+
 func NewRace(
 	id RaceID,
 	size ability.Size,
 	baseSpeed int,
 	abilityScoreModifiers []AbilityScoreModifier,
 	selectableAbilityScoreModifier int,
-	racialLanguages []LanguageID,
+	automaticLanguages []LanguageID,
+	bonusLanguageChoice BonusLanguageChoice,
 	racialFeatures []RacialFeatureID,
 ) (Race, bool) {
 	if !isValidRaceID(id) || !isValidSize(size) || baseSpeed <= 0 || selectableAbilityScoreModifier < 0 {
@@ -63,8 +90,12 @@ func NewRace(
 		}
 	}
 
-	dedupedLanguages, ok := dedupeLanguageIDs(racialLanguages)
+	dedupedAutomaticLanguages, ok := dedupeLanguageIDs(automaticLanguages)
 	if !ok {
+		return race{}, false
+	}
+
+	if !isValidBonusLanguageChoice(bonusLanguageChoice) {
 		return race{}, false
 	}
 
@@ -79,7 +110,8 @@ func NewRace(
 		baseSpeed:                      baseSpeed,
 		abilityScoreModifiers:          dedupedModifiers,
 		selectableAbilityScoreModifier: selectableAbilityScoreModifier,
-		racialLanguages:                dedupedLanguages,
+		automaticLanguages:             dedupedAutomaticLanguages,
+		bonusLanguageChoice:            cloneBonusLanguageChoice(bonusLanguageChoice),
 		racialFeatures:                 dedupedFeatures,
 	}, true
 }
@@ -117,11 +149,31 @@ func (r race) GetSelectableAbilityScoreModifier() (int, bool) {
 }
 
 func (r race) GetRacialLanguages() []LanguageID {
-	return append([]LanguageID(nil), r.racialLanguages...)
+	return r.GetAutomaticLanguages()
+}
+
+func (r race) GetAutomaticLanguages() []LanguageID {
+	return append([]LanguageID(nil), r.automaticLanguages...)
+}
+
+func (r race) GetBonusLanguageChoice() (BonusLanguageChoice, bool) {
+	if !hasBonusLanguageChoice(r.bonusLanguageChoice) {
+		return bonusLanguageChoice{}, false
+	}
+
+	return cloneBonusLanguageChoice(r.bonusLanguageChoice), true
 }
 
 func (r race) GetRacialFeatures() []RacialFeatureID {
 	return append([]RacialFeatureID(nil), r.racialFeatures...)
+}
+
+func (c bonusLanguageChoice) GetLanguageIDs() []LanguageID {
+	return append([]LanguageID(nil), c.languageIDs...)
+}
+
+func (c bonusLanguageChoice) AllowsAnyNonSecret() bool {
+	return c.anyNonSecret
 }
 
 func (r race) HasFeature(featureID RacialFeatureID) bool {
@@ -155,6 +207,30 @@ func isValidLanguageID(value LanguageID) bool {
 func isValidRacialFeatureID(value RacialFeatureID) bool {
 	_, ok := validRacialFeatureIDs[value]
 	return ok
+}
+
+func isValidBonusLanguageChoice(value BonusLanguageChoice) bool {
+	if !value.anyNonSecret && len(value.languageIDs) == 0 {
+		return true
+	}
+
+	dedupedLanguages, ok := dedupeLanguageIDs(value.languageIDs)
+	if !ok {
+		return false
+	}
+
+	return len(dedupedLanguages) == len(value.languageIDs)
+}
+
+func hasBonusLanguageChoice(value BonusLanguageChoice) bool {
+	return value.anyNonSecret || len(value.languageIDs) > 0
+}
+
+func cloneBonusLanguageChoice(value BonusLanguageChoice) BonusLanguageChoice {
+	return bonusLanguageChoice{
+		languageIDs:  append([]LanguageID(nil), value.languageIDs...),
+		anyNonSecret: value.anyNonSecret,
+	}
 }
 
 func dedupeAbilityScoreModifiers(modifiers []AbilityScoreModifier) ([]AbilityScoreModifier, bool) {
