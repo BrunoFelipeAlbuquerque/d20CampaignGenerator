@@ -46,14 +46,14 @@ func TestCoreRaces_SeedsSevenCoreEntries(t *testing.T) {
 			t.Fatalf("expected race %q base speed %d, got %d", tc.id, tc.baseSpeed, race.GetBaseSpeed())
 		}
 
-		languages := race.GetRacialLanguages()
+		languages := race.GetAutomaticLanguages()
 		if len(languages) != len(tc.languages) {
-			t.Fatalf("expected race %q to have %d languages, got %d", tc.id, len(tc.languages), len(languages))
+			t.Fatalf("expected race %q to have %d automatic languages, got %d", tc.id, len(tc.languages), len(languages))
 		}
 
 		for i, language := range tc.languages {
 			if languages[i] != language {
-				t.Fatalf("expected race %q language at %d to be %q, got %q", tc.id, i, language, languages[i])
+				t.Fatalf("expected race %q automatic language at %d to be %q, got %q", tc.id, i, language, languages[i])
 			}
 		}
 

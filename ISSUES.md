@@ -94,7 +94,7 @@
 
 ## SHOULD
 
-- [ ] Remove or rename the legacy `GetRacialLanguages` alias before callers lock in the wrong race-language shape again:
+- [X] Remove or rename the legacy `GetRacialLanguages` alias before callers lock in the wrong race-language shape again:
   - `Race` now has `GetAutomaticLanguages` and `GetBonusLanguageChoice`
   - `GetRacialLanguages` still exists and currently returns only the automatic slice
   - the old name reads like "all racial languages" and hides the newly modeled bonus-language metadata
