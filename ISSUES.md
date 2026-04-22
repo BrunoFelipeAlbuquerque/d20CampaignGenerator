@@ -100,7 +100,7 @@
   - the old name reads like "all racial languages" and hides the newly modeled bonus-language metadata
   - current tests still normalize that legacy entry point instead of pushing callers to the split model
 
-- [ ] Refresh stale README guidance before docs start reintroducing already-fixed mistakes:
+- [X] Refresh stale README guidance before docs start reintroducing already-fixed mistakes:
   - `README.md` still says `HitDie` average HP uses the project's fixed averages
   - `README.md` still says the next major area is creature type and subtype
   - both statements are now false and can send future work and reviews down the wrong path
