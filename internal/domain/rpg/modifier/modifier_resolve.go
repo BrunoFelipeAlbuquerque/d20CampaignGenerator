@@ -19,34 +19,91 @@ type Condition interface {
 }
 
 type Modifier struct {
-	Type      ModifierType
-	Value     int
-	Source    ModifierSource
-	Target    Target
-	Condition ModifierCondition
+	modifierType ModifierType
+	value        int
+	source       ModifierSource
+	target       Target
+	condition    ModifierCondition
 }
 
-func (mods ModifierList) ModifierResolve() int {
+func NewModifier(
+	modifierType ModifierType,
+	value int,
+	source ModifierSource,
+	target Target,
+	condition ModifierCondition,
+) (Modifier, bool) {
+	if !isValidModifierType(modifierType) {
+		return Modifier{}, false
+	}
+
+	if modifierType == ModifierCircumstance && validateModifierSource(source) != nil {
+		return Modifier{}, false
+	}
+
+	return Modifier{
+		modifierType: modifierType,
+		value:        value,
+		source:       source,
+		target:       target,
+		condition:    append(ModifierCondition(nil), condition...),
+	}, true
+}
+
+func (m Modifier) GetType() ModifierType {
+	return m.modifierType
+}
+
+func (m Modifier) GetValue() int {
+	return m.value
+}
+
+func (m Modifier) GetSource() ModifierSource {
+	return m.source
+}
+
+func (m Modifier) GetTarget() Target {
+	return m.target
+}
+
+func (m Modifier) GetCondition() ModifierCondition {
+	return append(ModifierCondition(nil), m.condition...)
+}
+
+func (mods ModifierList) ModifierResolve() (int, bool) {
 	total := 0
 
 	grouped := make(map[ModifierType][]Modifier)
 
 	for _, m := range mods {
-		grouped[m.Type] = append(grouped[m.Type], m)
+		if !isValidModifier(m) {
+			return 0, false
+		}
+
+		grouped[m.modifierType] = append(grouped[m.modifierType], m)
 	}
 
 	for t, group := range grouped {
 		total += resolveByType(t, group)
 	}
 
-	return total
+	return total, true
+}
+
+func isValidModifier(m Modifier) bool {
+	if !isValidModifierType(m.modifierType) {
+		return false
+	}
+
+	if m.modifierType == ModifierCircumstance && validateModifierSource(m.source) != nil {
+		return false
+	}
+
+	return true
 }
 
 func resolveByType(modifierType ModifierType, modifiers []Modifier) int {
 	switch modifierType {
-	case "":
-		return resolveHighestValue(modifiers)
-
 	case ModifierUntyped:
 		return sumModifiers(modifiers)
 
@@ -57,7 +114,7 @@ func resolveByType(modifierType ModifierType, modifiers []Modifier) int {
 		bySource := make(map[ModifierSource][]Modifier)
 
 		for _, circumstanceModifier := range modifiers {
-			bySource[circumstanceModifier.Source] = append(bySource[circumstanceModifier.Source], circumstanceModifier)
+			bySource[circumstanceModifier.source] = append(bySource[circumstanceModifier.source], circumstanceModifier)
 		}
 
 		sum := 0
@@ -74,7 +131,7 @@ func resolveByType(modifierType ModifierType, modifiers []Modifier) int {
 func sumModifiers(modifiers []Modifier) int {
 	sum := 0
 	for _, modifier := range modifiers {
-		sum += modifier.Value
+		sum += modifier.value
 	}
 	return sum
 }
@@ -85,10 +142,10 @@ func resolveHighestBonusAndStackingPenalties(modifiers []Modifier) int {
 
 	for _, modifier := range modifiers {
 		switch {
-		case modifier.Value > highestBonus:
-			highestBonus = modifier.Value
-		case modifier.Value < 0:
-			penalties += modifier.Value
+		case modifier.value > highestBonus:
+			highestBonus = modifier.value
+		case modifier.value < 0:
+			penalties += modifier.value
 		}
 	}
 
@@ -101,10 +158,10 @@ func resolveHighestBonusAndWorstPenalty(modifiers []Modifier) int {
 
 	for _, modifier := range modifiers {
 		switch {
-		case modifier.Value > highestBonus:
-			highestBonus = modifier.Value
-		case modifier.Value < worstPenalty:
-			worstPenalty = modifier.Value
+		case modifier.value > highestBonus:
+			highestBonus = modifier.value
+		case modifier.value < worstPenalty:
+			worstPenalty = modifier.value
 		}
 	}
 
@@ -114,8 +171,8 @@ func resolveHighestBonusAndWorstPenalty(modifiers []Modifier) int {
 func resolveHighestValue(modifiers []Modifier) int {
 	max := 0
 	for i, modifier := range modifiers {
-		if i == 0 || modifier.Value > max {
-			max = modifier.Value
+		if i == 0 || modifier.value > max {
+			max = modifier.value
 		}
 	}
 

@@ -19,8 +19,8 @@ func TestNewRacialHitPoints_StandardCreatureWorks(t *testing.T) {
 		t.Fatalf("expected hit point kind %q, got %q", ability.StandardHitPoints, hp.GetKind())
 	}
 
-	if hp.GetTotal() != 14 {
-		t.Fatalf("expected total HP 14, got %d", hp.GetTotal())
+	if hp.GetTotal() != 13 {
+		t.Fatalf("expected total HP 13, got %d", hp.GetTotal())
 	}
 }
 
@@ -36,8 +36,8 @@ func TestNewRacialHitPoints_UndeadWorks(t *testing.T) {
 		t.Fatalf("expected hit point kind %q, got %q", ability.UndeadHitPoints, hp.GetKind())
 	}
 
-	if hp.GetTotal() != 16 {
-		t.Fatalf("expected total HP 16, got %d", hp.GetTotal())
+	if hp.GetTotal() != 15 {
+		t.Fatalf("expected total HP 15, got %d", hp.GetTotal())
 	}
 }
 
@@ -53,31 +53,20 @@ func TestNewRacialHitPoints_ConstructWorks(t *testing.T) {
 		t.Fatalf("expected hit point kind %q, got %q", ability.ConstructHitPoints, hp.GetKind())
 	}
 
-	if hp.GetTotal() != 32 {
-		t.Fatalf("expected total HP 32, got %d", hp.GetTotal())
+	if hp.GetTotal() != 31 {
+		t.Fatalf("expected total HP 31, got %d", hp.GetTotal())
 	}
 }
 
-func TestNewRacialHitPoints_HumanoidKeepsContextualFlagAndStillBuildsHP(t *testing.T) {
+func TestNewRacialHitPoints_HumanoidRequiresClassRuleHandling(t *testing.T) {
 	rules := mustResolveRules(t, creaturetype.HumanoidType)
 
-	if !rules.HasContextualFlag(creaturetype.HumanoidRacialHDUsesClassRulesFlag) {
-		t.Fatal("expected humanoid contextual flag to remain available")
+	if !rules.UsesClassRulesForRacialHitDice() {
+		t.Fatal("expected humanoid class-rule boundary to remain available")
 	}
 
-	hp, ok := NewRacialHitPoints(rules, 1, 12, 0, ability.MediumSize)
-	if !ok {
-		t.Fatal("expected humanoid racial hit points to be constructed")
-	}
-
-	if hp.GetKind() != ability.StandardHitPoints {
-		t.Fatalf("expected hit point kind %q, got %q", ability.StandardHitPoints, hp.GetKind())
-	}
-
-	hd := hp.GetHitDie()
-	d8Count, ok := hd.GetDieCount(ability.D8HitDie)
-	if !ok || d8Count != 1 {
-		t.Fatalf("expected humanoid racial hit dice (1 d8, true), got (%d, %t)", d8Count, ok)
+	if _, ok := NewRacialHitPoints(rules, 1, 12, 0, ability.MediumSize); ok {
+		t.Fatal("expected humanoid convenience racial hit points path to be rejected")
 	}
 }
 

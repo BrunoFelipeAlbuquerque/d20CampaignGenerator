@@ -79,8 +79,8 @@ func TestExportedAbilityTypesAreUsableOutsidePackage(t *testing.T) {
 	}
 
 	var exportedHD ability.HitDie = hd
-	if exportedHD.GetAverageBaseHP() != 5 {
-		t.Fatalf("expected exported average base HP 5, got %d", exportedHD.GetAverageBaseHP())
+	if exportedHD.GetAverageBaseHP() != 4 {
+		t.Fatalf("expected exported average base HP 4, got %d", exportedHD.GetAverageBaseHP())
 	}
 
 	d8Count, ok := exportedHD.GetDieCount(ability.D8HitDie)
@@ -89,8 +89,8 @@ func TestExportedAbilityTypesAreUsableOutsidePackage(t *testing.T) {
 	}
 
 	var exportedHP ability.HitPoints = hp
-	if exportedHP.GetTotal() != 6 {
-		t.Fatalf("expected exported HP total 6, got %d", exportedHP.GetTotal())
+	if exportedHP.GetTotal() != 5 {
+		t.Fatalf("expected exported HP total 5, got %d", exportedHP.GetTotal())
 	}
 
 	var exportedSpeed ability.Speed = speed
@@ -120,8 +120,8 @@ func TestExportedAbilityTypesAreUsableOutsidePackage(t *testing.T) {
 	}
 
 	var exportedCapacity ability.StrengthCarryingCapacity = capacity
-	if exportedCapacity.GetLightLoadMax().GetKilograms() != 50 {
-		t.Fatalf("expected light load 50kg, got %.1fkg", exportedCapacity.GetLightLoadMax().GetKilograms())
+	if exportedCapacity.GetLightLoadMax().GetPounds() < 99.99 || exportedCapacity.GetLightLoadMax().GetPounds() > 100.01 {
+		t.Fatalf("expected light load about 100lb, got %.2flb", exportedCapacity.GetLightLoadMax().GetPounds())
 	}
 
 	profile, ok := exportedScore.GetSpellcastingProfile()

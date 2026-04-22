@@ -151,6 +151,10 @@ func TestNewRace_RejectsInvalidInputs(t *testing.T) {
 		t.Fatal("expected negative selectable ability score modifier to be rejected")
 	}
 
+	if _, ok := NewRace(RaceID("human"), ability.MediumSize, 30, nil, 1, nil, nil); ok {
+		t.Fatal("expected unsupported selectable ability score modifier to be rejected")
+	}
+
 	if _, ok := NewRace(
 		RaceID("human"),
 		ability.MediumSize,
@@ -161,6 +165,18 @@ func TestNewRace_RejectsInvalidInputs(t *testing.T) {
 		nil,
 	); ok {
 		t.Fatal("expected invalid ability score modifier entry to be rejected")
+	}
+
+	if _, ok := NewRace(
+		RaceID("human"),
+		ability.MediumSize,
+		30,
+		[]AbilityScoreModifier{validModifier},
+		2,
+		nil,
+		nil,
+	); ok {
+		t.Fatal("expected fixed and selectable ability score modifiers to be rejected together")
 	}
 
 	if _, ok := NewRace(

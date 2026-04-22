@@ -11,24 +11,24 @@
 
 ## NEED
 
-- [ ] Restore core Strength carrying-capacity math before encumbrance depends on it:
+- [X] Restore core Strength carrying-capacity math before encumbrance depends on it:
   - `AbilityScore.GetCarryingCapacity` is currently backed by a custom metric table
   - the returned pound values are wrong for core PF1 load bands
   - example: `Strength 18` resolves to about `110.23 lb` light load instead of core `100 lb`
   - current tests lock in the non-core numbers
 
-- [ ] Stop shipping project HP house rules as default HP math:
+- [X] Stop shipping project HP house rules as default HP math:
   - `HitDie.GetAverageBaseHP` uses fixed averages (`d6=4`, `d8=5`, `d10=6`, `d12=7`)
   - construct HP uses the custom Large+ / `Titanic` size bonus table
   - `creaturetype` and `character` helpers already depend on those values
   - current HP totals are therefore not trustworthy as core PF1 outputs
 
-- [ ] Correct outsider breathing semantics in `creaturetype`:
+- [X] Correct outsider breathing semantics in `creaturetype`:
   - `OutsiderType` currently gets `NoNeedToEatSleepBreathe`
   - standard PF1 outsiders still breathe
   - `NativeSubtype` currently compensates by adding `BreatheEatSleep`, which means the base outsider metadata is wrong
 
-- [ ] Validate modifier entries before they become shared composition inputs:
+- [X] Validate modifier entries before they become shared composition inputs:
   - `Modifier` is a free-form exported struct with no validated constructor
   - unknown or mistyped `ModifierType` values silently create new stacking buckets
   - empty type has special resolution behavior instead of failing fast
@@ -64,27 +64,27 @@
 
 ## SHOULD
 
-- [ ] Expose a read-only skill query surface for the seeded core catalog:
+- [X] Expose a read-only skill query surface for the seeded core catalog:
   - `coreSkills` exists but is package-private
   - outside consumers cannot ask for a skill by ID or enumerate the seeded catalog
   - later class-skill and character work will have to reach around the seed instead of using it
 
-- [ ] Tighten Race chassis invariants around selectable ability-score bonuses:
+- [X] Tighten Race chassis invariants around selectable ability-score bonuses:
   - `NewRace` accepts any non-negative `selectableAbilityScoreModifier`
   - it currently allows semantically impossible combinations, like fixed modifiers plus a selectable bonus on the same race
   - the current core seeds are fine, but the chassis still permits invalid states
 
-- [ ] Make the current repo status readable from the source-of-truth docs:
+- [X] Make the current repo status readable from the source-of-truth docs:
   - `BACKLOG.md` starts at Race / Modifier / Skill / Class
   - the repo also contains established `ability`, `creaturetype`, and `character` packages that are not reflected there
   - a reviewer currently has to reconcile code, README, and git history to understand what is foundational versus backlog-delivered
 
-- [ ] Clarify the humanoid misuse boundary before class and character composition expands:
+- [X] Clarify the humanoid misuse boundary before class and character composition expands:
   - `ResolvedCreatureRules.NewRacialHitDie` and `NewRacialHitPoints` happily build humanoid racial HD / HP
   - the contextual flag exists, but the convenience API still makes the wrong path look normal
   - this is easy to use incorrectly once Class arrives
 
-- [ ] Make `creaturetype` scope easier to read from the package surface:
+- [X] Make `creaturetype` scope easier to read from the package surface:
   - exported type IDs suggest broad PF1 coverage
   - only a limited subtype set and a partial trait model are actually implemented
   - most of that boundary is discoverable only by reading tests and `profile_table.go`
@@ -111,20 +111,20 @@
 
 ## CAN
 
-- [ ] Add a compact status matrix for specialist review:
+- [X] Add a compact status matrix for specialist review:
   - what exists
   - what is core-correct
   - what is intentionally partial
   - what is project-specific
 
-- [ ] Normalize the remaining vague PF1 seed labels where they are still less explicit than the rulebook:
+- [X] Normalize the remaining vague PF1 seed labels where they are still less explicit than the rulebook:
   - example: elf `Magic` is less precise than `Elven Magic`
 
-- [ ] Add read-only discovery helpers for seeded catalogs if lookup pressure grows:
+- [X] Add read-only discovery helpers for seeded catalogs if lookup pressure grows:
   - race has `GetRaceByID` but no catalog iterator
   - skill has no public discovery surface yet
 
-- [ ] Run a later audit pass over the already-built foundation domains after P0 Race, Skill, and Class are aligned
+- [X] Run a later audit pass over the already-built foundation domains after P0 Race, Skill, and Class are aligned
 
 - [X] Collapse duplicated helper logic only if it becomes active maintenance pain:
   - example: ability modifier math is duplicated in more than one place

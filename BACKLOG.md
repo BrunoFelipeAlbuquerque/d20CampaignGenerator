@@ -12,6 +12,22 @@
 
 ---
 
+## Established foundation already present in repo
+
+These packages already exist and are part of the current project baseline. They are not pending backlog items in this file:
+
+- `internal/domain/rpg/character/ability`
+  - validated foundational stat and chassis domains already established
+- `internal/domain/rpg/character/creaturetype`
+  - structural creature rule resolution already established
+  - intentionally partial to current project scope
+- `internal/domain/rpg/character`
+  - current composition boundary already established
+
+The tracked backlog below starts at Race / Modifier / Skill / Class because those are the remaining source-of-truth delivery items after that existing foundation.
+
+---
+
 ## P0 — Core foundation
 
 ### Race

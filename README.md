@@ -172,12 +172,24 @@ These are documented in:
 Current repo-specific differences include:
 
 - caster level tracked by source instead of by individual class
-- custom construct bonus HP table
 - `Titanic` as an officialized project creature size
 - project-authored metric conversions for creature size ranges
-- fixed average hit die values for HP calculations
 
 Those differences exist in the repository, but they are not the source of truth for current delivery priority. `BACKLOG.md` and `AGENTS.md` are.
+
+## Current Status Matrix
+
+This table is the current foundation-audit snapshot for specialist review of the existing repo surface. It reflects what is present now, including the fact that Class is not aligned yet.
+
+| Area | Exists | Core-correct now | Intentional limit | Project-specific note |
+| --- | --- | --- | --- | --- |
+| `ability` | yes | carrying capacity, hit point averages, core construct HP table, and core size ladder behavior are aligned for the current surface | not a full combat-state engine | `Titanic`, metric size conversions, source-based caster levels |
+| `creaturetype` | yes | supported base types and the currently supported subtype effects resolve structurally | partial subtype coverage and partial trait model by design | none beyond project-specific sizes if a caller uses them |
+| `character` | yes | composition helpers for the current foundation slices | not a full character aggregate yet | none |
+| `race` | yes | 7 core races seeded with lookup helpers | core seed/query slice only | none |
+| `modifier` | yes | validated modifier chassis and stacking resolution | target/condition slots are placeholders for later composition pressure | none |
+| `skill` | yes | core catalog seeded with public lookup and enumeration | grouped family handling only, not skill-rank composition yet | none |
+| `class` | no | not started | next backlog domain | n/a |
 
 ## Current Domain Snapshot
 

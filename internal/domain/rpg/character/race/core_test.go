@@ -67,6 +67,7 @@ func TestCoreRaces_SeedsCorrectedCoreFeaturePresence(t *testing.T) {
 		id       RaceID
 		features []RacialFeatureID
 	}{
+		{ElfRaceID, []RacialFeatureID{ElvenImmunitiesFeatureID, ElvenMagicFeatureID}},
 		{GnomeRaceID, []RacialFeatureID{GnomeMagicFeatureID, KeenSensesFeatureID}},
 		{HalfElfRaceID, []RacialFeatureID{ElvenImmunitiesFeatureID, KeenSensesFeatureID, MultitalentedFeatureID}},
 		{HalfOrcRaceID, []RacialFeatureID{OrcFerocityFeatureID, IntimidatingFeatureID}},
@@ -247,5 +248,39 @@ func TestGetRaceByID_ReturnsDetachedCopy(t *testing.T) {
 func TestGetRaceByID_RejectsUnknownRace(t *testing.T) {
 	if _, ok := GetRaceByID(RaceID("android")); ok {
 		t.Fatal("expected unknown race lookup to fail")
+	}
+}
+
+func TestGetRaces_ReturnsSeededCatalogInCoreOrder(t *testing.T) {
+	races := GetRaces()
+	if len(races) != len(coreRaceOrder) {
+		t.Fatalf("expected %d queried races, got %d", len(coreRaceOrder), len(races))
+	}
+
+	for i, expectedID := range coreRaceOrder {
+		if races[i].GetID() != expectedID {
+			t.Fatalf("expected race at index %d to be %q, got %q", i, expectedID, races[i].GetID())
+		}
+	}
+}
+
+func TestGetRaces_ReturnsDetachedCopies(t *testing.T) {
+	first := GetRaces()
+	second := GetRaces()
+
+	first[0].racialLanguages[0] = "Changed"
+	first[0].racialFeatures[0] = "Changed"
+	first[0].abilityScoreModifiers[0].modifier = 99
+
+	if second[0].racialLanguages[0] != CommonLanguageID {
+		t.Fatalf("expected stored race language to remain %q, got %q", CommonLanguageID, second[0].racialLanguages[0])
+	}
+
+	if second[0].racialFeatures[0] != SlowAndSteadyFeatureID {
+		t.Fatalf("expected stored race feature to remain %q, got %q", SlowAndSteadyFeatureID, second[0].racialFeatures[0])
+	}
+
+	if second[0].abilityScoreModifiers[0].modifier != 2 {
+		t.Fatalf("expected stored race modifier to remain 2, got %d", second[0].abilityScoreModifiers[0].modifier)
 	}
 }

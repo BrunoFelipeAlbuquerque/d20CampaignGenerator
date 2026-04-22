@@ -123,7 +123,7 @@ var creatureTypeProfiles = map[CreatureTypeID]CreatureTypeProfile{
 		ability.StandardHitPoints,
 		[]CreatureTypeTraitID{
 			Darkvision60Trait,
-			NoNeedToEatSleepBreatheTrait,
+			BreatheNoNeedToEatSleepTrait,
 		},
 	),
 	PlantType: mustNewCreatureTypeProfile(

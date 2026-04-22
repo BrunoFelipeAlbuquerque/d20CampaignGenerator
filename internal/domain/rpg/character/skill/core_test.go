@@ -93,3 +93,48 @@ func TestNewSkill_RejectsUnknownCoreLikeSkillIDs(t *testing.T) {
 		}
 	}
 }
+
+func TestGetSkillByID_ReturnsSeededCoreSkill(t *testing.T) {
+	skill, ok := GetSkillByID(PerceptionSkillID)
+	if !ok {
+		t.Fatal("expected perception skill lookup to succeed")
+	}
+
+	if skill.GetID() != PerceptionSkillID {
+		t.Fatalf("expected looked up skill id %q, got %q", PerceptionSkillID, skill.GetID())
+	}
+
+	if skill.IsTrainedOnly() {
+		t.Fatal("expected perception to not be trained-only")
+	}
+}
+
+func TestGetSkillByID_RejectsUnknownSkill(t *testing.T) {
+	if _, ok := GetSkillByID(SkillID("Jump")); ok {
+		t.Fatal("expected unknown skill lookup to fail")
+	}
+}
+
+func TestGetSkills_ReturnsSeededCatalogInCoreOrder(t *testing.T) {
+	skills := GetSkills()
+	if len(skills) != len(coreSkillOrder) {
+		t.Fatalf("expected %d queried skills, got %d", len(coreSkillOrder), len(skills))
+	}
+
+	for i, expectedID := range coreSkillOrder {
+		if skills[i].GetID() != expectedID {
+			t.Fatalf("expected skill at index %d to be %q, got %q", i, expectedID, skills[i].GetID())
+		}
+	}
+}
+
+func TestGetSkills_ReturnsDetachedSlice(t *testing.T) {
+	first := GetSkills()
+	second := GetSkills()
+
+	first[0] = skill{}
+
+	if second[0].GetID() != AcrobaticsSkillID {
+		t.Fatalf("expected detached skill slice to preserve %q, got %q", AcrobaticsSkillID, second[0].GetID())
+	}
+}

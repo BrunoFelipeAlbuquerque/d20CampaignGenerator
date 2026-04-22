@@ -90,10 +90,10 @@ func TestSizeGetTypicalRanges_ExposeImperialAndMetricValues(t *testing.T) {
 	}
 }
 
-func TestSizeGetConstructBonusHP_IncludesTitanicHomebrewValue(t *testing.T) {
+func TestSizeGetConstructBonusHP_UsesCoreTableAndProjectTitanic(t *testing.T) {
 	colossalBonus, ok := ColossalSize.GetConstructBonusHP()
-	if !ok || colossalBonus != 130 {
-		t.Fatalf("expected colossal construct bonus (130, true), got (%d, %t)", colossalBonus, ok)
+	if !ok || colossalBonus != 80 {
+		t.Fatalf("expected colossal construct bonus (80, true), got (%d, %t)", colossalBonus, ok)
 	}
 
 	titanicBonus, ok := TitanicSize.GetConstructBonusHP()

@@ -166,7 +166,7 @@ func (h hitDie) GetDieCount(kind HitDieType) (int, bool) {
 }
 
 func (h hitDie) GetAverageBaseHP() int {
-	return (h.d6 * 4) + (h.d8 * 5) + (h.d10 * 6) + (h.d12 * 7)
+	return ((h.d6 * 7) + (h.d8 * 9) + (h.d10 * 11) + (h.d12 * 13)) / 2
 }
 
 func (h hitPoints) GetTotal() int {

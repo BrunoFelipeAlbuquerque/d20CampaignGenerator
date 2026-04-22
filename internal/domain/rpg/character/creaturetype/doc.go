@@ -1,8 +1,14 @@
-// Package creaturetype models creature type and subtype classification rules.
+// Package creaturetype resolves a limited structural subset of Pathfinder 1e
+// creature rules for the current project scope.
 //
-// It resolves structural and racial-HD metadata, and can bridge that metadata
-// into hit-die and hit-point domains when given the needed inputs.
-// It does not compute final BAB, final saves, or wider class interactions.
-// Only a limited subset of subtypes is supported intentionally.
-// The package is meant to be composed by higher-level domains later.
+// Current surface covers:
+//   - base creature type structural metadata
+//   - a limited supported subtype set: Aquatic, Augmented, Elemental,
+//     Incorporeal, Native, and Swarm
+//   - partial resolved traits and contextual flags needed by the existing
+//     foundation and current backlog pressure
+//
+// This package is intentionally partial. It is not the full PF1 subtype catalog,
+// not the full creature-trait rules engine, and not the final character-stat or
+// combat-resolution layer. Composition remains in character.
 package creaturetype

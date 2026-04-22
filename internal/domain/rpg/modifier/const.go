@@ -54,3 +54,31 @@ const (
 	ModifierSize         ModifierType = "size"
 	ModifierTrait        ModifierType = "trait"
 )
+
+func isValidModifierType(value ModifierType) bool {
+	switch value {
+	case ModifierUntyped,
+		ModifierAlchemical,
+		ModifierArmor,
+		ModifierCircumstance,
+		ModifierCompetence,
+		ModifierDeflection,
+		ModifierDodge,
+		ModifierEnhancement,
+		ModifierInherent,
+		ModifierInsight,
+		ModifierLuck,
+		ModifierMorale,
+		ModifierNaturalArmor,
+		ModifierProfane,
+		ModifierRacial,
+		ModifierResistance,
+		ModifierSacred,
+		ModifierShield,
+		ModifierSize,
+		ModifierTrait:
+		return true
+	default:
+		return false
+	}
+}

@@ -392,7 +392,7 @@ func TestAbilityScore_GetCarryingCapacity_ZeroStrength(t *testing.T) {
 	}
 }
 
-func TestAbilityScore_GetCarryingCapacity_UsesMetricStrengthTable(t *testing.T) {
+func TestAbilityScore_GetCarryingCapacity_UsesCoreStrengthTable(t *testing.T) {
 	score := mustNewAbilityScore(t,
 		StrengthScore,
 		abilityScoreValue{
@@ -407,43 +407,43 @@ func TestAbilityScore_GetCarryingCapacity_UsesMetricStrengthTable(t *testing.T) 
 	}
 
 	light := capacity.GetLightLoadMax()
-	if light.GetKilograms() != 50 {
-		t.Errorf("expected light load 50kg, got %.1fkg", light.GetKilograms())
+	if !almostEqual(light.GetKilograms(), 45.36) {
+		t.Errorf("expected light load about 45.36kg, got %.2fkg", light.GetKilograms())
 	}
 
-	if !almostEqual(light.GetPounds(), 110.23) {
-		t.Errorf("expected light load about 110.23lb, got %.2flb", light.GetPounds())
+	if !almostEqual(light.GetPounds(), 100) {
+		t.Errorf("expected light load about 100lb, got %.2flb", light.GetPounds())
 	}
 
 	medium := capacity.GetMediumLoad()
-	if medium.GetMin().GetKilograms() != 50.5 || medium.GetMax().GetKilograms() != 100 {
+	if !almostEqual(medium.GetMin().GetKilograms(), 45.81) || !almostEqual(medium.GetMax().GetKilograms(), 90.72) {
 		t.Errorf(
-			"expected medium load 50.5-100kg, got %.1f-%.1fkg",
+			"expected medium load about 45.81-90.72kg, got %.2f-%.2fkg",
 			medium.GetMin().GetKilograms(),
 			medium.GetMax().GetKilograms(),
 		)
 	}
 
-	if !almostEqual(medium.GetMin().GetPounds(), 111.33) || !almostEqual(medium.GetMax().GetPounds(), 220.46) {
+	if !almostEqual(medium.GetMin().GetPounds(), 101) || !almostEqual(medium.GetMax().GetPounds(), 200) {
 		t.Errorf(
-			"expected medium load about 111.33-220.46lb, got %.2f-%.2flb",
+			"expected medium load about 101-200lb, got %.2f-%.2flb",
 			medium.GetMin().GetPounds(),
 			medium.GetMax().GetPounds(),
 		)
 	}
 
 	heavy := capacity.GetHeavyLoad()
-	if heavy.GetMin().GetKilograms() != 100.5 || heavy.GetMax().GetKilograms() != 150 {
+	if !almostEqual(heavy.GetMin().GetKilograms(), 91.17) || !almostEqual(heavy.GetMax().GetKilograms(), 136.08) {
 		t.Errorf(
-			"expected heavy load 100.5-150kg, got %.1f-%.1fkg",
+			"expected heavy load about 91.17-136.08kg, got %.2f-%.2fkg",
 			heavy.GetMin().GetKilograms(),
 			heavy.GetMax().GetKilograms(),
 		)
 	}
 
-	if !almostEqual(heavy.GetMin().GetPounds(), 221.56) || !almostEqual(heavy.GetMax().GetPounds(), 330.69) {
+	if !almostEqual(heavy.GetMin().GetPounds(), 201) || !almostEqual(heavy.GetMax().GetPounds(), 300) {
 		t.Errorf(
-			"expected heavy load about 221.56-330.69lb, got %.2f-%.2flb",
+			"expected heavy load about 201-300lb, got %.2f-%.2flb",
 			heavy.GetMin().GetPounds(),
 			heavy.GetMax().GetPounds(),
 		)
@@ -465,43 +465,81 @@ func TestAbilityScore_GetCarryingCapacity_PlusTenMultipliesByFour(t *testing.T) 
 	}
 
 	light := capacity.GetLightLoadMax()
-	if light.GetKilograms() != 932 {
-		t.Errorf("expected light load 932kg, got %.1fkg", light.GetKilograms())
+	if !almostEqual(light.GetKilograms(), 845.50) {
+		t.Errorf("expected light load about 845.50kg, got %.2fkg", light.GetKilograms())
 	}
 
-	if !almostEqual(light.GetPounds(), 2054.71) {
-		t.Errorf("expected light load about 2054.71lb, got %.2flb", light.GetPounds())
+	if !almostEqual(light.GetPounds(), 1864) {
+		t.Errorf("expected light load about 1864lb, got %.2flb", light.GetPounds())
 	}
 
 	medium := capacity.GetMediumLoad()
-	if medium.GetMin().GetKilograms() != 954 || medium.GetMax().GetKilograms() != 1866 {
+	if !almostEqual(medium.GetMin().GetKilograms(), 847.31) || !almostEqual(medium.GetMax().GetKilograms(), 1692.81) {
 		t.Errorf(
-			"expected medium load 954-1866kg, got %.1f-%.1fkg",
+			"expected medium load about 847.31-1692.81kg, got %.2f-%.2fkg",
 			medium.GetMin().GetKilograms(),
 			medium.GetMax().GetKilograms(),
 		)
 	}
 
-	if !almostEqual(medium.GetMin().GetPounds(), 2103.21) || !almostEqual(medium.GetMax().GetPounds(), 4113.83) {
+	if !almostEqual(medium.GetMin().GetPounds(), 1868) || !almostEqual(medium.GetMax().GetPounds(), 3732) {
 		t.Errorf(
-			"expected medium load about 2103.21-4113.83lb, got %.2f-%.2flb",
+			"expected medium load about 1868-3732lb, got %.2f-%.2flb",
 			medium.GetMin().GetPounds(),
 			medium.GetMax().GetPounds(),
 		)
 	}
 
 	heavy := capacity.GetHeavyLoad()
-	if heavy.GetMin().GetKilograms() != 1868 || heavy.GetMax().GetKilograms() != 2800 {
+	if !almostEqual(heavy.GetMin().GetKilograms(), 1694.62) || !almostEqual(heavy.GetMax().GetKilograms(), 2540.12) {
 		t.Errorf(
-			"expected heavy load 1868-2800kg, got %.1f-%.1fkg",
+			"expected heavy load about 1694.62-2540.12kg, got %.2f-%.2fkg",
 			heavy.GetMin().GetKilograms(),
 			heavy.GetMax().GetKilograms(),
 		)
 	}
 
-	if !almostEqual(heavy.GetMin().GetPounds(), 4118.24) || !almostEqual(heavy.GetMax().GetPounds(), 6172.94) {
+	if !almostEqual(heavy.GetMin().GetPounds(), 3736) || !almostEqual(heavy.GetMax().GetPounds(), 5600) {
 		t.Errorf(
-			"expected heavy load about 4118.24-6172.94lb, got %.2f-%.2flb",
+			"expected heavy load about 3736-5600lb, got %.2f-%.2flb",
+			heavy.GetMin().GetPounds(),
+			heavy.GetMax().GetPounds(),
+		)
+	}
+}
+
+func TestAbilityScore_GetCarryingCapacity_PreservesCoreRangeBoundaries(t *testing.T) {
+	score := mustNewAbilityScore(t,
+		StrengthScore,
+		abilityScoreValue{
+			value: 15,
+			valid: true,
+		},
+	)
+
+	capacity, ok := score.GetCarryingCapacity()
+	if !ok {
+		t.Fatal("expected carrying capacity for strength")
+	}
+
+	light := capacity.GetLightLoadMax()
+	if !almostEqual(light.GetPounds(), 66) {
+		t.Errorf("expected light load about 66lb, got %.2flb", light.GetPounds())
+	}
+
+	medium := capacity.GetMediumLoad()
+	if !almostEqual(medium.GetMin().GetPounds(), 67) || !almostEqual(medium.GetMax().GetPounds(), 133) {
+		t.Errorf(
+			"expected medium load about 67-133lb, got %.2f-%.2flb",
+			medium.GetMin().GetPounds(),
+			medium.GetMax().GetPounds(),
+		)
+	}
+
+	heavy := capacity.GetHeavyLoad()
+	if !almostEqual(heavy.GetMin().GetPounds(), 134) || !almostEqual(heavy.GetMax().GetPounds(), 200) {
+		t.Errorf(
+			"expected heavy load about 134-200lb, got %.2f-%.2flb",
 			heavy.GetMin().GetPounds(),
 			heavy.GetMax().GetPounds(),
 		)
