@@ -148,10 +148,6 @@ func (r race) GetSelectableAbilityScoreModifier() (int, bool) {
 	return r.selectableAbilityScoreModifier, true
 }
 
-func (r race) GetRacialLanguages() []LanguageID {
-	return r.GetAutomaticLanguages()
-}
-
 func (r race) GetAutomaticLanguages() []LanguageID {
 	return append([]LanguageID(nil), r.automaticLanguages...)
 }

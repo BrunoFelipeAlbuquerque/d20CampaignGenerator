@@ -270,7 +270,7 @@ Important notes:
 
 - semantic validity matters, not just field presence
 - zero-total hit dice are rejected
-- average HP uses the project’s fixed averages
+- average HP uses the current core-aligned averages for this surface
 
 ### `HitPoints`
 
@@ -380,17 +380,17 @@ Invalid body shapes are rejected.
 
 ## Near-Term Next Steps
 
-The next major area is likely:
+The next major tracked backlog area is:
 
-- creature type and subtype
+- class
 
-That system will likely interact with:
+That work will likely interact with:
 
 - hit dice
-- hit points
-- size
-- immunities
-- special traits
+- base attack bonus
+- saving throws
+- skills
+- spellcasting metadata
 
 So it is important to keep the current domains clean before building on top of them.
 

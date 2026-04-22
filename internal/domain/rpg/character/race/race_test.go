@@ -52,9 +52,9 @@ func TestNewRace_ConstructsValidatedRaceChassis(t *testing.T) {
 		t.Fatalf("expected first modifier to be STR +2, got (%q, %d)", modifiers[0].GetScoreID(), modifiers[0].GetModifier())
 	}
 
-	languages := race.GetRacialLanguages()
+	languages := race.GetAutomaticLanguages()
 	if len(languages) != 2 || languages[0] != CommonLanguageID || languages[1] != ElvenLanguageID {
-		t.Fatalf("expected racial languages [Common Elven], got %v", languages)
+		t.Fatalf("expected automatic languages [Common Elven], got %v", languages)
 	}
 
 	bonusChoice, ok := race.GetBonusLanguageChoice()
@@ -124,8 +124,8 @@ func TestNewRace_DedupesModifiersLanguagesAndFeatures(t *testing.T) {
 		t.Fatalf("expected deduped ability score modifier length 1, got %d", len(race.GetAbilityScoreModifiers()))
 	}
 
-	if len(race.GetRacialLanguages()) != 2 {
-		t.Fatalf("expected deduped racial languages length 2, got %d", len(race.GetRacialLanguages()))
+	if len(race.GetAutomaticLanguages()) != 2 {
+		t.Fatalf("expected deduped automatic languages length 2, got %d", len(race.GetAutomaticLanguages()))
 	}
 
 	bonusChoice, ok := race.GetBonusLanguageChoice()
@@ -263,7 +263,7 @@ func TestRace_GettersReturnDefensiveCopies(t *testing.T) {
 	}
 
 	modifiers := race.GetAbilityScoreModifiers()
-	languages := race.GetRacialLanguages()
+	languages := race.GetAutomaticLanguages()
 	bonusChoice, _ := race.GetBonusLanguageChoice()
 	features := race.GetRacialFeatures()
 
@@ -276,8 +276,8 @@ func TestRace_GettersReturnDefensiveCopies(t *testing.T) {
 		t.Fatal("expected ability score modifiers getter to return a defensive copy")
 	}
 
-	if race.GetRacialLanguages()[0] != CommonLanguageID {
-		t.Fatal("expected racial languages getter to return a defensive copy")
+	if race.GetAutomaticLanguages()[0] != CommonLanguageID {
+		t.Fatal("expected automatic languages getter to return a defensive copy")
 	}
 
 	storedBonusChoice, ok := race.GetBonusLanguageChoice()

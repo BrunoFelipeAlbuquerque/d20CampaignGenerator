@@ -11,7 +11,7 @@
 
 ## NEED
 
-- [ ] Validate exported modifier target and condition refs before `Modifier` construction accepts them:
+- [X] Validate exported modifier target and condition refs before `Modifier` construction accepts them:
   - `NewTargetRef` and `NewConditionRef` now exist as validated entry points
   - `NewModifier` still accepts zero-valued exported `TargetRef` and `ConditionRef` without checking them
   - this reopens the invalid-state path that the modifier chassis was supposed to close
@@ -94,13 +94,13 @@
 
 ## SHOULD
 
-- [ ] Remove or rename the legacy `GetRacialLanguages` alias before callers lock in the wrong race-language shape again:
+- [X] Remove or rename the legacy `GetRacialLanguages` alias before callers lock in the wrong race-language shape again:
   - `Race` now has `GetAutomaticLanguages` and `GetBonusLanguageChoice`
   - `GetRacialLanguages` still exists and currently returns only the automatic slice
   - the old name reads like "all racial languages" and hides the newly modeled bonus-language metadata
   - current tests still normalize that legacy entry point instead of pushing callers to the split model
 
-- [ ] Refresh stale README guidance before docs start reintroducing already-fixed mistakes:
+- [X] Refresh stale README guidance before docs start reintroducing already-fixed mistakes:
   - `README.md` still says `HitDie` average HP uses the project's fixed averages
   - `README.md` still says the next major area is creature type and subtype
   - both statements are now false and can send future work and reviews down the wrong path

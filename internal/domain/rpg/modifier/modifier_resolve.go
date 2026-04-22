@@ -79,6 +79,10 @@ func NewModifier(
 		return Modifier{}, false
 	}
 
+	if !isValidModifierTarget(target) || !isValidModifierConditions(condition) {
+		return Modifier{}, false
+	}
+
 	return Modifier{
 		modifierType: modifierType,
 		value:        value,
@@ -149,7 +153,45 @@ func isValidModifier(m Modifier) bool {
 		return false
 	}
 
+	return isValidModifierTarget(m.target) && isValidModifierConditions(m.condition)
+}
+
+func isValidModifierTarget(target Target) bool {
+	if target == nil {
+		return true
+	}
+
+	ref, ok := target.(targetRef)
+	if !ok {
+		return true
+	}
+
+	value := string(ref.id)
+	return value != "" && strings.TrimSpace(value) == value
+}
+
+func isValidModifierConditions(conditions ModifierCondition) bool {
+	for _, condition := range conditions {
+		if !isValidModifierCondition(condition) {
+			return false
+		}
+	}
+
 	return true
+}
+
+func isValidModifierCondition(condition Condition) bool {
+	if condition == nil {
+		return false
+	}
+
+	ref, ok := condition.(conditionRef)
+	if !ok {
+		return true
+	}
+
+	value := string(ref.id)
+	return value != "" && strings.TrimSpace(value) == value
 }
 
 func resolveByType(modifierType ModifierType, modifiers []Modifier) int {
