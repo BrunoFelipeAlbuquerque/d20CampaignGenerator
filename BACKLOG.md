@@ -69,7 +69,7 @@
   - trained-only flag
   - armor-check-penalty flag
 
-- [ ] Model grouped skills:
+- [X] Model grouped skills:
   - Craft
   - Knowledge
   - Perform
