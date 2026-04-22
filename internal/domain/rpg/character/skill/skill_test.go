@@ -64,6 +64,30 @@ func TestNewSkill_ModelsGroupedSkillFamilies(t *testing.T) {
 	}
 }
 
+func TestNewSkill_ModelsSpecializedGroupedSkillEntries(t *testing.T) {
+	skill, ok := NewSkill(SkillID("Knowledge (arcana)"), true, false, true)
+	if !ok {
+		t.Fatal("expected specialized grouped skill entry to be constructed")
+	}
+
+	if skill.GetID() != SkillID("Knowledge (arcana)") {
+		t.Fatalf("expected specialized skill id %q, got %q", SkillID("Knowledge (arcana)"), skill.GetID())
+	}
+
+	if skill.GetFamilyID() != KnowledgeSkillID {
+		t.Fatalf("expected grouped family id %q, got %q", KnowledgeSkillID, skill.GetFamilyID())
+	}
+
+	specialization, ok := skill.GetSpecialization()
+	if !ok || specialization != "arcana" {
+		t.Fatalf("expected specialization (%q, true), got (%q, %t)", "arcana", specialization, ok)
+	}
+
+	if skill.GetID().GetName() != "Knowledge (arcana)" {
+		t.Fatalf("expected specialized grouped skill name %q, got %q", "Knowledge (arcana)", skill.GetID().GetName())
+	}
+}
+
 func TestNewSkill_RejectsInvalidInputs(t *testing.T) {
 	if _, ok := NewSkill("", false, false, false); ok {
 		t.Fatal("expected empty skill id to be rejected")
@@ -83,6 +107,18 @@ func TestNewSkill_RejectsInvalidInputs(t *testing.T) {
 
 	if _, ok := NewSkill("Acrobatics", false, true, true); ok {
 		t.Fatal("expected ungrouped skill id with grouped metadata to be rejected")
+	}
+
+	if _, ok := NewSkill("Knowledge (arcana)", true, false, false); ok {
+		t.Fatal("expected specialized grouped skill id without grouped metadata to be rejected")
+	}
+
+	if _, ok := NewSkill("Knowledge()", true, false, true); ok {
+		t.Fatal("expected malformed grouped specialization to be rejected")
+	}
+
+	if _, ok := NewSkill("Acrobatics (urban)", false, true, false); ok {
+		t.Fatal("expected specialization on ungrouped skill family to be rejected")
 	}
 
 	if SkillID(" ").GetName() != "" {

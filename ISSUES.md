@@ -17,7 +17,7 @@
   - core races like dwarf, elf, gnome, half-elf, half-orc, halfling, and human therefore lose rule-important language selection metadata
   - future character language handling would otherwise need side tables or overloading of the current field
 
-- [ ] Stop treating grouped skills as family markers only before later skill modeling builds on the wrong unit:
+- [X] Stop treating grouped skills as family markers only before later skill modeling builds on the wrong unit:
   - `Skill` only records `grouped bool` for `Craft`, `Knowledge`, `Perform`, and `Profession`
   - there is no way to represent a concrete grouped skill entry such as `Knowledge (arcana)` or `Perform (sing)`
   - current tests explicitly reject specialized grouped entries as invalid IDs

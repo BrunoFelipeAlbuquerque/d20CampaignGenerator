@@ -84,13 +84,28 @@ func TestNewSkill_RejectsUnknownCoreLikeSkillIDs(t *testing.T) {
 		"Open Lock",
 		"knowledge",
 		"Use magic device",
-		"Knowledge (arcana)",
+		"Knowledge(arcana)",
 	}
 
 	for _, id := range invalidIDs {
 		if _, ok := NewSkill(id, false, false, false); ok {
 			t.Fatalf("expected non-core or non-canonical skill id %q to be rejected", id)
 		}
+	}
+}
+
+func TestNewSkill_AcceptsGroupedSpecializationsWithoutChangingCoreCatalog(t *testing.T) {
+	skill, ok := NewSkill("Perform (sing)", false, false, true)
+	if !ok {
+		t.Fatal("expected grouped specialization to be accepted")
+	}
+
+	if skill.GetFamilyID() != PerformSkillID {
+		t.Fatalf("expected grouped specialization family %q, got %q", PerformSkillID, skill.GetFamilyID())
+	}
+
+	if len(coreSkills) != len(coreSkillOrder) {
+		t.Fatalf("expected grouped specialization support not to change core catalog size, got %d skills and %d ordered ids", len(coreSkills), len(coreSkillOrder))
 	}
 }
 
