@@ -6,10 +6,32 @@ type skillID string
 type SkillID = skillID
 
 const (
-	CraftSkillID      SkillID = "Craft"
-	KnowledgeSkillID  SkillID = "Knowledge"
-	PerformSkillID    SkillID = "Perform"
-	ProfessionSkillID SkillID = "Profession"
+	AcrobaticsSkillID     SkillID = "Acrobatics"
+	AppraiseSkillID       SkillID = "Appraise"
+	BluffSkillID          SkillID = "Bluff"
+	ClimbSkillID          SkillID = "Climb"
+	CraftSkillID          SkillID = "Craft"
+	DiplomacySkillID      SkillID = "Diplomacy"
+	DisableDeviceSkillID  SkillID = "Disable Device"
+	DisguiseSkillID       SkillID = "Disguise"
+	EscapeArtistSkillID   SkillID = "Escape Artist"
+	FlySkillID            SkillID = "Fly"
+	HandleAnimalSkillID   SkillID = "Handle Animal"
+	HealSkillID           SkillID = "Heal"
+	IntimidateSkillID     SkillID = "Intimidate"
+	KnowledgeSkillID      SkillID = "Knowledge"
+	LinguisticsSkillID    SkillID = "Linguistics"
+	PerceptionSkillID     SkillID = "Perception"
+	PerformSkillID        SkillID = "Perform"
+	ProfessionSkillID     SkillID = "Profession"
+	RideSkillID           SkillID = "Ride"
+	SenseMotiveSkillID    SkillID = "Sense Motive"
+	SleightOfHandSkillID  SkillID = "Sleight of Hand"
+	SpellcraftSkillID     SkillID = "Spellcraft"
+	StealthSkillID        SkillID = "Stealth"
+	SurvivalSkillID       SkillID = "Survival"
+	SwimSkillID           SkillID = "Swim"
+	UseMagicDeviceSkillID SkillID = "Use Magic Device"
 )
 
 type skill struct {
@@ -39,7 +61,37 @@ func (id skillID) GetName() string {
 		return ""
 	}
 
-	return name
+	switch SkillID(name) {
+	case AcrobaticsSkillID,
+		AppraiseSkillID,
+		BluffSkillID,
+		ClimbSkillID,
+		CraftSkillID,
+		DiplomacySkillID,
+		DisableDeviceSkillID,
+		DisguiseSkillID,
+		EscapeArtistSkillID,
+		FlySkillID,
+		HandleAnimalSkillID,
+		HealSkillID,
+		IntimidateSkillID,
+		KnowledgeSkillID,
+		LinguisticsSkillID,
+		PerceptionSkillID,
+		PerformSkillID,
+		ProfessionSkillID,
+		RideSkillID,
+		SenseMotiveSkillID,
+		SleightOfHandSkillID,
+		SpellcraftSkillID,
+		StealthSkillID,
+		SurvivalSkillID,
+		SwimSkillID,
+		UseMagicDeviceSkillID:
+		return name
+	default:
+		return ""
+	}
 }
 
 func (s skill) GetID() SkillID {

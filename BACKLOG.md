@@ -75,7 +75,7 @@
   - Perform
   - Profession
 
-- [ ] Seed the core skill catalog only
+- [X] Seed the core skill catalog only
 
 - [ ] Add skill tests:
   - valid IDs
