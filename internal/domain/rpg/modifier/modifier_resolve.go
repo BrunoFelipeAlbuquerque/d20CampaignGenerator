@@ -1,8 +1,16 @@
 package modifier
 
+import "strings"
+
 type ModifierType string
 
 type ModifierSource string
+
+type targetID string
+type TargetID = targetID
+
+type conditionID string
+type ConditionID = conditionID
 
 type ModifierCircumstanceSource = ModifierSource
 
@@ -18,12 +26,42 @@ type Condition interface {
 	isCondition()
 }
 
+type targetRef struct {
+	id targetID
+}
+
+type TargetRef = targetRef
+
+type conditionRef struct {
+	id conditionID
+}
+
+type ConditionRef = conditionRef
+
 type Modifier struct {
 	modifierType ModifierType
 	value        int
 	source       ModifierSource
 	target       Target
 	condition    ModifierCondition
+}
+
+func NewTargetRef(id string) (TargetRef, bool) {
+	value := strings.TrimSpace(id)
+	if value == "" || value != id {
+		return targetRef{}, false
+	}
+
+	return targetRef{id: TargetID(value)}, true
+}
+
+func NewConditionRef(id string) (ConditionRef, bool) {
+	value := strings.TrimSpace(id)
+	if value == "" || value != id {
+		return conditionRef{}, false
+	}
+
+	return conditionRef{id: ConditionID(value)}, true
 }
 
 func NewModifier(
@@ -52,6 +90,18 @@ func NewModifier(
 
 func (m Modifier) GetType() ModifierType {
 	return m.modifierType
+}
+
+func (t targetRef) isTarget() {}
+
+func (t targetRef) GetID() TargetID {
+	return t.id
+}
+
+func (c conditionRef) isCondition() {}
+
+func (c conditionRef) GetID() ConditionID {
+	return c.id
 }
 
 func (m Modifier) GetValue() int {

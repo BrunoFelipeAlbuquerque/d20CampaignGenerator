@@ -23,7 +23,7 @@
   - current tests explicitly reject specialized grouped entries as invalid IDs
   - later class-skill and character skill-rank work will otherwise have to either rank whole families or bolt on a second skill representation
 
-- [ ] Expose usable modifier target and condition value objects before consumers route around the domain:
+- [X] Expose usable modifier target and condition value objects before consumers route around the domain:
   - `Target` and `Condition` are sealed by unexported marker methods
   - the package exports no concrete target or condition types and no constructors for them
   - outside `modifier` code can currently only pass `nil` into those slots
