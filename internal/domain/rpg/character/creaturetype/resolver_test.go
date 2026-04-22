@@ -248,7 +248,7 @@ func TestResolvedCreatureRules_NewRacialHitDie_UsesResolvedDieType(t *testing.T)
 	}
 }
 
-func TestResolvedCreatureRules_NewRacialHitDie_HumanoidStillExposesFlagButBuildsHitDie(t *testing.T) {
+func TestResolvedCreatureRules_NewRacialHitDie_HumanoidRejectsDirectConstruction(t *testing.T) {
 	classification, ok := NewCreatureClassification(HumanoidType, nil, nil)
 	if !ok {
 		t.Fatal("expected classification to be constructed")
@@ -267,14 +267,8 @@ func TestResolvedCreatureRules_NewRacialHitDie_HumanoidStillExposesFlagButBuilds
 		t.Fatal("expected humanoid rules to expose class-rule racial hit dice boundary")
 	}
 
-	hd, ok := rules.NewRacialHitDie(1)
-	if !ok {
-		t.Fatal("expected humanoid racial hit die construction to succeed")
-	}
-
-	d8Count, ok := hd.GetDieCount(ability.D8HitDie)
-	if !ok || d8Count != 1 {
-		t.Fatalf("expected humanoid racial hit dice (1 d8, true), got (%d, %t)", d8Count, ok)
+	if _, ok := rules.NewRacialHitDie(1); ok {
+		t.Fatal("expected humanoid racial hit die construction to be rejected")
 	}
 }
 

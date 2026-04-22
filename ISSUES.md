@@ -29,7 +29,7 @@
   - outside `modifier` code can currently only pass `nil` into those slots
   - this will push future composition work toward ad-hoc side metadata instead of the declared modifier chassis
 
-- [ ] Remove the direct humanoid racial HD convenience path before Class work normalizes the wrong humanoid model:
+- [X] Remove the direct humanoid racial HD convenience path before Class work normalizes the wrong humanoid model:
   - `ResolvedCreatureRules.NewRacialHitDie` still constructs humanoid `d8` racial hit dice
   - `resolver_test.go` still locks in that humanoid construction succeeds while the class-rule flag is present
   - `character.NewRacialHitPoints` guards one entry point, but the lower-level `creaturetype` API still advertises the wrong convenience path
