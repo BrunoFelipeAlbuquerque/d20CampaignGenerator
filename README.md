@@ -83,6 +83,28 @@ Why this matters:
 - later code can trust constructed values more
 - bugs do not hide behind harmless-looking zero values
 
+### Prevent Issue Loops By Closing Wrong Paths
+
+This project should avoid the loop of:
+
+- finding issues
+- fixing issues
+- the fix introducing more issues
+
+The main way to reduce that is:
+
+- fix domain shape before fixing caller behavior
+- close misleading convenience APIs when they encode the wrong model
+- add misuse-boundary tests, not only happy-path tests
+- encode the violated rule in constructors, resolution logic, or query surface
+
+In practice, a good issue fix usually includes:
+
+- one constructor or API guard
+- one data or resolved-metadata correction when needed
+- one regression test
+- one misuse-boundary test
+
 ### Domain Objects Should Be Small And Purposeful
 
 Types should not own concerns that belong elsewhere.
@@ -186,9 +208,9 @@ This table is the current foundation-audit snapshot for specialist review of the
 | `ability` | yes | carrying capacity, hit point averages, core construct HP table, and core size ladder behavior are aligned for the current surface | not a full combat-state engine | `Titanic`, metric size conversions, source-based caster levels |
 | `creaturetype` | yes | supported base types and the currently supported subtype effects resolve structurally | partial subtype coverage and partial trait model by design | none beyond project-specific sizes if a caller uses them |
 | `character` | yes | composition helpers for the current foundation slices | not a full character aggregate yet | none |
-| `race` | yes | 7 core races seeded with lookup helpers | core seed/query slice only | none |
-| `modifier` | yes | validated modifier chassis and stacking resolution | target/condition slots are placeholders for later composition pressure | none |
-| `skill` | yes | core catalog seeded with public lookup and enumeration | grouped family handling only, not skill-rank composition yet | none |
+| `race` | yes | 7 core races seeded with lookup helpers and automatic/bonus language metadata | core seed/query slice only | none |
+| `modifier` | yes | validated modifier chassis, stacking resolution, and usable target/condition refs | not full downstream composition yet | none |
+| `skill` | yes | core catalog seeded with public lookup and grouped specializations accepted by the domain | not skill-rank composition yet | none |
 | `class` | no | not started | next backlog domain | n/a |
 
 ## Current Domain Snapshot
