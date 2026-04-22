@@ -11,6 +11,30 @@
 
 ## NEED
 
+- [ ] Split race language metadata before character language composition hardens around the wrong shape:
+  - `Race` currently stores a single `racialLanguages []LanguageID` list
+  - the seeds only model automatic starting languages and cannot represent core bonus-language choices
+  - core races like dwarf, elf, gnome, half-elf, half-orc, halfling, and human therefore lose rule-important language selection metadata
+  - future character language handling would otherwise need side tables or overloading of the current field
+
+- [ ] Stop treating grouped skills as family markers only before later skill modeling builds on the wrong unit:
+  - `Skill` only records `grouped bool` for `Craft`, `Knowledge`, `Perform`, and `Profession`
+  - there is no way to represent a concrete grouped skill entry such as `Knowledge (arcana)` or `Perform (sing)`
+  - current tests explicitly reject specialized grouped entries as invalid IDs
+  - later class-skill and character skill-rank work will otherwise have to either rank whole families or bolt on a second skill representation
+
+- [ ] Expose usable modifier target and condition value objects before consumers route around the domain:
+  - `Target` and `Condition` are sealed by unexported marker methods
+  - the package exports no concrete target or condition types and no constructors for them
+  - outside `modifier` code can currently only pass `nil` into those slots
+  - this will push future composition work toward ad-hoc side metadata instead of the declared modifier chassis
+
+- [ ] Remove the direct humanoid racial HD convenience path before Class work normalizes the wrong humanoid model:
+  - `ResolvedCreatureRules.NewRacialHitDie` still constructs humanoid `d8` racial hit dice
+  - `resolver_test.go` still locks in that humanoid construction succeeds while the class-rule flag is present
+  - `character.NewRacialHitPoints` guards one entry point, but the lower-level `creaturetype` API still advertises the wrong convenience path
+  - the next Class backlog work can easily model humanoids as having racial HD if this surface stays open
+
 - [X] Restore core Strength carrying-capacity math before encumbrance depends on it:
   - `AbilityScore.GetCarryingCapacity` is currently backed by a custom metric table
   - the returned pound values are wrong for core PF1 load bands
