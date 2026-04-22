@@ -64,7 +64,7 @@
 
 ### Skill
 
-- [ ] Create the Skill domain chassis:
+- [X] Create the Skill domain chassis:
   - SkillID
   - trained-only flag
   - armor-check-penalty flag
