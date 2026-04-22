@@ -77,7 +77,7 @@
 
 - [X] Seed the core skill catalog only
 
-- [ ] Add skill tests:
+- [X] Add skill tests:
   - valid IDs
   - grouped skill handling
   - invalid rejection
