@@ -11,6 +11,12 @@
 
 ## NEED
 
+- [ ] Validate exported modifier target and condition refs before `Modifier` construction accepts them:
+  - `NewTargetRef` and `NewConditionRef` now exist as validated entry points
+  - `NewModifier` still accepts zero-valued exported `TargetRef` and `ConditionRef` without checking them
+  - this reopens the invalid-state path that the modifier chassis was supposed to close
+  - future callers can still construct semantically broken modifiers even after following the new public surface
+
 - [X] Split race language metadata before character language composition hardens around the wrong shape:
   - `Race` currently stores a single `racialLanguages []LanguageID` list
   - the seeds only model automatic starting languages and cannot represent core bonus-language choices
@@ -87,6 +93,18 @@
 ---
 
 ## SHOULD
+
+- [ ] Remove or rename the legacy `GetRacialLanguages` alias before callers lock in the wrong race-language shape again:
+  - `Race` now has `GetAutomaticLanguages` and `GetBonusLanguageChoice`
+  - `GetRacialLanguages` still exists and currently returns only the automatic slice
+  - the old name reads like "all racial languages" and hides the newly modeled bonus-language metadata
+  - current tests still normalize that legacy entry point instead of pushing callers to the split model
+
+- [ ] Refresh stale README guidance before docs start reintroducing already-fixed mistakes:
+  - `README.md` still says `HitDie` average HP uses the project's fixed averages
+  - `README.md` still says the next major area is creature type and subtype
+  - both statements are now false and can send future work and reviews down the wrong path
+  - stale source-of-truth guidance increases the chance of fixing symptoms instead of following the current model
 
 - [X] Expose a read-only skill query surface for the seeded core catalog:
   - `coreSkills` exists but is package-private
