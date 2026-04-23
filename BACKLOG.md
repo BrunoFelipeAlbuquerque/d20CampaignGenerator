@@ -126,7 +126,7 @@ The tracked backlog below starts at Race / Modifier / Skill / Class because thos
   - sorcerer
   - wizard
 
-- [ ] Add class tests:
+- [X] Add class tests:
   - valid IDs
   - progression correctness
   - lookup correctness
