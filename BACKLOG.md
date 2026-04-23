@@ -135,7 +135,7 @@ The tracked backlog below starts at Race / Modifier / Skill / Class because thos
 
 ### Spellcasting progression
 
-- [ ] Create core spellcasting progression tables:
+- [X] Create core spellcasting progression tables:
   - class → spell slots per level
 
 - [ ] Seed progression for:
