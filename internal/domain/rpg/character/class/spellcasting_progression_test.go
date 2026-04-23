@@ -122,6 +122,32 @@ func TestNewSpellcastingProgressionTable_RejectsInvalidInputs(t *testing.T) {
 	}
 }
 
+func TestNewSpellcastingProgressionTable_ValidatesSpellcastingClassBoundary(t *testing.T) {
+	testCases := []struct {
+		classID ClassID
+		ok      bool
+	}{
+		{BarbarianClassID, false},
+		{BardClassID, true},
+		{ClericClassID, true},
+		{DruidClassID, true},
+		{FighterClassID, false},
+		{MonkClassID, false},
+		{PaladinClassID, true},
+		{RangerClassID, true},
+		{RogueClassID, false},
+		{SorcererClassID, true},
+		{WizardClassID, true},
+	}
+
+	for _, tc := range testCases {
+		_, ok := NewSpellcastingProgressionTable(tc.classID, [][]int{{1}})
+		if ok != tc.ok {
+			t.Fatalf("expected spellcasting progression construction for class %q to be %t, got %t", tc.classID, tc.ok, ok)
+		}
+	}
+}
+
 func TestSpellcastingProgressionTable_GetSpellSlots_RejectsInvalidLevels(t *testing.T) {
 	progression := mustSpellcastingProgressionTableForTest(
 		t,

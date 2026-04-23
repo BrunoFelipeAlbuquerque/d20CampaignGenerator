@@ -31,3 +31,59 @@ func TestCoreSpellcastingProgressionTables_SeedSevenCoreCastingClasses(t *testin
 		}
 	}
 }
+
+func TestCoreSpellcastingProgressionTables_KnownBreakpoints(t *testing.T) {
+	testCases := []struct {
+		classID    ClassID
+		classLevel int
+		spellLevel int
+		expected   int
+	}{
+		{BardClassID, 1, 1, 1},
+		{BardClassID, 4, 2, 1},
+		{BardClassID, 16, 6, 1},
+		{ClericClassID, 1, 0, 3},
+		{ClericClassID, 3, 2, 1},
+		{ClericClassID, 17, 9, 1},
+		{DruidClassID, 20, 9, 4},
+		{PaladinClassID, 4, 1, 1},
+		{PaladinClassID, 7, 2, 0},
+		{PaladinClassID, 14, 4, 1},
+		{RangerClassID, 10, 3, 0},
+		{RangerClassID, 20, 4, 3},
+		{SorcererClassID, 1, 1, 3},
+		{SorcererClassID, 4, 2, 3},
+		{SorcererClassID, 18, 9, 3},
+		{WizardClassID, 1, 0, 3},
+		{WizardClassID, 5, 3, 1},
+		{WizardClassID, 20, 9, 4},
+	}
+
+	for _, tc := range testCases {
+		progression, ok := coreSpellcastingProgressionTables[tc.classID]
+		if !ok {
+			t.Fatalf("expected core spellcasting progression for %q to be seeded", tc.classID)
+		}
+
+		actual, ok := progression.GetSpellSlots(tc.classLevel, tc.spellLevel)
+		if !ok {
+			t.Fatalf(
+				"expected class %q level %d spell level %d spell slots lookup to succeed",
+				tc.classID,
+				tc.classLevel,
+				tc.spellLevel,
+			)
+		}
+
+		if actual != tc.expected {
+			t.Fatalf(
+				"expected class %q level %d spell level %d spell slots %d, got %d",
+				tc.classID,
+				tc.classLevel,
+				tc.spellLevel,
+				tc.expected,
+				actual,
+			)
+		}
+	}
+}
