@@ -147,7 +147,7 @@ The tracked backlog below starts at Race / Modifier / Skill / Class because thos
   - sorcerer
   - wizard
 
-- [ ] Add progression tests:
+- [X] Add progression tests:
   - known breakpoints
   - caster vs non-caster validation
 
