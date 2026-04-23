@@ -102,7 +102,7 @@ The tracked backlog below starts at Race / Modifier / Skill / Class because thos
 
 ### Class
 
-- [ ] Create the Class domain chassis:
+- [X] Create the Class domain chassis:
   - ClassID
   - hit die type
   - BAB progression
