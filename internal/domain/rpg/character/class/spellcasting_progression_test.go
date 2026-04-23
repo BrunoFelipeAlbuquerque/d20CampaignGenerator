@@ -6,8 +6,8 @@ func TestNewSpellcastingProgressionTable_ConstructsValidatedTable(t *testing.T) 
 	progression, ok := NewSpellcastingProgressionTable(
 		WizardClassID,
 		[][]int{
-			{3, 1, 0, 0},
-			{4, 2, 0},
+			{3, 1},
+			{4, 2},
 			{4, 2, 1},
 		},
 	)
@@ -21,6 +21,10 @@ func TestNewSpellcastingProgressionTable_ConstructsValidatedTable(t *testing.T) 
 
 	if progression.GetMaxClassLevel() != 3 {
 		t.Fatalf("expected max class level 3, got %d", progression.GetMaxClassLevel())
+	}
+
+	if progression.GetMinimumSpellLevel() != 0 {
+		t.Fatalf("expected minimum spell level 0, got %d", progression.GetMinimumSpellLevel())
 	}
 
 	levelOneSlots, ok := progression.GetSpellSlotsByClassLevel(1)
@@ -48,9 +52,8 @@ func TestNewSpellcastingProgressionTable_ConstructsValidatedTable(t *testing.T) 
 		t.Fatalf("expected class level 3 spell level 2 slots (1, true), got (%d, %t)", spellSlots, ok)
 	}
 
-	spellSlots, ok = progression.GetSpellSlots(2, 3)
-	if !ok || spellSlots != 0 {
-		t.Fatalf("expected class level 2 spell level 3 slots (0, true), got (%d, %t)", spellSlots, ok)
+	if _, ok := progression.GetSpellSlots(2, 3); ok {
+		t.Fatal("expected unavailable spell level lookup to fail")
 	}
 }
 
@@ -61,7 +64,10 @@ func TestNewSpellcastingProgressionTable_AcceptsLeadingNoncastingLevels(t *testi
 			nil,
 			nil,
 			nil,
-			{0, 1},
+			{0},
+			{0},
+			{1},
+			{1, 0},
 		},
 	)
 	if !ok {
@@ -77,14 +83,35 @@ func TestNewSpellcastingProgressionTable_AcceptsLeadingNoncastingLevels(t *testi
 		t.Fatalf("expected first paladin class level row to have no spell slots, got %v", levelOneSlots)
 	}
 
-	spellSlots, ok := progression.GetSpellSlots(1, 1)
-	if !ok || spellSlots != 0 {
-		t.Fatalf("expected class level 1 spell level 1 slots (0, true), got (%d, %t)", spellSlots, ok)
+	if progression.GetMinimumSpellLevel() != 1 {
+		t.Fatalf("expected delayed-caster minimum spell level 1, got %d", progression.GetMinimumSpellLevel())
 	}
 
-	spellSlots, ok = progression.GetSpellSlots(4, 1)
-	if !ok || spellSlots != 1 {
-		t.Fatalf("expected class level 4 spell level 1 slots (1, true), got (%d, %t)", spellSlots, ok)
+	levelFourSlots, ok := progression.GetSpellSlotsByClassLevel(4)
+	if !ok {
+		t.Fatal("expected fourth class level row to be available")
+	}
+
+	if len(levelFourSlots) != 1 || levelFourSlots[0] != 0 {
+		t.Fatalf("expected fourth paladin class level row [0], got %v", levelFourSlots)
+	}
+
+	if _, ok := progression.GetSpellSlots(1, 1); ok {
+		t.Fatal("expected unavailable delayed-caster spell level lookup to fail before spellcasting starts")
+	}
+
+	if _, ok := progression.GetSpellSlots(4, 0); ok {
+		t.Fatal("expected delayed-caster 0-level spell lookup to fail")
+	}
+
+	spellSlots, ok := progression.GetSpellSlots(4, 1)
+	if !ok || spellSlots != 0 {
+		t.Fatalf("expected class level 4 spell level 1 slots (0, true), got (%d, %t)", spellSlots, ok)
+	}
+
+	spellSlots, ok = progression.GetSpellSlots(7, 2)
+	if !ok || spellSlots != 0 {
+		t.Fatalf("expected class level 7 spell level 2 slots (0, true), got (%d, %t)", spellSlots, ok)
 	}
 }
 
@@ -119,6 +146,18 @@ func TestNewSpellcastingProgressionTable_RejectsInvalidInputs(t *testing.T) {
 
 	if _, ok := NewSpellcastingProgressionTable(WizardClassID, [][]int{{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}}); ok {
 		t.Fatal("expected spell slot rows above core spell level 9 to be rejected")
+	}
+
+	if _, ok := NewSpellcastingProgressionTable(WizardClassID, [][]int{{3, 1, 0, 0}}); ok {
+		t.Fatal("expected impossible first-row spell level availability jump to be rejected")
+	}
+
+	if _, ok := NewSpellcastingProgressionTable(WizardClassID, [][]int{{3, 1}, nil}); ok {
+		t.Fatal("expected spellcasting progression rows to reject availability disappearing after it starts")
+	}
+
+	if _, ok := NewSpellcastingProgressionTable(PaladinClassID, [][]int{nil, nil, nil, {0, 0}}); ok {
+		t.Fatal("expected delayed-caster first spell row to reject unlocking beyond 1st-level spells")
 	}
 }
 
@@ -175,6 +214,40 @@ func TestSpellcastingProgressionTable_GetSpellSlots_RejectsInvalidLevels(t *test
 
 	if _, ok := progression.GetSpellSlots(1, 10); ok {
 		t.Fatal("expected spell level above 9 lookup to fail")
+	}
+}
+
+func TestSpellcastingProgressionTable_GetSpellSlots_DistinguishesUnavailableLevelsFromUnlockedZeroSlots(t *testing.T) {
+	progression := mustSpellcastingProgressionTableForTest(
+		t,
+		PaladinClassID,
+		[][]int{
+			nil,
+			nil,
+			nil,
+			{0},
+			{0},
+			{1},
+			{1, 0},
+		},
+	)
+
+	if _, ok := progression.GetSpellSlots(4, 0); ok {
+		t.Fatal("expected delayed-caster 0-level spell lookup to fail")
+	}
+
+	if _, ok := progression.GetSpellSlots(4, 2); ok {
+		t.Fatal("expected unavailable delayed-caster spell level lookup to fail")
+	}
+
+	spellSlots, ok := progression.GetSpellSlots(4, 1)
+	if !ok || spellSlots != 0 {
+		t.Fatalf("expected class level 4 spell level 1 slots (0, true), got (%d, %t)", spellSlots, ok)
+	}
+
+	spellSlots, ok = progression.GetSpellSlots(7, 2)
+	if !ok || spellSlots != 0 {
+		t.Fatalf("expected class level 7 spell level 2 slots (0, true), got (%d, %t)", spellSlots, ok)
 	}
 }
 
