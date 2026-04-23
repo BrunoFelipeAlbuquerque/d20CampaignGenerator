@@ -48,6 +48,15 @@ var coreClassOrder = []ClassID{
 	WizardClassID,
 }
 
+func GetClassByID(id ClassID) (Class, bool) {
+	value, ok := coreClasses[id]
+	if !ok {
+		return class{}, false
+	}
+
+	return value, true
+}
+
 func mustBuildCoreClasses() map[ClassID]Class {
 	return map[ClassID]Class{
 		BarbarianClassID: mustNewClass(

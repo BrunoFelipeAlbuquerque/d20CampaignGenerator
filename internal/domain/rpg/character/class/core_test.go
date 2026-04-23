@@ -127,6 +127,34 @@ func TestCoreClasses_SeedSpellcastingMetadata(t *testing.T) {
 	}
 }
 
+func TestNewClass_AcceptsEverySeededCoreClassID(t *testing.T) {
+	for _, id := range coreClassOrder {
+		seeded, ok := coreClasses[id]
+		if !ok {
+			t.Fatalf("expected seeded core class %q to exist", id)
+		}
+
+		class, ok := NewClass(
+			seeded.GetID(),
+			seeded.GetHitDieType(),
+			seeded.GetBaseAttackBonusProgression(),
+			seeded.GetSaveProgressions(),
+			seeded.GetSkillRanksPerLevel(),
+			seeded.GetClassSkills(),
+			seeded.GetWeaponProficiencies(),
+			seeded.GetArmorProficiencies(),
+			seeded.GetSpellcasting(),
+		)
+		if !ok {
+			t.Fatalf("expected seeded core class id %q to remain valid", id)
+		}
+
+		if class.GetID() != id {
+			t.Fatalf("expected reconstructed class id %q, got %q", id, class.GetID())
+		}
+	}
+}
+
 func TestCoreClasses_SeedGroupedSkillSpecializations(t *testing.T) {
 	testCases := []struct {
 		id       ClassID
@@ -149,6 +177,25 @@ func TestCoreClasses_SeedGroupedSkillSpecializations(t *testing.T) {
 		for _, skillID := range tc.skillIDs {
 			assertClassHasSkill(t, class, skillID)
 		}
+	}
+}
+
+func TestGetClassByID_ReturnsSeededCoreClass(t *testing.T) {
+	for _, id := range coreClassOrder {
+		class, ok := GetClassByID(id)
+		if !ok {
+			t.Fatalf("expected class lookup for %q to succeed", id)
+		}
+
+		if class.GetID() != id {
+			t.Fatalf("expected looked up class id %q, got %q", id, class.GetID())
+		}
+	}
+}
+
+func TestGetClassByID_RejectsUnknownClass(t *testing.T) {
+	if _, ok := GetClassByID(ClassID("alchemist")); ok {
+		t.Fatal("expected unknown class lookup to fail")
 	}
 }
 
