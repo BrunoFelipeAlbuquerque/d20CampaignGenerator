@@ -193,6 +193,34 @@ func TestNewClass_DedupesSkillsAndProficiencies(t *testing.T) {
 	}
 }
 
+func TestNewClass_AcceptsSpecializedGroupedClassSkills(t *testing.T) {
+	saveProgressions := mustSaveProgressionsForTest(
+		t,
+		ability.SavingThrowGood,
+		ability.SavingThrowPoor,
+		ability.SavingThrowPoor,
+	)
+
+	class, ok := NewClass(
+		ClassID("barbarian"),
+		ability.D12HitDie,
+		ability.BaseAttackBonusFull,
+		saveProgressions,
+		4,
+		[]skill.SkillID{skill.CraftSkillID, skill.SkillID("Knowledge (nature)")},
+		[]WeaponProficiencyID{SimpleWeaponsWeaponProficiencyID, MartialWeaponsWeaponProficiencyID},
+		[]ArmorProficiencyID{LightArmorProficiencyID},
+		NewNonSpellcastingProfile(),
+	)
+	if !ok {
+		t.Fatal("expected specialized grouped class skill ids to be accepted")
+	}
+
+	if got := class.GetClassSkills()[1]; got != skill.SkillID("Knowledge (nature)") {
+		t.Fatalf("expected specialized grouped class skill %q, got %q", skill.SkillID("Knowledge (nature)"), got)
+	}
+}
+
 func TestNewClass_RejectsInvalidInputs(t *testing.T) {
 	validSaves := mustSaveProgressionsForTest(
 		t,

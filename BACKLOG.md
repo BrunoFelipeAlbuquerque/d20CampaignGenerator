@@ -113,7 +113,7 @@ The tracked backlog below starts at Race / Modifier / Skill / Class because thos
   - spellcasting kind
   - key ability metadata
 
-- [ ] Seed the 11 core classes only:
+- [X] Seed the 11 core classes only:
   - barbarian
   - bard
   - cleric

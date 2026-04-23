@@ -278,7 +278,7 @@ func dedupeClassSkills(classSkills []skill.SkillID) ([]skill.SkillID, bool) {
 	deduped := make([]skill.SkillID, 0, len(classSkills))
 
 	for _, classSkillID := range classSkills {
-		if _, ok := skill.GetSkillByID(classSkillID); !ok {
+		if !isValidClassSkillID(classSkillID) {
 			return nil, false
 		}
 
@@ -291,6 +291,15 @@ func dedupeClassSkills(classSkills []skill.SkillID) ([]skill.SkillID, bool) {
 	}
 
 	return deduped, true
+}
+
+func isValidClassSkillID(id skill.SkillID) bool {
+	if _, ok := skill.GetSkillByID(id); ok {
+		return true
+	}
+
+	_, ok := skill.NewSkill(id, false, false, true)
+	return ok
 }
 
 func dedupeWeaponProficiencies(

@@ -4,30 +4,34 @@ const (
 	SimpleWeaponsWeaponProficiencyID  WeaponProficiencyID = "Simple Weapons"
 	MartialWeaponsWeaponProficiencyID WeaponProficiencyID = "Martial Weapons"
 
-	ClubWeaponProficiencyID          WeaponProficiencyID = "Club"
-	CrossbowHeavyWeaponProficiencyID WeaponProficiencyID = "Crossbow, Heavy"
-	CrossbowLightWeaponProficiencyID WeaponProficiencyID = "Crossbow, Light"
-	DaggerWeaponProficiencyID        WeaponProficiencyID = "Dagger"
-	DartWeaponProficiencyID          WeaponProficiencyID = "Dart"
-	HandCrossbowWeaponProficiencyID  WeaponProficiencyID = "Crossbow, Hand"
-	HandaxeWeaponProficiencyID       WeaponProficiencyID = "Handaxe"
-	JavelinWeaponProficiencyID       WeaponProficiencyID = "Javelin"
-	KamaWeaponProficiencyID          WeaponProficiencyID = "Kama"
-	LongswordWeaponProficiencyID     WeaponProficiencyID = "Longsword"
-	NunchakuWeaponProficiencyID      WeaponProficiencyID = "Nunchaku"
-	QuarterstaffWeaponProficiencyID  WeaponProficiencyID = "Quarterstaff"
-	RapierWeaponProficiencyID        WeaponProficiencyID = "Rapier"
-	SaiWeaponProficiencyID           WeaponProficiencyID = "Sai"
-	SapWeaponProficiencyID           WeaponProficiencyID = "Sap"
-	ScimitarWeaponProficiencyID      WeaponProficiencyID = "Scimitar"
-	ShortbowWeaponProficiencyID      WeaponProficiencyID = "Shortbow"
-	ShortspearWeaponProficiencyID    WeaponProficiencyID = "Shortspear"
-	ShortSwordWeaponProficiencyID    WeaponProficiencyID = "Short Sword"
-	SianghamWeaponProficiencyID      WeaponProficiencyID = "Siangham"
-	SickleWeaponProficiencyID        WeaponProficiencyID = "Sickle"
-	SlingWeaponProficiencyID         WeaponProficiencyID = "Sling"
-	SpearWeaponProficiencyID         WeaponProficiencyID = "Spear"
-	WhipWeaponProficiencyID          WeaponProficiencyID = "Whip"
+	ClubWeaponProficiencyID                    WeaponProficiencyID = "Club"
+	CrossbowHeavyWeaponProficiencyID           WeaponProficiencyID = "Crossbow, Heavy"
+	CrossbowLightWeaponProficiencyID           WeaponProficiencyID = "Crossbow, Light"
+	DaggerWeaponProficiencyID                  WeaponProficiencyID = "Dagger"
+	DartWeaponProficiencyID                    WeaponProficiencyID = "Dart"
+	HandCrossbowWeaponProficiencyID            WeaponProficiencyID = "Crossbow, Hand"
+	HandaxeWeaponProficiencyID                 WeaponProficiencyID = "Handaxe"
+	JavelinWeaponProficiencyID                 WeaponProficiencyID = "Javelin"
+	KamaWeaponProficiencyID                    WeaponProficiencyID = "Kama"
+	LongswordWeaponProficiencyID               WeaponProficiencyID = "Longsword"
+	NunchakuWeaponProficiencyID                WeaponProficiencyID = "Nunchaku"
+	QuarterstaffWeaponProficiencyID            WeaponProficiencyID = "Quarterstaff"
+	RapierWeaponProficiencyID                  WeaponProficiencyID = "Rapier"
+	ScytheWeaponProficiencyID                  WeaponProficiencyID = "Scythe"
+	SaiWeaponProficiencyID                     WeaponProficiencyID = "Sai"
+	SapWeaponProficiencyID                     WeaponProficiencyID = "Sap"
+	ScimitarWeaponProficiencyID                WeaponProficiencyID = "Scimitar"
+	ShortbowWeaponProficiencyID                WeaponProficiencyID = "Shortbow"
+	ShortspearWeaponProficiencyID              WeaponProficiencyID = "Shortspear"
+	ShortSwordWeaponProficiencyID              WeaponProficiencyID = "Short Sword"
+	ShurikenWeaponProficiencyID                WeaponProficiencyID = "Shuriken"
+	SianghamWeaponProficiencyID                WeaponProficiencyID = "Siangham"
+	SickleWeaponProficiencyID                  WeaponProficiencyID = "Sickle"
+	SlingWeaponProficiencyID                   WeaponProficiencyID = "Sling"
+	SpearWeaponProficiencyID                   WeaponProficiencyID = "Spear"
+	WhipWeaponProficiencyID                    WeaponProficiencyID = "Whip"
+	FavoredWeaponOfDeityWeaponProficiencyID    WeaponProficiencyID = "Favored Weapon of Deity"
+	WildShapeNaturalAttacksWeaponProficiencyID WeaponProficiencyID = "Wild Shape Natural Attacks"
 )
 
 const (
@@ -39,32 +43,36 @@ const (
 )
 
 var validWeaponProficiencyIDs = map[WeaponProficiencyID]struct{}{
-	SimpleWeaponsWeaponProficiencyID:  {},
-	MartialWeaponsWeaponProficiencyID: {},
-	ClubWeaponProficiencyID:           {},
-	CrossbowHeavyWeaponProficiencyID:  {},
-	CrossbowLightWeaponProficiencyID:  {},
-	DaggerWeaponProficiencyID:         {},
-	DartWeaponProficiencyID:           {},
-	HandCrossbowWeaponProficiencyID:   {},
-	HandaxeWeaponProficiencyID:        {},
-	JavelinWeaponProficiencyID:        {},
-	KamaWeaponProficiencyID:           {},
-	LongswordWeaponProficiencyID:      {},
-	NunchakuWeaponProficiencyID:       {},
-	QuarterstaffWeaponProficiencyID:   {},
-	RapierWeaponProficiencyID:         {},
-	SaiWeaponProficiencyID:            {},
-	SapWeaponProficiencyID:            {},
-	ScimitarWeaponProficiencyID:       {},
-	ShortbowWeaponProficiencyID:       {},
-	ShortspearWeaponProficiencyID:     {},
-	ShortSwordWeaponProficiencyID:     {},
-	SianghamWeaponProficiencyID:       {},
-	SickleWeaponProficiencyID:         {},
-	SlingWeaponProficiencyID:          {},
-	SpearWeaponProficiencyID:          {},
-	WhipWeaponProficiencyID:           {},
+	SimpleWeaponsWeaponProficiencyID:           {},
+	MartialWeaponsWeaponProficiencyID:          {},
+	ClubWeaponProficiencyID:                    {},
+	CrossbowHeavyWeaponProficiencyID:           {},
+	CrossbowLightWeaponProficiencyID:           {},
+	DaggerWeaponProficiencyID:                  {},
+	DartWeaponProficiencyID:                    {},
+	HandCrossbowWeaponProficiencyID:            {},
+	HandaxeWeaponProficiencyID:                 {},
+	JavelinWeaponProficiencyID:                 {},
+	KamaWeaponProficiencyID:                    {},
+	LongswordWeaponProficiencyID:               {},
+	NunchakuWeaponProficiencyID:                {},
+	QuarterstaffWeaponProficiencyID:            {},
+	RapierWeaponProficiencyID:                  {},
+	ScytheWeaponProficiencyID:                  {},
+	SaiWeaponProficiencyID:                     {},
+	SapWeaponProficiencyID:                     {},
+	ScimitarWeaponProficiencyID:                {},
+	ShortbowWeaponProficiencyID:                {},
+	ShortspearWeaponProficiencyID:              {},
+	ShortSwordWeaponProficiencyID:              {},
+	ShurikenWeaponProficiencyID:                {},
+	SianghamWeaponProficiencyID:                {},
+	SickleWeaponProficiencyID:                  {},
+	SlingWeaponProficiencyID:                   {},
+	SpearWeaponProficiencyID:                   {},
+	WhipWeaponProficiencyID:                    {},
+	FavoredWeaponOfDeityWeaponProficiencyID:    {},
+	WildShapeNaturalAttacksWeaponProficiencyID: {},
 }
 
 var validArmorProficiencyIDs = map[ArmorProficiencyID]struct{}{
