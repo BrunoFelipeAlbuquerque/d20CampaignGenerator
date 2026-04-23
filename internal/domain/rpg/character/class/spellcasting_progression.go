@@ -24,23 +24,57 @@ func NewSpellcastingProgressionTable(
 		return spellcastingProgressionTable{}, false
 	}
 
+	minimumSpellLevel := getMinimumSpellLevelForClass(classID)
 	normalizedRows := make([][]int, 0, len(slotsByClassLevel))
-	hasAnySpellSlots := false
+	hasAnyPositiveSpellSlots := false
+	spellLevelsStarted := false
+	highestAvailableSpellLevel := -1
 
 	for _, row := range slotsByClassLevel {
-		normalizedRow, ok := normalizeSpellSlotsByClassLevel(row)
+		normalizedRow, rowHasPositiveSpellSlots, ok := normalizeSpellSlotsByClassLevel(row)
 		if !ok {
 			return spellcastingProgressionTable{}, false
 		}
 
-		if len(normalizedRow) > 0 {
-			hasAnySpellSlots = true
+		if rowHasPositiveSpellSlots {
+			hasAnyPositiveSpellSlots = true
 		}
 
+		if len(normalizedRow) == 0 {
+			if spellLevelsStarted {
+				return spellcastingProgressionTable{}, false
+			}
+
+			normalizedRows = append(normalizedRows, normalizedRow)
+			continue
+		}
+
+		rowHighestAvailableSpellLevel := minimumSpellLevel + len(normalizedRow) - 1
+		if rowHighestAvailableSpellLevel > maxCoreSpellLevel {
+			return spellcastingProgressionTable{}, false
+		}
+
+		if !spellLevelsStarted {
+			if rowHighestAvailableSpellLevel > 1 {
+				return spellcastingProgressionTable{}, false
+			}
+
+			spellLevelsStarted = true
+			highestAvailableSpellLevel = rowHighestAvailableSpellLevel
+			normalizedRows = append(normalizedRows, normalizedRow)
+			continue
+		}
+
+		if rowHighestAvailableSpellLevel < highestAvailableSpellLevel ||
+			rowHighestAvailableSpellLevel > highestAvailableSpellLevel+1 {
+			return spellcastingProgressionTable{}, false
+		}
+
+		highestAvailableSpellLevel = rowHighestAvailableSpellLevel
 		normalizedRows = append(normalizedRows, normalizedRow)
 	}
 
-	if !hasAnySpellSlots {
+	if !hasAnyPositiveSpellSlots {
 		return spellcastingProgressionTable{}, false
 	}
 
@@ -58,6 +92,10 @@ func (t spellcastingProgressionTable) GetMaxClassLevel() int {
 	return len(t.slotsByClassLevel)
 }
 
+func (t spellcastingProgressionTable) GetMinimumSpellLevel() int {
+	return getMinimumSpellLevelForClass(t.classID)
+}
+
 func (t spellcastingProgressionTable) GetSpellSlotsByClassLevel(classLevel int) ([]int, bool) {
 	row, ok := t.getSpellSlotsByClassLevel(classLevel)
 	if !ok {
@@ -68,7 +106,8 @@ func (t spellcastingProgressionTable) GetSpellSlotsByClassLevel(classLevel int) 
 }
 
 func (t spellcastingProgressionTable) GetSpellSlots(classLevel int, spellLevel int) (int, bool) {
-	if spellLevel < 0 || spellLevel > maxCoreSpellLevel {
+	minimumSpellLevel := getMinimumSpellLevelForClass(t.classID)
+	if spellLevel < minimumSpellLevel || spellLevel > maxCoreSpellLevel {
 		return 0, false
 	}
 
@@ -77,11 +116,12 @@ func (t spellcastingProgressionTable) GetSpellSlots(classLevel int, spellLevel i
 		return 0, false
 	}
 
-	if spellLevel >= len(row) {
-		return 0, true
+	rowIndex := spellLevel - minimumSpellLevel
+	if rowIndex >= len(row) {
+		return 0, false
 	}
 
-	return row[spellLevel], true
+	return row[rowIndex], true
 }
 
 func (t spellcastingProgressionTable) getSpellSlotsByClassLevel(classLevel int) ([]int, bool) {
@@ -92,28 +132,28 @@ func (t spellcastingProgressionTable) getSpellSlotsByClassLevel(classLevel int) 
 	return t.slotsByClassLevel[classLevel-1], true
 }
 
-func normalizeSpellSlotsByClassLevel(slots []int) ([]int, bool) {
+func normalizeSpellSlotsByClassLevel(slots []int) ([]int, bool, bool) {
 	if len(slots) > maxCoreSpellLevel+1 {
-		return nil, false
+		return nil, false, false
 	}
 
 	normalized := append([]int(nil), slots...)
-	lastNonZeroIndex := -1
 	seenPositiveSlot := false
 	seenGapAfterPositiveSlot := false
+	hasAnyPositiveSpellSlots := false
 
-	for i, value := range normalized {
+	for _, value := range normalized {
 		if value < 0 {
-			return nil, false
+			return nil, false, false
 		}
 
 		if value > 0 {
 			if seenGapAfterPositiveSlot {
-				return nil, false
+				return nil, false, false
 			}
 
 			seenPositiveSlot = true
-			lastNonZeroIndex = i
+			hasAnyPositiveSpellSlots = true
 			continue
 		}
 
@@ -122,9 +162,14 @@ func normalizeSpellSlotsByClassLevel(slots []int) ([]int, bool) {
 		}
 	}
 
-	if lastNonZeroIndex == -1 {
-		return nil, true
-	}
+	return normalized, hasAnyPositiveSpellSlots, true
+}
 
-	return normalized[:lastNonZeroIndex+1], true
+func getMinimumSpellLevelForClass(classID ClassID) int {
+	switch classID {
+	case PaladinClassID, RangerClassID:
+		return 1
+	default:
+		return 0
+	}
 }

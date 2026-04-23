@@ -46,8 +46,10 @@ func TestCoreSpellcastingProgressionTables_KnownBreakpoints(t *testing.T) {
 		{ClericClassID, 3, 2, 1},
 		{ClericClassID, 17, 9, 1},
 		{DruidClassID, 20, 9, 4},
-		{PaladinClassID, 4, 1, 1},
+		{PaladinClassID, 4, 1, 0},
+		{PaladinClassID, 6, 1, 1},
 		{PaladinClassID, 7, 2, 0},
+		{RangerClassID, 4, 1, 0},
 		{PaladinClassID, 14, 4, 1},
 		{RangerClassID, 10, 3, 0},
 		{RangerClassID, 20, 4, 3},
@@ -83,6 +85,65 @@ func TestCoreSpellcastingProgressionTables_KnownBreakpoints(t *testing.T) {
 				tc.spellLevel,
 				tc.expected,
 				actual,
+			)
+		}
+	}
+}
+
+func TestCoreSpellcastingProgressionTables_DelayedCastersDistinguishUnavailableLevelsFromZeroSlotUnlocks(t *testing.T) {
+	testCases := []struct {
+		classID    ClassID
+		classLevel int
+		spellLevel int
+	}{
+		{PaladinClassID, 4, 0},
+		{PaladinClassID, 4, 2},
+		{RangerClassID, 4, 0},
+		{RangerClassID, 9, 3},
+	}
+
+	for _, tc := range testCases {
+		progression, ok := coreSpellcastingProgressionTables[tc.classID]
+		if !ok {
+			t.Fatalf("expected core spellcasting progression for %q to be seeded", tc.classID)
+		}
+
+		if _, ok := progression.GetSpellSlots(tc.classLevel, tc.spellLevel); ok {
+			t.Fatalf(
+				"expected class %q level %d spell level %d lookup to fail before that spell level unlocks",
+				tc.classID,
+				tc.classLevel,
+				tc.spellLevel,
+			)
+		}
+	}
+
+	zeroSlotUnlockCases := []struct {
+		classID    ClassID
+		classLevel int
+		spellLevel int
+	}{
+		{PaladinClassID, 4, 1},
+		{PaladinClassID, 7, 2},
+		{RangerClassID, 10, 3},
+		{RangerClassID, 13, 4},
+	}
+
+	for _, tc := range zeroSlotUnlockCases {
+		progression, ok := coreSpellcastingProgressionTables[tc.classID]
+		if !ok {
+			t.Fatalf("expected core spellcasting progression for %q to be seeded", tc.classID)
+		}
+
+		actual, ok := progression.GetSpellSlots(tc.classLevel, tc.spellLevel)
+		if !ok || actual != 0 {
+			t.Fatalf(
+				"expected class %q level %d spell level %d zero-slot unlock (0, true), got (%d, %t)",
+				tc.classID,
+				tc.classLevel,
+				tc.spellLevel,
+				actual,
+				ok,
 			)
 		}
 	}

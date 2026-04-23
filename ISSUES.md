@@ -11,7 +11,7 @@
 
 ## NEED
 
-- [ ] Stop collapsing delayed-caster zero-slot unlock rows before Spell work builds on the wrong spell-availability model:
+- [X] Stop collapsing delayed-caster zero-slot unlock rows before Spell work builds on the wrong spell-availability model:
   - `normalizeSpellSlotsByClassLevel` trims trailing zeroes and returns `nil` for all-zero rows, so the domain cannot represent core `0 spells per day` breakpoints for newly unlocked paladin/ranger spell levels
   - `delayedFourthLevelCasterSpellSlotsByClassLevel` currently works around that gap by seeding level 4 as `{0, 1}`, which makes paladin/ranger level 4 resolve to one 1st-level spell slot instead of core bonus-only access
   - later delayed-caster breakpoints like paladin/ranger 7th, 10th, and 13th still collapse into the same `GetSpellSlots(...)=0` result as a spell level that is not unlocked yet, so callers cannot tell `bonus spells only` from `cannot cast this spell level`
