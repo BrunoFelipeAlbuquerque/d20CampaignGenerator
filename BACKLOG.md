@@ -172,7 +172,7 @@ The tracked backlog below starts at Race / Modifier / Skill / Class because thos
   - class id
   - spell level
 
-- [ ] Seed core spell list bindings:
+- [X] Seed core spell list bindings:
   - class ↔ spell level mapping
 
 - [ ] Seed spell data (batch 1):
