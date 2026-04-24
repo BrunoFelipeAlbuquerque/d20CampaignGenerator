@@ -191,6 +191,7 @@ Also follow:
 - `/internal/ai/skills/codex.md`
 - `/internal/ai/skills/rules.md`
 - `/internal/ai/skills/architecture.md`
+- `/internal/ai/skills/compound.md`
 
 ---
 
@@ -224,6 +225,21 @@ For each item:
 11. Stop.
 
 Do not continue automatically to the next item.
+
+---
+
+## Compound learning
+
+After Tech Lead approval, capture reusable project learning only when the current task taught a rule, boundary, or misuse pattern that should make later work easier.
+
+Rules:
+
+- Do not create new product tasks from the learning note.
+- Do not change backlog priority from the learning note.
+- Do not document generic lessons already covered by this file.
+- Keep the note tied to the completed task source.
+- Store notes under `docs/solutions/` with YAML frontmatter.
+- If no reusable lesson exists, skip the note.
 
 ---
 
