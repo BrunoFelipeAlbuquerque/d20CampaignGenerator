@@ -167,7 +167,7 @@ The tracked backlog below starts at Race / Modifier / Skill / Class because thos
   - saving throw
   - spell resistance
 
-- [ ] Create Spell List Entry:
+- [X] Create Spell List Entry:
   - spell id
   - class id
   - spell level
