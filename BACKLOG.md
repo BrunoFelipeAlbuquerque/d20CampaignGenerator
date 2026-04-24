@@ -155,7 +155,7 @@ The tracked backlog below starts at Race / Modifier / Skill / Class because thos
 
 ### Spell
 
-- [ ] Create the Spell domain chassis:
+- [X] Create the Spell domain chassis:
   - SpellID
   - school
   - descriptors
