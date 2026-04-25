@@ -175,7 +175,7 @@ The tracked backlog below starts at Race / Modifier / Skill / Class because thos
 - [X] Seed core spell list bindings:
   - class ↔ spell level mapping
 
-- [ ] Seed spell data (batch 1):
+- [X] Seed spell data (batch 1):
   - all cantrips/orisons
 
 - [ ] Seed spell data (batch 2):
