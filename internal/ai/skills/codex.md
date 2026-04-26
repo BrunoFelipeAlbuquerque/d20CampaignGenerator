@@ -32,6 +32,13 @@ Rules:
 - Keep primitives in `ability`.
 - Keep classification/rule resolution in `creaturetype`.
 
+## Rules Source
+
+- Use only local rules documents in `internal/domain/rpg/resources/rules/`.
+- Do not look up Pathfinder rules online.
+- Prioritize `PFRPG_SRD.pdf` for all core rule checks.
+- Use `Main35FAQv06302008.pdf` only when a rule doubt remains after checking `PFRPG_SRD.pdf`.
+
 ## Validation Rules
 
 - Preserve invariants.
