@@ -132,6 +132,16 @@ Rules:
 
 ---
 
+## Pathfinder rules lookup
+
+- Local PF1 rules are under `docs/pf1`.
+- Use `rg -i "<rule term>" docs/pf1/chunks` before implementing rule-sensitive behavior.
+- Use local rule text as source of truth.
+- Do not rely on memory when a rule can be checked locally.
+- Do not make domain code depend on PDFs, text, chunks, or tooling.
+
+---
+
 ## Scope rules
 
 - One item at a time.
