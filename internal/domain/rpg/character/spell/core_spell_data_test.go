@@ -2,18 +2,18 @@ package spell
 
 import "testing"
 
-func TestCoreSpellData_SeedsAllCoreCantripsAndOrisons(t *testing.T) {
-	if len(coreSpells) != 28 {
-		t.Fatalf("expected 28 core cantrip/orison spell seeds, got %d", len(coreSpells))
+func TestCoreSpellData_SeedsAllCoreSpellsThroughThirdLevel(t *testing.T) {
+	if len(coreSpells) != 284 {
+		t.Fatalf("expected 284 core spell seeds through 3rd level, got %d", len(coreSpells))
 	}
 
 	for _, entry := range coreSpellListEntries {
-		if entry.GetSpellLevel() != 0 {
+		if entry.GetSpellLevel() > 3 {
 			continue
 		}
 
 		if _, ok := coreSpells[entry.GetSpellID()]; !ok {
-			t.Fatalf("expected spell data seed for core 0-level spell %q", entry.GetSpellID())
+			t.Fatalf("expected spell data seed for core spell %q at level %d", entry.GetSpellID(), entry.GetSpellLevel())
 		}
 	}
 }
@@ -41,7 +41,7 @@ func TestCoreSpellData_SeededSpellsRemainValid(t *testing.T) {
 	}
 }
 
-func TestCoreSpellData_KnownCantripAndOrisonHeaders(t *testing.T) {
+func TestCoreSpellData_KnownCoreHeadersThroughThirdLevel(t *testing.T) {
 	testCases := []struct {
 		id              SpellID
 		school          SchoolID
@@ -99,6 +99,40 @@ func TestCoreSpellData_KnownCantripAndOrisonHeaders(t *testing.T) {
 			duration:        "instantaneous",
 			savingThrow:     "Will negates (harmless)",
 			spellResistance: "yes (harmless)",
+		},
+		{
+			id:              SpellID("Alarm"),
+			school:          AbjurationSchoolID,
+			component:       FocusComponentID,
+			castingTime:     "1 standard action",
+			spellRange:      "close (25 ft. + 5 ft./2 levels)",
+			targetEffect:    "20-ft.-radius emanation centered on a point in space",
+			duration:        "2 hours/level (D)",
+			savingThrow:     "none",
+			spellResistance: "no",
+		},
+		{
+			id:              SpellID("Fireball"),
+			school:          EvocationSchoolID,
+			descriptor:      DescriptorID("Fire"),
+			component:       MaterialComponentID,
+			castingTime:     "1 standard action",
+			spellRange:      "long (400 ft. + 40 ft./level)",
+			targetEffect:    "20-ft.-radius spread",
+			duration:        "instantaneous",
+			savingThrow:     "Reflex half",
+			spellResistance: "yes",
+		},
+		{
+			id:              SpellID("Summon Monster 3"),
+			school:          ConjurationSchoolID,
+			component:       FocusComponentID,
+			castingTime:     "1 round",
+			spellRange:      "close (25 ft. + 5 ft./2 levels)",
+			targetEffect:    "one summoned creature",
+			duration:        "1 round/level (D)",
+			savingThrow:     "none",
+			spellResistance: "no",
 		},
 	}
 
