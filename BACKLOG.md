@@ -28,6 +28,16 @@ The tracked backlog below starts at Race / Modifier / Skill / Class because thos
 
 ---
 
+## Tooling and documentation
+
+- [x] Formalize local Pathfinder rules lookup workflow
+  - Add `docs/pf1/README.md`
+  - Add `pf1-extract`, `pf1-chunk`, and `pf1-search` Makefile targets
+  - Update `AGENTS.md` with Pathfinder rules lookup policy
+  - Ensure rule-sensitive tasks require local `rg` lookup before implementation
+
+---
+
 ## P0 — Core foundation
 
 ### Race
