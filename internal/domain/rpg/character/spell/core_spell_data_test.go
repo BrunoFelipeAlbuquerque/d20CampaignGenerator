@@ -2,16 +2,12 @@ package spell
 
 import "testing"
 
-func TestCoreSpellData_SeedsAllCoreSpellsThroughSixthLevel(t *testing.T) {
-	if len(coreSpells) != 490 {
-		t.Fatalf("expected 490 core spell seeds through 6th level, got %d", len(coreSpells))
+func TestCoreSpellData_SeedsAllCoreSpells(t *testing.T) {
+	if len(coreSpells) != 623 {
+		t.Fatalf("expected 623 core spell seeds, got %d", len(coreSpells))
 	}
 
 	for _, entry := range coreSpellListEntries {
-		if entry.GetSpellLevel() > 6 {
-			continue
-		}
-
 		if _, ok := coreSpells[entry.GetSpellID()]; !ok {
 			t.Fatalf("expected spell data seed for core spell %q at level %d", entry.GetSpellID(), entry.GetSpellLevel())
 		}
@@ -41,7 +37,7 @@ func TestCoreSpellData_SeededSpellsRemainValid(t *testing.T) {
 	}
 }
 
-func TestCoreSpellData_KnownCoreHeadersThroughSixthLevel(t *testing.T) {
+func TestCoreSpellData_KnownCoreHeaders(t *testing.T) {
 	testCases := []struct {
 		id              SpellID
 		school          SchoolID
@@ -177,6 +173,51 @@ func TestCoreSpellData_KnownCoreHeadersThroughSixthLevel(t *testing.T) {
 			duration:        "1 round/level (D)",
 			savingThrow:     "none",
 			spellResistance: "no",
+		},
+		{
+			id:              SpellID("Gate"),
+			school:          ConjurationSchoolID,
+			component:       MaterialComponentID,
+			castingTime:     "1 standard action",
+			spellRange:      "medium (100 ft. + 10 ft./level)",
+			targetEffect:    "see text",
+			duration:        "instantaneous or concentration (up to 1 round/level); see text",
+			savingThrow:     "none",
+			spellResistance: "no",
+		},
+		{
+			id:              SpellID("Meteor Swarm"),
+			school:          EvocationSchoolID,
+			descriptor:      DescriptorID("Fire"),
+			component:       SomaticComponentID,
+			castingTime:     "1 standard action",
+			spellRange:      "long (400 ft. + 40 ft./level)",
+			targetEffect:    "four 40-ft.-radius spreads, see text",
+			duration:        "instantaneous",
+			savingThrow:     "none or Reflex half, see text",
+			spellResistance: "yes",
+		},
+		{
+			id:              SpellID("Time Stop"),
+			school:          TransmutationSchoolID,
+			component:       VerbalComponentID,
+			castingTime:     "1 standard action",
+			spellRange:      "personal",
+			targetEffect:    "you",
+			duration:        "1d4+1 rounds (apparent time); see text",
+			savingThrow:     "none",
+			spellResistance: "no",
+		},
+		{
+			id:              SpellID("Wish"),
+			school:          UniversalSchoolID,
+			component:       MaterialComponentID,
+			castingTime:     "1 standard action",
+			spellRange:      "see text",
+			targetEffect:    "see text",
+			duration:        "see text",
+			savingThrow:     "none, see text",
+			spellResistance: "yes",
 		},
 	}
 
