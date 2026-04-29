@@ -2,13 +2,13 @@ package spell
 
 import "testing"
 
-func TestCoreSpellData_SeedsAllCoreSpellsThroughThirdLevel(t *testing.T) {
-	if len(coreSpells) != 284 {
-		t.Fatalf("expected 284 core spell seeds through 3rd level, got %d", len(coreSpells))
+func TestCoreSpellData_SeedsAllCoreSpellsThroughSixthLevel(t *testing.T) {
+	if len(coreSpells) != 490 {
+		t.Fatalf("expected 490 core spell seeds through 6th level, got %d", len(coreSpells))
 	}
 
 	for _, entry := range coreSpellListEntries {
-		if entry.GetSpellLevel() > 3 {
+		if entry.GetSpellLevel() > 6 {
 			continue
 		}
 
@@ -41,7 +41,7 @@ func TestCoreSpellData_SeededSpellsRemainValid(t *testing.T) {
 	}
 }
 
-func TestCoreSpellData_KnownCoreHeadersThroughThirdLevel(t *testing.T) {
+func TestCoreSpellData_KnownCoreHeadersThroughSixthLevel(t *testing.T) {
 	testCases := []struct {
 		id              SpellID
 		school          SchoolID
@@ -125,6 +125,50 @@ func TestCoreSpellData_KnownCoreHeadersThroughThirdLevel(t *testing.T) {
 		},
 		{
 			id:              SpellID("Summon Monster 3"),
+			school:          ConjurationSchoolID,
+			component:       FocusComponentID,
+			castingTime:     "1 round",
+			spellRange:      "close (25 ft. + 5 ft./2 levels)",
+			targetEffect:    "one summoned creature",
+			duration:        "1 round/level (D)",
+			savingThrow:     "none",
+			spellResistance: "no",
+		},
+		{
+			id:              SpellID("Break Enchantment"),
+			school:          AbjurationSchoolID,
+			component:       SomaticComponentID,
+			castingTime:     "1 minute",
+			spellRange:      "close (25 ft. + 5 ft./2 levels)",
+			targetEffect:    "up to one creature per level, all within 30 ft. of each other",
+			duration:        "instantaneous",
+			savingThrow:     "see text",
+			spellResistance: "no",
+		},
+		{
+			id:              SpellID("Disintegrate"),
+			school:          TransmutationSchoolID,
+			component:       MaterialComponentID,
+			castingTime:     "1 standard action",
+			spellRange:      "medium (100 ft. + 10 ft./level)",
+			targetEffect:    "ray",
+			duration:        "instantaneous",
+			savingThrow:     "Fortitude partial (object)",
+			spellResistance: "yes",
+		},
+		{
+			id:              SpellID("Heal"),
+			school:          ConjurationSchoolID,
+			component:       SomaticComponentID,
+			castingTime:     "1 standard action",
+			spellRange:      "touch",
+			targetEffect:    "creature touched",
+			duration:        "instantaneous",
+			savingThrow:     "Will negates (harmless)",
+			spellResistance: "yes (harmless)",
+		},
+		{
+			id:              SpellID("Summon Monster 6"),
 			school:          ConjurationSchoolID,
 			component:       FocusComponentID,
 			castingTime:     "1 round",
