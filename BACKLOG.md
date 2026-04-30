@@ -206,7 +206,7 @@ The tracked backlog below starts at Race / Modifier / Skill / Class because thos
 
 ### Feat
 
-- [ ] Create the Feat domain chassis:
+- [X] Create the Feat domain chassis:
   - FeatID
   - category
   - prerequisite model
