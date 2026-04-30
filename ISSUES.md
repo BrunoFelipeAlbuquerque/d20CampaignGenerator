@@ -133,7 +133,7 @@
   - `class` exposes `GetClassByID`, but `coreClassOrder` remains package-private and there is no `GetClasses`
   - later character and feat prerequisite composition will need ordered class discovery without relying on private seed state
 
-- [ ] Move core spell-list seed consistency from tests into the seed-building path before spell data is consumed by other domains:
+- [X] Move core spell-list seed consistency from tests into the seed-building path before spell data is consumed by other domains:
   - `mustBuildCoreSpellListEntries` validates entry shape and duplicate triples, but it does not prove each listed spell has seeded `Spell` data
   - `TestCoreSpellData_SeedsAllCoreSpells` catches that today, but production package initialization can still build a mismatched core spell list if tests are bypassed
   - once spell lookups become public, a spell-list entry pointing at missing spell data would become a runtime lookup inconsistency
