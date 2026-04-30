@@ -121,7 +121,7 @@
   - later character composition will otherwise duplicate progression access logic or depend on unexported test-only knowledge
   - add a read-only lookup/catalog surface with defensive copies and no new progression rules
 
-- [ ] Refresh README status now that Class, Spellcasting Progression, and Spell are complete:
+- [X] Refresh README status now that Class, Spellcasting Progression, and Spell are complete:
   - `README.md` still says the status matrix reflects Class not being aligned yet
   - the matrix row for `class` still says `Exists: no`, `Core-correct now: not started`, and `Intentional limit: next backlog domain`
   - the backlog now marks Class, Spellcasting Progression, Spell data, and Spell tests complete
