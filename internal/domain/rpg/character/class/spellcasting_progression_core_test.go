@@ -148,3 +148,77 @@ func TestCoreSpellcastingProgressionTables_DelayedCastersDistinguishUnavailableL
 		}
 	}
 }
+
+func TestGetSpellcastingProgressionByClassID_ReturnsSeededCoreProgression(t *testing.T) {
+	progression, ok := GetSpellcastingProgressionByClassID(WizardClassID)
+	if !ok {
+		t.Fatal("expected wizard spellcasting progression lookup to succeed")
+	}
+
+	if progression.GetClassID() != WizardClassID {
+		t.Fatalf("expected wizard progression class id %q, got %q", WizardClassID, progression.GetClassID())
+	}
+
+	spellSlots, ok := progression.GetSpellSlots(5, 3)
+	if !ok || spellSlots != 1 {
+		t.Fatalf("expected wizard level 5 spell level 3 slots (1, true), got (%d, %t)", spellSlots, ok)
+	}
+}
+
+func TestGetSpellcastingProgressionByClassID_ReturnsDetachedCopy(t *testing.T) {
+	first, ok := GetSpellcastingProgressionByClassID(BardClassID)
+	if !ok {
+		t.Fatal("expected bard spellcasting progression lookup to succeed")
+	}
+
+	first.slotsByClassLevel[0][0] = 99
+
+	second, ok := GetSpellcastingProgressionByClassID(BardClassID)
+	if !ok {
+		t.Fatal("expected bard spellcasting progression lookup to succeed")
+	}
+
+	spellSlots, ok := second.GetSpellSlots(1, 0)
+	if !ok || spellSlots != 0 {
+		t.Fatalf("expected stored bard level 1 spell level 0 slots (0, true), got (%d, %t)", spellSlots, ok)
+	}
+}
+
+func TestGetSpellcastingProgressionByClassID_RejectsUnknownOrNonSpellcastingClass(t *testing.T) {
+	if _, ok := GetSpellcastingProgressionByClassID(ClassID("oracle")); ok {
+		t.Fatal("expected unknown class progression lookup to fail")
+	}
+
+	if _, ok := GetSpellcastingProgressionByClassID(FighterClassID); ok {
+		t.Fatal("expected non-spellcasting class progression lookup to fail")
+	}
+}
+
+func TestGetSpellcastingProgressions_ReturnsSeededCatalogInCoreOrder(t *testing.T) {
+	progressions := GetSpellcastingProgressions()
+	if len(progressions) != len(coreSpellcastingProgressionClassOrder) {
+		t.Fatalf(
+			"expected %d queried spellcasting progressions, got %d",
+			len(coreSpellcastingProgressionClassOrder),
+			len(progressions),
+		)
+	}
+
+	for i, expectedClassID := range coreSpellcastingProgressionClassOrder {
+		if progressions[i].GetClassID() != expectedClassID {
+			t.Fatalf("expected progression at index %d to be %q, got %q", i, expectedClassID, progressions[i].GetClassID())
+		}
+	}
+}
+
+func TestGetSpellcastingProgressions_ReturnsDetachedCopies(t *testing.T) {
+	first := GetSpellcastingProgressions()
+	second := GetSpellcastingProgressions()
+
+	first[0].slotsByClassLevel[0][0] = 99
+
+	spellSlots, ok := second[0].GetSpellSlots(1, 0)
+	if !ok || spellSlots != 0 {
+		t.Fatalf("expected stored first progression level 1 spell level 0 slots (0, true), got (%d, %t)", spellSlots, ok)
+	}
+}
