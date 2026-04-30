@@ -80,11 +80,88 @@ func TestCoreSpellListBindings_KnownCoreBreakpoints(t *testing.T) {
 	}
 }
 
+func TestGetSpellListEntries_ReturnsSeededCatalogInCoreOrder(t *testing.T) {
+	entries := GetSpellListEntries()
+	if len(entries) != len(coreSpellListEntries) {
+		t.Fatalf("expected %d queried spell list entries, got %d", len(coreSpellListEntries), len(entries))
+	}
+
+	for i, expected := range coreSpellListEntries {
+		if entries[i].GetSpellID() != expected.GetSpellID() ||
+			entries[i].GetClassID() != expected.GetClassID() ||
+			entries[i].GetSpellLevel() != expected.GetSpellLevel() {
+			t.Fatalf("expected spell list entry at index %d to be %v, got %v", i, expected, entries[i])
+		}
+	}
+}
+
+func TestGetSpellListEntries_ReturnsDetachedSlice(t *testing.T) {
+	first := GetSpellListEntries()
+	second := GetSpellListEntries()
+
+	first[0].spellID = "Changed"
+
+	if second[0].GetSpellID() != SpellID("Dancing Lights") {
+		t.Fatalf("expected stored spell list entry to remain Dancing Lights, got %q", second[0].GetSpellID())
+	}
+}
+
+func TestGetSpellListEntriesByClass_ReturnsSeededCoreClassList(t *testing.T) {
+	entries, ok := GetSpellListEntriesByClass(characterclass.WizardClassID)
+	if !ok {
+		t.Fatal("expected wizard spell list lookup to succeed")
+	}
+
+	if len(entries) != 396 {
+		t.Fatalf("expected 396 wizard spell list entries, got %d", len(entries))
+	}
+
+	if !hasSpellListEntry(entries, SpellID("Fireball")) {
+		t.Fatalf("expected wizard spell list to include %q", SpellID("Fireball"))
+	}
+
+	if hasSpellListEntry(entries, SpellID("Cure Serious Wounds")) {
+		t.Fatalf("expected wizard spell list not to include %q", SpellID("Cure Serious Wounds"))
+	}
+}
+
+func TestGetSpellListEntriesByClass_ReturnsDetachedSlice(t *testing.T) {
+	first, ok := GetSpellListEntriesByClass(characterclass.BardClassID)
+	if !ok {
+		t.Fatal("expected bard spell list lookup to succeed")
+	}
+
+	first[0].spellID = "Changed"
+
+	second, ok := GetSpellListEntriesByClass(characterclass.BardClassID)
+	if !ok {
+		t.Fatal("expected bard spell list lookup to succeed")
+	}
+
+	if second[0].GetSpellID() != SpellID("Dancing Lights") {
+		t.Fatalf("expected stored bard spell list entry to remain Dancing Lights, got %q", second[0].GetSpellID())
+	}
+}
+
+func TestGetSpellListEntriesByClass_RejectsInvalidClass(t *testing.T) {
+	if _, ok := GetSpellListEntriesByClass(characterclass.FighterClassID); ok {
+		t.Fatal("expected non-spellcasting class spell list lookup to fail")
+	}
+
+	if _, ok := GetSpellListEntriesByClass(characterclass.ClassID("oracle")); ok {
+		t.Fatal("expected unknown class spell list lookup to fail")
+	}
+}
+
 func TestCoreSpellListBindings_ClassListLookupByLevel(t *testing.T) {
-	wizardThirdLevelEntries := coreSpellListEntriesForClassAndLevel(
+	wizardThirdLevelEntries, ok := GetSpellListEntriesByClassAndLevel(
 		characterclass.WizardClassID,
 		3,
 	)
+	if !ok {
+		t.Fatal("expected wizard 3rd-level spell list lookup to succeed")
+	}
+
 	if len(wizardThirdLevelEntries) == 0 {
 		t.Fatal("expected wizard 3rd-level spell list entries")
 	}
@@ -97,10 +174,14 @@ func TestCoreSpellListBindings_ClassListLookupByLevel(t *testing.T) {
 		t.Fatalf("expected wizard 3rd-level spell list not to include %q", SpellID("Cure Serious Wounds"))
 	}
 
-	clericThirdLevelEntries := coreSpellListEntriesForClassAndLevel(
+	clericThirdLevelEntries, ok := GetSpellListEntriesByClassAndLevel(
 		characterclass.ClericClassID,
 		3,
 	)
+	if !ok {
+		t.Fatal("expected cleric 3rd-level spell list lookup to succeed")
+	}
+
 	if len(clericThirdLevelEntries) == 0 {
 		t.Fatal("expected cleric 3rd-level spell list entries")
 	}
@@ -111,6 +192,44 @@ func TestCoreSpellListBindings_ClassListLookupByLevel(t *testing.T) {
 
 	if hasSpellListEntry(clericThirdLevelEntries, SpellID("Fireball")) {
 		t.Fatalf("expected cleric 3rd-level spell list not to include %q", SpellID("Fireball"))
+	}
+}
+
+func TestGetSpellListEntriesByClassAndLevel_ReturnsDetachedSlice(t *testing.T) {
+	first, ok := GetSpellListEntriesByClassAndLevel(characterclass.BardClassID, 0)
+	if !ok {
+		t.Fatal("expected bard cantrip spell list lookup to succeed")
+	}
+
+	first[0].spellID = "Changed"
+
+	second, ok := GetSpellListEntriesByClassAndLevel(characterclass.BardClassID, 0)
+	if !ok {
+		t.Fatal("expected bard cantrip spell list lookup to succeed")
+	}
+
+	if second[0].GetSpellID() != SpellID("Dancing Lights") {
+		t.Fatalf("expected stored bard cantrip entry to remain Dancing Lights, got %q", second[0].GetSpellID())
+	}
+}
+
+func TestGetSpellListEntriesByClassAndLevel_RejectsInvalidClassOrLevel(t *testing.T) {
+	testCases := []struct {
+		classID    characterclass.ClassID
+		spellLevel int
+	}{
+		{characterclass.FighterClassID, 0},
+		{characterclass.ClassID("oracle"), 0},
+		{characterclass.WizardClassID, -1},
+		{characterclass.WizardClassID, 10},
+		{characterclass.BardClassID, 7},
+		{characterclass.PaladinClassID, 0},
+	}
+
+	for _, tc := range testCases {
+		if _, ok := GetSpellListEntriesByClassAndLevel(tc.classID, tc.spellLevel); ok {
+			t.Fatalf("expected spell list lookup for class %q level %d to fail", tc.classID, tc.spellLevel)
+		}
 	}
 }
 
@@ -143,18 +262,6 @@ func hasCoreSpellListEntry(spellID SpellID, classID characterclass.ClassID, spel
 	}
 
 	return false
-}
-
-func coreSpellListEntriesForClassAndLevel(classID characterclass.ClassID, spellLevel int) []SpellListEntry {
-	entries := make([]SpellListEntry, 0)
-
-	for _, entry := range coreSpellListEntries {
-		if entry.GetClassID() == classID && entry.GetSpellLevel() == spellLevel {
-			entries = append(entries, entry)
-		}
-	}
-
-	return entries
 }
 
 func hasSpellListEntry(entries []SpellListEntry, spellID SpellID) bool {

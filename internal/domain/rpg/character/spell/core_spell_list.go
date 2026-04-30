@@ -10,6 +10,44 @@ type spellListEntrySeed struct {
 
 var coreSpellListEntries = mustBuildCoreSpellListEntries(coreSpellListEntrySeeds)
 
+func GetSpellListEntries() []SpellListEntry {
+	return append([]SpellListEntry(nil), coreSpellListEntries...)
+}
+
+func GetSpellListEntriesByClass(classID characterclass.ClassID) ([]SpellListEntry, bool) {
+	if !isValidSpellListClassID(classID) {
+		return nil, false
+	}
+
+	entries := make([]SpellListEntry, 0)
+	for _, entry := range coreSpellListEntries {
+		if entry.GetClassID() == classID {
+			entries = append(entries, entry)
+		}
+	}
+
+	return entries, true
+}
+
+func GetSpellListEntriesByClassAndLevel(
+	classID characterclass.ClassID,
+	spellLevel int,
+) ([]SpellListEntry, bool) {
+	if !isValidSpellListClassID(classID) ||
+		!isValidSpellListLevel(classID, spellLevel) {
+		return nil, false
+	}
+
+	entries := make([]SpellListEntry, 0)
+	for _, entry := range coreSpellListEntries {
+		if entry.GetClassID() == classID && entry.GetSpellLevel() == spellLevel {
+			entries = append(entries, entry)
+		}
+	}
+
+	return entries, true
+}
+
 var coreSpellListEntrySeeds = []spellListEntrySeed{
 	{SpellID(`Dancing Lights`), characterclass.BardClassID, 0},
 	{SpellID(`Daze`), characterclass.BardClassID, 0},

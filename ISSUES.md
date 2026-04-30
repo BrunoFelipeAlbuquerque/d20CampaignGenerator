@@ -109,7 +109,7 @@
 
 ## SHOULD
 
-- [ ] Add public read-only query helpers for core spell data and spell list bindings before spell composition depends on package-private seeds:
+- [X] Add public read-only query helpers for core spell data and spell list bindings before spell composition depends on package-private seeds:
   - `coreSpells` and `coreSpellListEntries` are complete enough to test, but outside `spell` cannot look up a spell by ID or ask for class spell-list entries
   - current class-list lookup coverage lives in test helpers only, so production composition would need to duplicate scans or reach around package boundaries
   - later `Compose spell list entry with Class spellcasting` needs a stable read surface such as spell lookup, class list lookup, and defensive-copy catalog helpers
