@@ -232,6 +232,106 @@ func TestNewSpell_RejectsInvalidInputs(t *testing.T) {
 	); ok {
 		t.Fatal("expected range with surrounding whitespace to be rejected")
 	}
+
+	testCases := []struct {
+		name            string
+		castingTime     string
+		spellRange      string
+		targetEffect    string
+		duration        string
+		savingThrow     string
+		spellResistance string
+	}{
+		{
+			name:            "empty target/effect",
+			castingTime:     "1 standard action",
+			spellRange:      "60 ft.",
+			targetEffect:    "",
+			duration:        "concentration, up to 1 min./level",
+			savingThrow:     "none",
+			spellResistance: "no",
+		},
+		{
+			name:            "target/effect surrounding whitespace",
+			castingTime:     "1 standard action",
+			spellRange:      "60 ft.",
+			targetEffect:    " cone-shaped emanation",
+			duration:        "concentration, up to 1 min./level",
+			savingThrow:     "none",
+			spellResistance: "no",
+		},
+		{
+			name:            "empty duration",
+			castingTime:     "1 standard action",
+			spellRange:      "60 ft.",
+			targetEffect:    "cone-shaped emanation",
+			duration:        "",
+			savingThrow:     "none",
+			spellResistance: "no",
+		},
+		{
+			name:            "duration surrounding whitespace",
+			castingTime:     "1 standard action",
+			spellRange:      "60 ft.",
+			targetEffect:    "cone-shaped emanation",
+			duration:        "concentration, up to 1 min./level ",
+			savingThrow:     "none",
+			spellResistance: "no",
+		},
+		{
+			name:            "empty saving throw",
+			castingTime:     "1 standard action",
+			spellRange:      "60 ft.",
+			targetEffect:    "cone-shaped emanation",
+			duration:        "concentration, up to 1 min./level",
+			savingThrow:     "",
+			spellResistance: "no",
+		},
+		{
+			name:            "saving throw surrounding whitespace",
+			castingTime:     "1 standard action",
+			spellRange:      "60 ft.",
+			targetEffect:    "cone-shaped emanation",
+			duration:        "concentration, up to 1 min./level",
+			savingThrow:     " none",
+			spellResistance: "no",
+		},
+		{
+			name:            "empty spell resistance",
+			castingTime:     "1 standard action",
+			spellRange:      "60 ft.",
+			targetEffect:    "cone-shaped emanation",
+			duration:        "concentration, up to 1 min./level",
+			savingThrow:     "none",
+			spellResistance: "",
+		},
+		{
+			name:            "spell resistance surrounding whitespace",
+			castingTime:     "1 standard action",
+			spellRange:      "60 ft.",
+			targetEffect:    "cone-shaped emanation",
+			duration:        "concentration, up to 1 min./level",
+			savingThrow:     "none",
+			spellResistance: "no ",
+		},
+	}
+
+	for _, tc := range testCases {
+		if _, ok := NewSpell(
+			SpellID("detect magic"),
+			DivinationSchoolID,
+			nil,
+			[]ComponentID{VerbalComponentID},
+			tc.castingTime,
+			tc.spellRange,
+			tc.targetEffect,
+			tc.duration,
+			tc.savingThrow,
+			tc.spellResistance,
+		); ok {
+			t.Fatalf("expected invalid text clause to be rejected for %s", tc.name)
+		}
+	}
 }
 
 func TestSpell_GettersReturnDefensiveCopies(t *testing.T) {
