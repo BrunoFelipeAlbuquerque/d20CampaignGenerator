@@ -115,7 +115,7 @@
   - later `Compose spell list entry with Class spellcasting` needs a stable read surface such as spell lookup, class list lookup, and defensive-copy catalog helpers
   - this should stay query-only and must not add new spell data or composition logic
 
-- [ ] Expose core spellcasting progression lookup helpers before character spell-slot composition starts:
+- [X] Expose core spellcasting progression lookup helpers before character spell-slot composition starts:
   - `coreSpellcastingProgressionTables` and `coreSpellcastingProgressionClassOrder` are package-private
   - outside `class`, callers can construct arbitrary progression tables, but cannot ask for the seeded core progression for bard, cleric, druid, paladin, ranger, sorcerer, or wizard
   - later character composition will otherwise duplicate progression access logic or depend on unexported test-only knowledge

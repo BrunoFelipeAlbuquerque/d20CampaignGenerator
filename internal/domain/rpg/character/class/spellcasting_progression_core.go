@@ -12,6 +12,28 @@ var coreSpellcastingProgressionClassOrder = []ClassID{
 	WizardClassID,
 }
 
+func GetSpellcastingProgressionByClassID(classID ClassID) (SpellcastingProgressionTable, bool) {
+	value, ok := coreSpellcastingProgressionTables[classID]
+	if !ok {
+		return spellcastingProgressionTable{}, false
+	}
+
+	return cloneSpellcastingProgressionTable(value), true
+}
+
+func GetSpellcastingProgressions() []SpellcastingProgressionTable {
+	progressions := make([]SpellcastingProgressionTable, 0, len(coreSpellcastingProgressionClassOrder))
+
+	for _, classID := range coreSpellcastingProgressionClassOrder {
+		progressions = append(
+			progressions,
+			cloneSpellcastingProgressionTable(coreSpellcastingProgressionTables[classID]),
+		)
+	}
+
+	return progressions
+}
+
 func mustBuildCoreSpellcastingProgressionTables(
 	classes map[ClassID]Class,
 ) map[ClassID]SpellcastingProgressionTable {
@@ -151,5 +173,17 @@ func delayedFourthLevelCasterSpellSlotsByClassLevel() [][]int {
 		{4, 3, 2, 2},
 		{4, 3, 3, 2},
 		{4, 4, 3, 3},
+	}
+}
+
+func cloneSpellcastingProgressionTable(value SpellcastingProgressionTable) SpellcastingProgressionTable {
+	slotsByClassLevel := make([][]int, 0, len(value.slotsByClassLevel))
+	for _, row := range value.slotsByClassLevel {
+		slotsByClassLevel = append(slotsByClassLevel, append([]int(nil), row...))
+	}
+
+	return spellcastingProgressionTable{
+		classID:           value.classID,
+		slotsByClassLevel: slotsByClassLevel,
 	}
 }
