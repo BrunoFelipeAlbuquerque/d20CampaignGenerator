@@ -11,6 +11,14 @@
 
 ## NEED
 
+- [ ] Define the Feat prerequisite model boundary before the Feat chassis locks in an underpowered shape:
+  - the next backlog item asks for a `prerequisite model`, not just feat IDs and category flags
+  - core feat prerequisites use several distinct inputs: ability scores, BAB, skill ranks, spellcasting/caster level, class level, class-specific access such as fighter bonus feats, and other feats
+  - current `class` metadata exposes class identity, progressions, skills, proficiencies, and spellcasting kind, but not class-level prerequisite terms or class feature IDs
+  - current `race` metadata represents human `Bonus Feat` and similar feature facts only as racial feature labels, not as typed feat-selection grants
+  - if the Feat chassis models prerequisites as free-form strings or only a single flat ref type, later composition will need side tables or a redesign when `Compose feat prerequisites` arrives
+  - before creating `feat`, decide the smallest core prerequisite value objects needed now and reject unsupported prerequisite shapes instead of accepting opaque text
+
 - [X] Stop collapsing delayed-caster zero-slot unlock rows before Spell work builds on the wrong spell-availability model:
   - `normalizeSpellSlotsByClassLevel` trims trailing zeroes and returns `nil` for all-zero rows, so the domain cannot represent core `0 spells per day` breakpoints for newly unlocked paladin/ranger spell levels
   - `delayedFourthLevelCasterSpellSlotsByClassLevel` currently works around that gap by seeding level 4 as `{0, 1}`, which makes paladin/ranger level 4 resolve to one 1st-level spell slot instead of core bonus-only access
@@ -100,6 +108,36 @@
 ---
 
 ## SHOULD
+
+- [ ] Add public read-only query helpers for core spell data and spell list bindings before spell composition depends on package-private seeds:
+  - `coreSpells` and `coreSpellListEntries` are complete enough to test, but outside `spell` cannot look up a spell by ID or ask for class spell-list entries
+  - current class-list lookup coverage lives in test helpers only, so production composition would need to duplicate scans or reach around package boundaries
+  - later `Compose spell list entry with Class spellcasting` needs a stable read surface such as spell lookup, class list lookup, and defensive-copy catalog helpers
+  - this should stay query-only and must not add new spell data or composition logic
+
+- [ ] Expose core spellcasting progression lookup helpers before character spell-slot composition starts:
+  - `coreSpellcastingProgressionTables` and `coreSpellcastingProgressionClassOrder` are package-private
+  - outside `class`, callers can construct arbitrary progression tables, but cannot ask for the seeded core progression for bard, cleric, druid, paladin, ranger, sorcerer, or wizard
+  - later character composition will otherwise duplicate progression access logic or depend on unexported test-only knowledge
+  - add a read-only lookup/catalog surface with defensive copies and no new progression rules
+
+- [ ] Refresh README status now that Class, Spellcasting Progression, and Spell are complete:
+  - `README.md` still says the status matrix reflects Class not being aligned yet
+  - the matrix row for `class` still says `Exists: no`, `Core-correct now: not started`, and `Intentional limit: next backlog domain`
+  - the backlog now marks Class, Spellcasting Progression, Spell data, and Spell tests complete
+  - stale status docs can mislead Feat review by making already-delivered foundations look unavailable
+
+- [ ] Add a read-only core class catalog helper for consistency before composition expands class consumers:
+  - `race` exposes both `GetRaceByID` and `GetRaces`
+  - `skill` exposes both `GetSkillByID` and `GetSkills`
+  - `class` exposes `GetClassByID`, but `coreClassOrder` remains package-private and there is no `GetClasses`
+  - later character and feat prerequisite composition will need ordered class discovery without relying on private seed state
+
+- [ ] Move core spell-list seed consistency from tests into the seed-building path before spell data is consumed by other domains:
+  - `mustBuildCoreSpellListEntries` validates entry shape and duplicate triples, but it does not prove each listed spell has seeded `Spell` data
+  - `TestCoreSpellData_SeedsAllCoreSpells` catches that today, but production package initialization can still build a mismatched core spell list if tests are bypassed
+  - once spell lookups become public, a spell-list entry pointing at missing spell data would become a runtime lookup inconsistency
+  - keep the fix seed-local: do not make generic `SpellListEntry` construction depend on the core catalog
 
 - [X] Remove or rename the legacy `GetRacialLanguages` alias before callers lock in the wrong race-language shape again:
   - `Race` now has `GetAutomaticLanguages` and `GetBonusLanguageChoice`
