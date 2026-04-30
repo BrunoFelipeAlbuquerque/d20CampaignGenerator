@@ -11,7 +11,7 @@
 
 ## NEED
 
-- [ ] Define the Feat prerequisite model boundary before the Feat chassis locks in an underpowered shape:
+- [X] Define the Feat prerequisite model boundary before the Feat chassis locks in an underpowered shape:
   - the next backlog item asks for a `prerequisite model`, not just feat IDs and category flags
   - core feat prerequisites use several distinct inputs: ability scores, BAB, skill ranks, spellcasting/caster level, class level, class-specific access such as fighter bonus feats, and other feats
   - current `class` metadata exposes class identity, progressions, skills, proficiencies, and spellcasting kind, but not class-level prerequisite terms or class feature IDs
