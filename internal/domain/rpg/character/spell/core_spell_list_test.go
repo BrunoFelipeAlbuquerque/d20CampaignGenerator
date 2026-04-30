@@ -54,6 +54,21 @@ func TestCoreSpellListBindings_SeedCoreCastingClassMappings(t *testing.T) {
 	}
 }
 
+func TestMustBuildCoreSpellListEntries_RejectsMissingCoreSpellData(t *testing.T) {
+	defer func() {
+		if recovered := recover(); recovered == nil {
+			t.Fatal("expected missing core spell data to panic")
+		}
+	}()
+
+	mustBuildCoreSpellListEntries(
+		[]spellListEntrySeed{
+			{SpellID("Light"), characterclass.WizardClassID, 0},
+		},
+		map[SpellID]Spell{},
+	)
+}
+
 func TestCoreSpellListBindings_KnownCoreBreakpoints(t *testing.T) {
 	testCases := []struct {
 		spellID    SpellID

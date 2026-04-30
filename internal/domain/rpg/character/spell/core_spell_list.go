@@ -8,7 +8,7 @@ type spellListEntrySeed struct {
 	spellLevel int
 }
 
-var coreSpellListEntries = mustBuildCoreSpellListEntries(coreSpellListEntrySeeds)
+var coreSpellListEntries = mustBuildCoreSpellListEntries(coreSpellListEntrySeeds, coreSpells)
 
 func GetSpellListEntries() []SpellListEntry {
 	return append([]SpellListEntry(nil), coreSpellListEntries...)
@@ -1506,7 +1506,10 @@ var coreSpellListEntrySeeds = []spellListEntrySeed{
 	{SpellID(`Wish`), characterclass.WizardClassID, 9},
 }
 
-func mustBuildCoreSpellListEntries(seeds []spellListEntrySeed) []SpellListEntry {
+func mustBuildCoreSpellListEntries(
+	seeds []spellListEntrySeed,
+	spells map[SpellID]Spell,
+) []SpellListEntry {
 	entries := make([]SpellListEntry, 0, len(seeds))
 	seen := make(map[spellListEntryKey]struct{}, len(seeds))
 
@@ -1514,6 +1517,10 @@ func mustBuildCoreSpellListEntries(seeds []spellListEntrySeed) []SpellListEntry 
 		entry, ok := NewSpellListEntry(seed.spellID, seed.classID, seed.spellLevel)
 		if !ok {
 			panic("invalid core spell list entry seed")
+		}
+
+		if _, ok := spells[entry.GetSpellID()]; !ok {
+			panic("missing core spell data for spell list entry")
 		}
 
 		key := spellListEntryKey{
