@@ -15,6 +15,25 @@ type spellSeed struct {
 
 var coreSpells = mustBuildCoreSpells(coreSpellSeeds)
 
+func GetSpellByID(id SpellID) (Spell, bool) {
+	value, ok := coreSpells[id]
+	if !ok {
+		return spell{}, false
+	}
+
+	return cloneSpell(value), true
+}
+
+func GetSpells() []Spell {
+	spells := make([]Spell, 0, len(coreSpellSeeds))
+
+	for _, seed := range coreSpellSeeds {
+		spells = append(spells, cloneSpell(coreSpells[seed.id]))
+	}
+
+	return spells
+}
+
 var coreSpellSeeds = []spellSeed{
 	{
 		id:              SpellID("Acid Splash"),
@@ -7126,4 +7145,19 @@ func mustBuildCoreSpells(seeds []spellSeed) map[SpellID]Spell {
 	}
 
 	return spells
+}
+
+func cloneSpell(value Spell) Spell {
+	return spell{
+		id:              value.id,
+		school:          value.school,
+		descriptors:     append([]DescriptorID(nil), value.descriptors...),
+		components:      append([]ComponentID(nil), value.components...),
+		castingTime:     value.castingTime,
+		spellRange:      value.spellRange,
+		targetEffect:    value.targetEffect,
+		duration:        value.duration,
+		savingThrow:     value.savingThrow,
+		spellResistance: value.spellResistance,
+	}
 }

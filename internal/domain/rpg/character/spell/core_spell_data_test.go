@@ -37,6 +37,79 @@ func TestCoreSpellData_SeededSpellsRemainValid(t *testing.T) {
 	}
 }
 
+func TestGetSpellByID_ReturnsSeededCoreSpell(t *testing.T) {
+	spell, ok := GetSpellByID(SpellID("Fireball"))
+	if !ok {
+		t.Fatal("expected fireball lookup to succeed")
+	}
+
+	if spell.GetID() != SpellID("Fireball") {
+		t.Fatalf("expected spell id %q, got %q", SpellID("Fireball"), spell.GetID())
+	}
+
+	if spell.GetSchool() != EvocationSchoolID {
+		t.Fatalf("expected fireball school %q, got %q", EvocationSchoolID, spell.GetSchool())
+	}
+}
+
+func TestGetSpellByID_ReturnsDetachedCopy(t *testing.T) {
+	first, ok := GetSpellByID(SpellID("Acid Splash"))
+	if !ok {
+		t.Fatal("expected acid splash lookup to succeed")
+	}
+
+	first.descriptors[0] = "Changed"
+	first.components[0] = FocusComponentID
+
+	second, ok := GetSpellByID(SpellID("Acid Splash"))
+	if !ok {
+		t.Fatal("expected acid splash lookup to succeed")
+	}
+
+	if second.descriptors[0] != DescriptorID("Acid") {
+		t.Fatalf("expected stored descriptor to remain Acid, got %q", second.descriptors[0])
+	}
+
+	if second.components[0] != VerbalComponentID {
+		t.Fatalf("expected stored component to remain Verbal, got %q", second.components[0])
+	}
+}
+
+func TestGetSpellByID_RejectsUnknownSpell(t *testing.T) {
+	if _, ok := GetSpellByID(SpellID("Mythic Fireball")); ok {
+		t.Fatal("expected unknown spell lookup to fail")
+	}
+}
+
+func TestGetSpells_ReturnsSeededCatalogInCoreOrder(t *testing.T) {
+	spells := GetSpells()
+	if len(spells) != len(coreSpellSeeds) {
+		t.Fatalf("expected %d queried spells, got %d", len(coreSpellSeeds), len(spells))
+	}
+
+	for i, seed := range coreSpellSeeds {
+		if spells[i].GetID() != seed.id {
+			t.Fatalf("expected spell at index %d to be %q, got %q", i, seed.id, spells[i].GetID())
+		}
+	}
+}
+
+func TestGetSpells_ReturnsDetachedCopies(t *testing.T) {
+	first := GetSpells()
+	second := GetSpells()
+
+	first[0].descriptors[0] = "Changed"
+	first[0].components[0] = FocusComponentID
+
+	if second[0].descriptors[0] != DescriptorID("Acid") {
+		t.Fatalf("expected stored descriptor to remain Acid, got %q", second[0].descriptors[0])
+	}
+
+	if second[0].components[0] != VerbalComponentID {
+		t.Fatalf("expected stored component to remain Verbal, got %q", second[0].components[0])
+	}
+}
+
 func TestCoreSpellData_KnownCoreHeaders(t *testing.T) {
 	testCases := []struct {
 		id              SpellID
