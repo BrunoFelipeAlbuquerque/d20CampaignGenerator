@@ -80,6 +80,40 @@ func TestCoreSpellListBindings_KnownCoreBreakpoints(t *testing.T) {
 	}
 }
 
+func TestCoreSpellListBindings_ClassListLookupByLevel(t *testing.T) {
+	wizardThirdLevelEntries := coreSpellListEntriesForClassAndLevel(
+		characterclass.WizardClassID,
+		3,
+	)
+	if len(wizardThirdLevelEntries) == 0 {
+		t.Fatal("expected wizard 3rd-level spell list entries")
+	}
+
+	if !hasSpellListEntry(wizardThirdLevelEntries, SpellID("Fireball")) {
+		t.Fatalf("expected wizard 3rd-level spell list to include %q", SpellID("Fireball"))
+	}
+
+	if hasSpellListEntry(wizardThirdLevelEntries, SpellID("Cure Serious Wounds")) {
+		t.Fatalf("expected wizard 3rd-level spell list not to include %q", SpellID("Cure Serious Wounds"))
+	}
+
+	clericThirdLevelEntries := coreSpellListEntriesForClassAndLevel(
+		characterclass.ClericClassID,
+		3,
+	)
+	if len(clericThirdLevelEntries) == 0 {
+		t.Fatal("expected cleric 3rd-level spell list entries")
+	}
+
+	if !hasSpellListEntry(clericThirdLevelEntries, SpellID("Cure Serious Wounds")) {
+		t.Fatalf("expected cleric 3rd-level spell list to include %q", SpellID("Cure Serious Wounds"))
+	}
+
+	if hasSpellListEntry(clericThirdLevelEntries, SpellID("Fireball")) {
+		t.Fatalf("expected cleric 3rd-level spell list not to include %q", SpellID("Fireball"))
+	}
+}
+
 func TestCoreSpellListBindings_DoNotSeedInvalidCoreClassLevels(t *testing.T) {
 	testCases := []struct {
 		spellID    SpellID
@@ -104,6 +138,28 @@ func hasCoreSpellListEntry(spellID SpellID, classID characterclass.ClassID, spel
 		if entry.GetSpellID() == spellID &&
 			entry.GetClassID() == classID &&
 			entry.GetSpellLevel() == spellLevel {
+			return true
+		}
+	}
+
+	return false
+}
+
+func coreSpellListEntriesForClassAndLevel(classID characterclass.ClassID, spellLevel int) []SpellListEntry {
+	entries := make([]SpellListEntry, 0)
+
+	for _, entry := range coreSpellListEntries {
+		if entry.GetClassID() == classID && entry.GetSpellLevel() == spellLevel {
+			entries = append(entries, entry)
+		}
+	}
+
+	return entries
+}
+
+func hasSpellListEntry(entries []SpellListEntry, spellID SpellID) bool {
+	for _, entry := range entries {
+		if entry.GetSpellID() == spellID {
 			return true
 		}
 	}

@@ -197,7 +197,7 @@ The tracked backlog below starts at Race / Modifier / Skill / Class because thos
 - [X] Seed spell data (batch 4):
   - levels 7–9
 
-- [ ] Add spell tests:
+- [X] Add spell tests:
   - valid construction
   - class list lookup
   - invalid rejection
