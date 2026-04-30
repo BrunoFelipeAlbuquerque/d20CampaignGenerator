@@ -193,9 +193,76 @@ func TestGetClassByID_ReturnsSeededCoreClass(t *testing.T) {
 	}
 }
 
+func TestGetClassByID_ReturnsDetachedCopy(t *testing.T) {
+	first, ok := GetClassByID(BarbarianClassID)
+	if !ok {
+		t.Fatal("expected barbarian class lookup to succeed")
+	}
+
+	first.classSkills[0] = "Changed"
+	first.weaponProficiencies[0] = "Changed"
+	first.armorProficiencies[0] = "Changed"
+
+	second, ok := GetClassByID(BarbarianClassID)
+	if !ok {
+		t.Fatal("expected barbarian class lookup to succeed")
+	}
+
+	if second.classSkills[0] != skill.AcrobaticsSkillID {
+		t.Fatalf("expected stored barbarian class skill to remain Acrobatics, got %q", second.classSkills[0])
+	}
+
+	if second.weaponProficiencies[0] != SimpleWeaponsWeaponProficiencyID {
+		t.Fatalf("expected stored barbarian weapon proficiency to remain Simple Weapons, got %q", second.weaponProficiencies[0])
+	}
+
+	if second.armorProficiencies[0] != LightArmorProficiencyID {
+		t.Fatalf("expected stored barbarian armor proficiency to remain Light Armor, got %q", second.armorProficiencies[0])
+	}
+}
+
 func TestGetClassByID_RejectsUnknownClass(t *testing.T) {
 	if _, ok := GetClassByID(ClassID("alchemist")); ok {
 		t.Fatal("expected unknown class lookup to fail")
+	}
+}
+
+func TestGetClasses_ReturnsSeededCatalogInCoreOrder(t *testing.T) {
+	classes := GetClasses()
+	if len(classes) != len(coreClassOrder) {
+		t.Fatalf("expected %d queried classes, got %d", len(coreClassOrder), len(classes))
+	}
+
+	for i, expectedID := range coreClassOrder {
+		if classes[i].GetID() != expectedID {
+			t.Fatalf("expected class at index %d to be %q, got %q", i, expectedID, classes[i].GetID())
+		}
+	}
+}
+
+func TestGetClasses_ReturnsDetachedCopies(t *testing.T) {
+	first := GetClasses()
+	second := GetClasses()
+
+	first[0].classSkills[0] = "Changed"
+	first[0].weaponProficiencies[0] = "Changed"
+	first[0].armorProficiencies[0] = "Changed"
+	first[0] = class{}
+
+	if second[0].GetID() != BarbarianClassID {
+		t.Fatalf("expected stored first class to remain Barbarian, got %q", second[0].GetID())
+	}
+
+	if second[0].classSkills[0] != skill.AcrobaticsSkillID {
+		t.Fatalf("expected stored first class skill to remain Acrobatics, got %q", second[0].classSkills[0])
+	}
+
+	if second[0].weaponProficiencies[0] != SimpleWeaponsWeaponProficiencyID {
+		t.Fatalf("expected stored first weapon proficiency to remain Simple Weapons, got %q", second[0].weaponProficiencies[0])
+	}
+
+	if second[0].armorProficiencies[0] != LightArmorProficiencyID {
+		t.Fatalf("expected stored first armor proficiency to remain Light Armor, got %q", second[0].armorProficiencies[0])
 	}
 }
 

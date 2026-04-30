@@ -127,7 +127,7 @@
   - the backlog now marks Class, Spellcasting Progression, Spell data, and Spell tests complete
   - stale status docs can mislead Feat review by making already-delivered foundations look unavailable
 
-- [ ] Add a read-only core class catalog helper for consistency before composition expands class consumers:
+- [X] Add a read-only core class catalog helper for consistency before composition expands class consumers:
   - `race` exposes both `GetRaceByID` and `GetRaces`
   - `skill` exposes both `GetSkillByID` and `GetSkills`
   - `class` exposes `GetClassByID`, but `coreClassOrder` remains package-private and there is no `GetClasses`

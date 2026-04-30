@@ -54,7 +54,17 @@ func GetClassByID(id ClassID) (Class, bool) {
 		return class{}, false
 	}
 
-	return value, true
+	return cloneClass(value), true
+}
+
+func GetClasses() []Class {
+	classes := make([]Class, 0, len(coreClassOrder))
+
+	for _, id := range coreClassOrder {
+		classes = append(classes, cloneClass(coreClasses[id]))
+	}
+
+	return classes
 }
 
 func mustBuildCoreClasses() map[ClassID]Class {
@@ -474,6 +484,20 @@ func mustNewSaveProgressions(
 	}
 
 	return value
+}
+
+func cloneClass(value Class) Class {
+	return class{
+		id:                  value.id,
+		hitDieType:          value.hitDieType,
+		baseAttackBonus:     value.baseAttackBonus,
+		saveProgressions:    value.saveProgressions,
+		skillRanksPerLevel:  value.skillRanksPerLevel,
+		classSkills:         append([]skill.SkillID(nil), value.classSkills...),
+		weaponProficiencies: append([]WeaponProficiencyID(nil), value.weaponProficiencies...),
+		armorProficiencies:  append([]ArmorProficiencyID(nil), value.armorProficiencies...),
+		spellcasting:        value.spellcasting,
+	}
 }
 
 func mustNewSpellcastingProfile(
