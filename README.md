@@ -201,7 +201,7 @@ Those differences exist in the repository, but they are not the source of truth 
 
 ## Current Status Matrix
 
-This table is the current foundation-audit snapshot for specialist review of the existing repo surface. It reflects what is present now, including the fact that Class is not aligned yet.
+This table is the current foundation-audit snapshot for specialist review of the existing repo surface. It reflects the delivered core foundation through Class, Spellcasting Progression, and Spell.
 
 | Area | Exists | Core-correct now | Intentional limit | Project-specific note |
 | --- | --- | --- | --- | --- |
@@ -211,7 +211,9 @@ This table is the current foundation-audit snapshot for specialist review of the
 | `race` | yes | 7 core races seeded with lookup helpers and automatic/bonus language metadata | core seed/query slice only | none |
 | `modifier` | yes | validated modifier chassis, stacking resolution, and usable target/condition refs | not full downstream composition yet | none |
 | `skill` | yes | core catalog seeded with public lookup and grouped specializations accepted by the domain | not skill-rank composition yet | none |
-| `class` | no | not started | next backlog domain | n/a |
+| `class` | yes | 11 core classes seeded with validated chassis, lookup helper, and spellcasting metadata | class feature details and character composition are not modeled yet | none |
+| `spellcasting progression` | yes | core progression tables seeded for bard, cleric, druid, paladin, ranger, sorcerer, and wizard | table/query surface only; no character spell-slot composition yet | none |
+| `spell` | yes | spell chassis, spell-list entries, core spell-list bindings, and core spell data are seeded with read-only query helpers | no spell preparation, casting, or character spellbook composition yet | none |
 
 ## Current Domain Snapshot
 
@@ -382,15 +384,16 @@ Invalid body shapes are rejected.
 
 The next major tracked backlog area is:
 
-- class
+- feat
 
 That work will likely interact with:
 
-- hit dice
+- ability scores
 - base attack bonus
-- saving throws
-- skills
+- class metadata
+- skill ranks
 - spellcasting metadata
+- existing feats as prerequisites
 
 So it is important to keep the current domains clean before building on top of them.
 
