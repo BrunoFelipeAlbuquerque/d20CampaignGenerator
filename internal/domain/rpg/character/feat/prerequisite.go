@@ -19,18 +19,20 @@ type spellcastingAccess string
 type SpellcastingAccess = spellcastingAccess
 
 const (
-	AbilityScorePrerequisiteKind              PrerequisiteKind = "Ability Score"
-	BaseAttackBonusPrerequisiteKind           PrerequisiteKind = "Base Attack Bonus"
-	SkillRanksPrerequisiteKind                PrerequisiteKind = "Skill Ranks"
-	SpellcastingPrerequisiteKind              PrerequisiteKind = "Spellcasting"
-	CasterLevelPrerequisiteKind               PrerequisiteKind = "Caster Level"
-	CharacterLevelPrerequisiteKind            PrerequisiteKind = "Character Level"
-	ClassLevelPrerequisiteKind                PrerequisiteKind = "Class Level"
-	ClassFeaturePrerequisiteKind              PrerequisiteKind = "Class Feature"
-	SelectedWeaponProficiencyPrerequisiteKind PrerequisiteKind = "Selected Weapon Proficiency"
-	FeatPrerequisiteKind                      PrerequisiteKind = "Feat"
-	SameSelectionFeatPrerequisiteKind         PrerequisiteKind = "Same Selection Feat"
-	SpellSchoolFeatPrerequisiteKind           PrerequisiteKind = "Spell School Feat"
+	AbilityScorePrerequisiteKind                PrerequisiteKind = "Ability Score"
+	BaseAttackBonusPrerequisiteKind             PrerequisiteKind = "Base Attack Bonus"
+	SkillRanksPrerequisiteKind                  PrerequisiteKind = "Skill Ranks"
+	AnySkillRanksPrerequisiteKind               PrerequisiteKind = "Any Skill Ranks"
+	SpellcastingPrerequisiteKind                PrerequisiteKind = "Spellcasting"
+	CasterLevelPrerequisiteKind                 PrerequisiteKind = "Caster Level"
+	CharacterLevelPrerequisiteKind              PrerequisiteKind = "Character Level"
+	ClassLevelPrerequisiteKind                  PrerequisiteKind = "Class Level"
+	ClassFeaturePrerequisiteKind                PrerequisiteKind = "Class Feature"
+	SelectedWeaponProficiencyPrerequisiteKind   PrerequisiteKind = "Selected Weapon Proficiency"
+	SelectedFamiliarEligibilityPrerequisiteKind PrerequisiteKind = "Selected Familiar Eligibility"
+	FeatPrerequisiteKind                        PrerequisiteKind = "Feat"
+	SameSelectionFeatPrerequisiteKind           PrerequisiteKind = "Same Selection Feat"
+	SpellSchoolFeatPrerequisiteKind             PrerequisiteKind = "Spell School Feat"
 )
 
 const (
@@ -68,6 +70,12 @@ type skillRanksPrerequisite struct {
 }
 type SkillRanksPrerequisite = skillRanksPrerequisite
 
+type anySkillRanksPrerequisite struct {
+	skillIDs     []skill.SkillID
+	minimumRanks int
+}
+type AnySkillRanksPrerequisite = anySkillRanksPrerequisite
+
 type spellcastingPrerequisite struct {
 	access spellcastingAccess
 }
@@ -98,6 +106,11 @@ type selectedWeaponProficiencyPrerequisite struct {
 	valid bool
 }
 type SelectedWeaponProficiencyPrerequisite = selectedWeaponProficiencyPrerequisite
+
+type selectedFamiliarEligibilityPrerequisite struct {
+	valid bool
+}
+type SelectedFamiliarEligibilityPrerequisite = selectedFamiliarEligibilityPrerequisite
 
 type featPrerequisite struct {
 	featID featID
@@ -167,6 +180,21 @@ func NewSkillRanksPrerequisite(
 	return value, true
 }
 
+func NewAnySkillRanksPrerequisite(
+	ids []skill.SkillID,
+	minimumRanks int,
+) (AnySkillRanksPrerequisite, bool) {
+	value := anySkillRanksPrerequisite{
+		skillIDs:     append([]skill.SkillID(nil), ids...),
+		minimumRanks: minimumRanks,
+	}
+	if !value.isValid() {
+		return anySkillRanksPrerequisite{}, false
+	}
+
+	return value, true
+}
+
 func NewSpellcastingPrerequisite(access SpellcastingAccess) (SpellcastingPrerequisite, bool) {
 	value := spellcastingPrerequisite{access: access}
 	if !value.isValid() {
@@ -222,6 +250,10 @@ func NewClassFeaturePrerequisite(
 
 func NewSelectedWeaponProficiencyPrerequisite() SelectedWeaponProficiencyPrerequisite {
 	return selectedWeaponProficiencyPrerequisite{valid: true}
+}
+
+func NewSelectedFamiliarEligibilityPrerequisite() SelectedFamiliarEligibilityPrerequisite {
+	return selectedFamiliarEligibilityPrerequisite{valid: true}
 }
 
 func NewFeatPrerequisite(id FeatID) (FeatPrerequisite, bool) {
@@ -293,6 +325,18 @@ func (p skillRanksPrerequisite) GetMinimumRanks() int {
 	return p.minimumRanks
 }
 
+func (p anySkillRanksPrerequisite) GetKind() PrerequisiteKind {
+	return AnySkillRanksPrerequisiteKind
+}
+
+func (p anySkillRanksPrerequisite) GetSkillIDs() []skill.SkillID {
+	return append([]skill.SkillID(nil), p.skillIDs...)
+}
+
+func (p anySkillRanksPrerequisite) GetMinimumRanks() int {
+	return p.minimumRanks
+}
+
 func (p spellcastingPrerequisite) GetKind() PrerequisiteKind {
 	return SpellcastingPrerequisiteKind
 }
@@ -341,6 +385,10 @@ func (p selectedWeaponProficiencyPrerequisite) GetKind() PrerequisiteKind {
 	return SelectedWeaponProficiencyPrerequisiteKind
 }
 
+func (p selectedFamiliarEligibilityPrerequisite) GetKind() PrerequisiteKind {
+	return SelectedFamiliarEligibilityPrerequisiteKind
+}
+
 func (p featPrerequisite) GetKind() PrerequisiteKind {
 	return FeatPrerequisiteKind
 }
@@ -387,6 +435,29 @@ func (p skillRanksPrerequisite) isValid() bool {
 	return p.skillID.GetName() != "" && p.minimumRanks > 0
 }
 
+func (p anySkillRanksPrerequisite) isPrerequisite() {}
+
+func (p anySkillRanksPrerequisite) isValid() bool {
+	if len(p.skillIDs) == 0 || p.minimumRanks <= 0 {
+		return false
+	}
+
+	seen := make(map[skill.SkillID]struct{}, len(p.skillIDs))
+	for _, id := range p.skillIDs {
+		if id.GetName() == "" {
+			return false
+		}
+
+		if _, ok := seen[id]; ok {
+			return false
+		}
+
+		seen[id] = struct{}{}
+	}
+
+	return true
+}
+
 func (p spellcastingPrerequisite) isPrerequisite() {}
 
 func (p spellcastingPrerequisite) isValid() bool {
@@ -421,6 +492,12 @@ func (p classFeaturePrerequisite) isValid() bool {
 func (p selectedWeaponProficiencyPrerequisite) isPrerequisite() {}
 
 func (p selectedWeaponProficiencyPrerequisite) isValid() bool {
+	return p.valid
+}
+
+func (p selectedFamiliarEligibilityPrerequisite) isPrerequisite() {}
+
+func (p selectedFamiliarEligibilityPrerequisite) isValid() bool {
 	return p.valid
 }
 

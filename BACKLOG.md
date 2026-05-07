@@ -214,7 +214,7 @@ The tracked backlog below starts at Race / Modifier / Skill / Class because thos
   - metamagic flag
   - item creation flag
 
-- [ ] Seed core general feats
+- [X] Seed core general feats
 
 - [ ] Seed core combat feats
 
