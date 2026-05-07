@@ -222,7 +222,7 @@ The tracked backlog below starts at Race / Modifier / Skill / Class because thos
 
 - [X] Seed core item creation feats
 
-- [ ] Seed core metamagic feats
+- [X] Seed core metamagic feats
 
 - [ ] Add feat tests:
   - prerequisite validation
