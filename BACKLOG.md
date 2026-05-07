@@ -216,7 +216,7 @@ The tracked backlog below starts at Race / Modifier / Skill / Class because thos
 
 - [X] Seed core general feats
 
-- [ ] Seed core combat feats
+- [X] Seed core combat feats
 
 - [ ] Seed core critical feats
 

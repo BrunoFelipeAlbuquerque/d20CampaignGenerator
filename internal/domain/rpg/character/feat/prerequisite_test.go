@@ -26,6 +26,7 @@ func TestNewPrerequisiteList_AcceptsCorePrerequisiteShapes(t *testing.T) {
 	weaponProficiencyPrerequisite := NewSelectedWeaponProficiencyPrerequisite()
 	selectedFamiliarEligibilityPrerequisite := NewSelectedFamiliarEligibilityPrerequisite()
 	featPrerequisite := mustNewFeatPrerequisite(t, FeatID("Power Attack"))
+	anyFeatPrerequisite := mustNewAnyFeatPrerequisite(t, []FeatID{FeatID("Catch Off-Guard"), FeatID("Throw Anything")})
 	sameSelectionFeatPrerequisite := mustNewSameSelectionFeatPrerequisite(t, FeatID("Weapon Focus"))
 	spellSchoolFeatPrerequisite := mustNewSpellSchoolFeatPrerequisite(t, FeatID("Spell Focus"), spell.ConjurationSchoolID)
 
@@ -42,6 +43,7 @@ func TestNewPrerequisiteList_AcceptsCorePrerequisiteShapes(t *testing.T) {
 		weaponProficiencyPrerequisite,
 		selectedFamiliarEligibilityPrerequisite,
 		featPrerequisite,
+		anyFeatPrerequisite,
 		sameSelectionFeatPrerequisite,
 		spellSchoolFeatPrerequisite,
 	})
@@ -50,8 +52,8 @@ func TestNewPrerequisiteList_AcceptsCorePrerequisiteShapes(t *testing.T) {
 	}
 
 	got := prerequisites.GetPrerequisites()
-	if len(got) != 14 {
-		t.Fatalf("expected 14 prerequisites, got %d", len(got))
+	if len(got) != 15 {
+		t.Fatalf("expected 15 prerequisites, got %d", len(got))
 	}
 
 	if got[0].GetKind() != AbilityScorePrerequisiteKind {
@@ -131,6 +133,14 @@ func TestNewPrerequisiteList_ReturnsDefensiveCopy(t *testing.T) {
 	if anySkillRanksPrerequisite.GetSkillIDs()[0] != skill.CraftSkillID {
 		t.Fatal("expected any-skill ranks prerequisite getter to return a defensive copy")
 	}
+
+	anyFeatPrerequisite := mustNewAnyFeatPrerequisite(t, []FeatID{FeatID("Catch Off-Guard"), FeatID("Throw Anything")})
+	featIDs := anyFeatPrerequisite.GetFeatIDs()
+	featIDs[0] = FeatID("Power Attack")
+
+	if anyFeatPrerequisite.GetFeatIDs()[0] != FeatID("Catch Off-Guard") {
+		t.Fatal("expected any-feat prerequisite getter to return a defensive copy")
+	}
 }
 
 func TestPrerequisiteConstructors_RejectInvalidInputs(t *testing.T) {
@@ -196,6 +206,18 @@ func TestPrerequisiteConstructors_RejectInvalidInputs(t *testing.T) {
 
 	if _, ok := NewFeatPrerequisite(FeatID(" Power Attack")); ok {
 		t.Fatal("expected unnormalized feat prerequisite to be rejected")
+	}
+
+	if _, ok := NewAnyFeatPrerequisite(nil); ok {
+		t.Fatal("expected empty any-feat prerequisite to be rejected")
+	}
+
+	if _, ok := NewAnyFeatPrerequisite([]FeatID{FeatID("Power Attack"), FeatID("Power Attack")}); ok {
+		t.Fatal("expected duplicate any-feat prerequisite to be rejected")
+	}
+
+	if _, ok := NewAnyFeatPrerequisite([]FeatID{FeatID(" Power Attack")}); ok {
+		t.Fatal("expected unnormalized any-feat prerequisite to be rejected")
 	}
 
 	if _, ok := NewSameSelectionFeatPrerequisite(FeatID(" Weapon Focus")); ok {
@@ -334,6 +356,17 @@ func mustNewFeatPrerequisite(t *testing.T, id FeatID) FeatPrerequisite {
 	prerequisite, ok := NewFeatPrerequisite(id)
 	if !ok {
 		t.Fatalf("expected feat prerequisite %q to be valid", id)
+	}
+
+	return prerequisite
+}
+
+func mustNewAnyFeatPrerequisite(t *testing.T, ids []FeatID) AnyFeatPrerequisite {
+	t.Helper()
+
+	prerequisite, ok := NewAnyFeatPrerequisite(ids)
+	if !ok {
+		t.Fatalf("expected any-feat prerequisite %v to be valid", ids)
 	}
 
 	return prerequisite

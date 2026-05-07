@@ -30,18 +30,26 @@ func TestPrerequisiteList_PublicConstructorsCompose(t *testing.T) {
 
 	selectedFamiliarEligibilityPrerequisite := feat.NewSelectedFamiliarEligibilityPrerequisite()
 
+	anyFeatPrerequisite, ok := feat.NewAnyFeatPrerequisite(
+		[]feat.FeatID{feat.FeatID("Catch Off-Guard"), feat.FeatID("Throw Anything")},
+	)
+	if !ok {
+		t.Fatal("expected any-feat prerequisite to be valid")
+	}
+
 	prerequisites, ok := feat.NewPrerequisiteList([]feat.Prerequisite{
 		scorePrerequisite,
 		classFeaturePrerequisite,
 		anySkillRanksPrerequisite,
 		selectedFamiliarEligibilityPrerequisite,
+		anyFeatPrerequisite,
 	})
 	if !ok {
 		t.Fatal("expected public constructor prerequisites to compose")
 	}
 
 	got := prerequisites.GetPrerequisites()
-	if len(got) != 4 {
-		t.Fatalf("expected 4 prerequisites, got %d", len(got))
+	if len(got) != 5 {
+		t.Fatalf("expected 5 prerequisites, got %d", len(got))
 	}
 }

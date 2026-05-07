@@ -31,6 +31,7 @@ const (
 	SelectedWeaponProficiencyPrerequisiteKind   PrerequisiteKind = "Selected Weapon Proficiency"
 	SelectedFamiliarEligibilityPrerequisiteKind PrerequisiteKind = "Selected Familiar Eligibility"
 	FeatPrerequisiteKind                        PrerequisiteKind = "Feat"
+	AnyFeatPrerequisiteKind                     PrerequisiteKind = "Any Feat"
 	SameSelectionFeatPrerequisiteKind           PrerequisiteKind = "Same Selection Feat"
 	SpellSchoolFeatPrerequisiteKind             PrerequisiteKind = "Spell School Feat"
 )
@@ -116,6 +117,11 @@ type featPrerequisite struct {
 	featID featID
 }
 type FeatPrerequisite = featPrerequisite
+
+type anyFeatPrerequisite struct {
+	featIDs []featID
+}
+type AnyFeatPrerequisite = anyFeatPrerequisite
 
 type sameSelectionFeatPrerequisite struct {
 	featID featID
@@ -265,6 +271,20 @@ func NewFeatPrerequisite(id FeatID) (FeatPrerequisite, bool) {
 	return value, true
 }
 
+func NewAnyFeatPrerequisite(ids []FeatID) (AnyFeatPrerequisite, bool) {
+	copied := make([]featID, 0, len(ids))
+	for _, id := range ids {
+		copied = append(copied, featID(id))
+	}
+
+	value := anyFeatPrerequisite{featIDs: copied}
+	if !value.isValid() {
+		return anyFeatPrerequisite{}, false
+	}
+
+	return value, true
+}
+
 func NewSameSelectionFeatPrerequisite(id FeatID) (SameSelectionFeatPrerequisite, bool) {
 	value := sameSelectionFeatPrerequisite{featID: id}
 	if !value.isValid() {
@@ -397,6 +417,19 @@ func (p featPrerequisite) GetFeatID() FeatID {
 	return p.featID
 }
 
+func (p anyFeatPrerequisite) GetKind() PrerequisiteKind {
+	return AnyFeatPrerequisiteKind
+}
+
+func (p anyFeatPrerequisite) GetFeatIDs() []FeatID {
+	ids := make([]FeatID, 0, len(p.featIDs))
+	for _, id := range p.featIDs {
+		ids = append(ids, FeatID(id))
+	}
+
+	return ids
+}
+
 func (p sameSelectionFeatPrerequisite) GetKind() PrerequisiteKind {
 	return SameSelectionFeatPrerequisiteKind
 }
@@ -505,6 +538,29 @@ func (p featPrerequisite) isPrerequisite() {}
 
 func (p featPrerequisite) isValid() bool {
 	return isValidFeatID(p.featID)
+}
+
+func (p anyFeatPrerequisite) isPrerequisite() {}
+
+func (p anyFeatPrerequisite) isValid() bool {
+	if len(p.featIDs) == 0 {
+		return false
+	}
+
+	seen := make(map[featID]struct{}, len(p.featIDs))
+	for _, id := range p.featIDs {
+		if !isValidFeatID(FeatID(id)) {
+			return false
+		}
+
+		if _, ok := seen[id]; ok {
+			return false
+		}
+
+		seen[id] = struct{}{}
+	}
+
+	return true
 }
 
 func (p sameSelectionFeatPrerequisite) isPrerequisite() {}
