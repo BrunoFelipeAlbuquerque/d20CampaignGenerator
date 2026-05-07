@@ -224,7 +224,7 @@ The tracked backlog below starts at Race / Modifier / Skill / Class because thos
 
 - [X] Seed core metamagic feats
 
-- [ ] Add feat tests:
+- [X] Add feat tests:
   - prerequisite validation
   - category correctness
   - invalid rejection
