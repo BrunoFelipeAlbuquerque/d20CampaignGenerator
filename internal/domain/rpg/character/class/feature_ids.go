@@ -8,6 +8,7 @@ const (
 	ChannelEnergyClassFeatureID         ClassFeatureID = "Channel Energy"
 	ChannelNegativeEnergyClassFeatureID ClassFeatureID = "Channel Negative Energy"
 	ChannelPositiveEnergyClassFeatureID ClassFeatureID = "Channel Positive Energy"
+	FamiliarAccessClassFeatureID        ClassFeatureID = "Familiar Access"
 	FighterBonusFeatsClassFeatureID     ClassFeatureID = "Fighter Bonus Feats"
 	KiPoolClassFeatureID                ClassFeatureID = "Ki Pool"
 	LayOnHandsClassFeatureID            ClassFeatureID = "Lay On Hands"
@@ -30,6 +31,7 @@ func isValidClassFeatureID(id ClassFeatureID) bool {
 		ChannelEnergyClassFeatureID,
 		ChannelNegativeEnergyClassFeatureID,
 		ChannelPositiveEnergyClassFeatureID,
+		FamiliarAccessClassFeatureID,
 		FighterBonusFeatsClassFeatureID,
 		KiPoolClassFeatureID,
 		LayOnHandsClassFeatureID,

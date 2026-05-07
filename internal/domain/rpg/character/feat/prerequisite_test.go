@@ -13,12 +13,18 @@ func TestNewPrerequisiteList_AcceptsCorePrerequisiteShapes(t *testing.T) {
 	strengthPrerequisite := mustNewAbilityScorePrerequisite(t, ability.StrengthScore, 13)
 	baseAttackPrerequisite := mustNewBaseAttackBonusPrerequisite(t, 1)
 	skillRanksPrerequisite := mustNewSkillRanksPrerequisite(t, skill.RideSkillID, 1)
+	anySkillRanksPrerequisite := mustNewAnySkillRanksPrerequisite(
+		t,
+		[]skill.SkillID{skill.CraftSkillID, skill.ProfessionSkillID},
+		5,
+	)
 	spellcastingPrerequisite := mustNewSpellcastingPrerequisite(t, ArcaneSpellcastingAccess)
 	casterLevelPrerequisite := mustNewCasterLevelPrerequisite(t, 3)
 	characterLevelPrerequisite := mustNewCharacterLevelPrerequisite(t, 7)
 	classLevelPrerequisite := mustNewClassLevelPrerequisite(t, characterclass.FighterClassID, 4)
 	classFeaturePrerequisite := mustNewClassFeaturePrerequisite(t, characterclass.ChannelEnergyClassFeatureID)
 	weaponProficiencyPrerequisite := NewSelectedWeaponProficiencyPrerequisite()
+	selectedFamiliarEligibilityPrerequisite := NewSelectedFamiliarEligibilityPrerequisite()
 	featPrerequisite := mustNewFeatPrerequisite(t, FeatID("Power Attack"))
 	sameSelectionFeatPrerequisite := mustNewSameSelectionFeatPrerequisite(t, FeatID("Weapon Focus"))
 	spellSchoolFeatPrerequisite := mustNewSpellSchoolFeatPrerequisite(t, FeatID("Spell Focus"), spell.ConjurationSchoolID)
@@ -27,12 +33,14 @@ func TestNewPrerequisiteList_AcceptsCorePrerequisiteShapes(t *testing.T) {
 		strengthPrerequisite,
 		baseAttackPrerequisite,
 		skillRanksPrerequisite,
+		anySkillRanksPrerequisite,
 		spellcastingPrerequisite,
 		casterLevelPrerequisite,
 		characterLevelPrerequisite,
 		classLevelPrerequisite,
 		classFeaturePrerequisite,
 		weaponProficiencyPrerequisite,
+		selectedFamiliarEligibilityPrerequisite,
 		featPrerequisite,
 		sameSelectionFeatPrerequisite,
 		spellSchoolFeatPrerequisite,
@@ -42,8 +50,8 @@ func TestNewPrerequisiteList_AcceptsCorePrerequisiteShapes(t *testing.T) {
 	}
 
 	got := prerequisites.GetPrerequisites()
-	if len(got) != 12 {
-		t.Fatalf("expected 12 prerequisites, got %d", len(got))
+	if len(got) != 14 {
+		t.Fatalf("expected 14 prerequisites, got %d", len(got))
 	}
 
 	if got[0].GetKind() != AbilityScorePrerequisiteKind {
@@ -58,6 +66,14 @@ func TestNewPrerequisiteList_AcceptsCorePrerequisiteShapes(t *testing.T) {
 	if classLevelPrerequisite.GetClassID() != characterclass.FighterClassID ||
 		classLevelPrerequisite.GetMinimumLevel() != 4 {
 		t.Fatal("expected class-level prerequisite to preserve class and minimum level")
+	}
+
+	anySkillIDs := anySkillRanksPrerequisite.GetSkillIDs()
+	if len(anySkillIDs) != 2 ||
+		anySkillIDs[0] != skill.CraftSkillID ||
+		anySkillIDs[1] != skill.ProfessionSkillID ||
+		anySkillRanksPrerequisite.GetMinimumRanks() != 5 {
+		t.Fatal("expected any-skill ranks prerequisite to preserve skill choices and minimum ranks")
 	}
 
 	if spellSchoolFeatPrerequisite.GetFeatID() != FeatID("Spell Focus") ||
@@ -80,6 +96,11 @@ func TestNewPrerequisiteList_RejectsNilAndZeroValuePrerequisites(t *testing.T) {
 	if _, ok := NewPrerequisiteList([]Prerequisite{zeroSelectedWeapon}); ok {
 		t.Fatal("expected zero-value selected weapon prerequisite to be rejected")
 	}
+
+	var zeroSelectedFamiliarEligibility SelectedFamiliarEligibilityPrerequisite
+	if _, ok := NewPrerequisiteList([]Prerequisite{zeroSelectedFamiliarEligibility}); ok {
+		t.Fatal("expected zero-value selected familiar eligibility prerequisite to be rejected")
+	}
 }
 
 func TestNewPrerequisiteList_ReturnsDefensiveCopy(t *testing.T) {
@@ -97,6 +118,18 @@ func TestNewPrerequisiteList_ReturnsDefensiveCopy(t *testing.T) {
 	second := prerequisites.GetPrerequisites()
 	if second[0].(AbilityScorePrerequisite).GetAbilityScoreID() != ability.StrengthScore {
 		t.Fatal("expected prerequisite list getter to return a defensive copy")
+	}
+
+	anySkillRanksPrerequisite := mustNewAnySkillRanksPrerequisite(
+		t,
+		[]skill.SkillID{skill.CraftSkillID, skill.ProfessionSkillID},
+		5,
+	)
+	skillIDs := anySkillRanksPrerequisite.GetSkillIDs()
+	skillIDs[0] = skill.RideSkillID
+
+	if anySkillRanksPrerequisite.GetSkillIDs()[0] != skill.CraftSkillID {
+		t.Fatal("expected any-skill ranks prerequisite getter to return a defensive copy")
 	}
 }
 
@@ -119,6 +152,22 @@ func TestPrerequisiteConstructors_RejectInvalidInputs(t *testing.T) {
 
 	if _, ok := NewSkillRanksPrerequisite(skill.RideSkillID, 0); ok {
 		t.Fatal("expected zero skill ranks prerequisite to be rejected")
+	}
+
+	if _, ok := NewAnySkillRanksPrerequisite(nil, 5); ok {
+		t.Fatal("expected empty any-skill ranks prerequisite to be rejected")
+	}
+
+	if _, ok := NewAnySkillRanksPrerequisite([]skill.SkillID{skill.SkillID("Jump")}, 5); ok {
+		t.Fatal("expected unknown any-skill ranks prerequisite to be rejected")
+	}
+
+	if _, ok := NewAnySkillRanksPrerequisite([]skill.SkillID{skill.CraftSkillID}, 0); ok {
+		t.Fatal("expected zero any-skill ranks prerequisite to be rejected")
+	}
+
+	if _, ok := NewAnySkillRanksPrerequisite([]skill.SkillID{skill.CraftSkillID, skill.CraftSkillID}, 5); ok {
+		t.Fatal("expected duplicate any-skill ranks prerequisite to be rejected")
 	}
 
 	if _, ok := NewSpellcastingPrerequisite(SpellcastingAccess("Psionic")); ok {
@@ -194,6 +243,21 @@ func mustNewSkillRanksPrerequisite(
 	prerequisite, ok := NewSkillRanksPrerequisite(id, minimumRanks)
 	if !ok {
 		t.Fatalf("expected skill ranks prerequisite %q %d to be valid", id, minimumRanks)
+	}
+
+	return prerequisite
+}
+
+func mustNewAnySkillRanksPrerequisite(
+	t *testing.T,
+	ids []skill.SkillID,
+	minimumRanks int,
+) AnySkillRanksPrerequisite {
+	t.Helper()
+
+	prerequisite, ok := NewAnySkillRanksPrerequisite(ids, minimumRanks)
+	if !ok {
+		t.Fatalf("expected any-skill ranks prerequisite %v %d to be valid", ids, minimumRanks)
 	}
 
 	return prerequisite
