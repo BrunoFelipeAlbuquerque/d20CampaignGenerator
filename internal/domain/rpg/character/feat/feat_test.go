@@ -87,6 +87,49 @@ func TestNewFeat_AcceptsCoreFeatCategoriesAndFlags(t *testing.T) {
 	}
 }
 
+func TestNewFeat_RejectsCategoryFlagMismatches(t *testing.T) {
+	testCases := []struct {
+		name             string
+		category         FeatCategory
+		fighterBonusFeat bool
+		metamagic        bool
+		itemCreation     bool
+	}{
+		{"general fighter flag", GeneralFeatCategory, true, false, false},
+		{"general metamagic flag", GeneralFeatCategory, false, true, false},
+		{"general item creation flag", GeneralFeatCategory, false, false, true},
+		{"combat missing fighter flag", CombatFeatCategory, false, false, false},
+		{"combat metamagic flag", CombatFeatCategory, true, true, false},
+		{"combat item creation flag", CombatFeatCategory, true, false, true},
+		{"critical missing fighter flag", CriticalFeatCategory, false, false, false},
+		{"critical metamagic flag", CriticalFeatCategory, true, true, false},
+		{"critical item creation flag", CriticalFeatCategory, true, false, true},
+		{"item creation missing item flag", ItemCreationFeatCategory, false, false, false},
+		{"item creation fighter flag", ItemCreationFeatCategory, true, false, true},
+		{"item creation metamagic flag", ItemCreationFeatCategory, false, true, true},
+		{"metamagic missing metamagic flag", MetamagicFeatCategory, false, false, false},
+		{"metamagic fighter flag", MetamagicFeatCategory, true, true, false},
+		{"metamagic item creation flag", MetamagicFeatCategory, false, true, true},
+	}
+
+	prerequisites := mustNewPrerequisiteList(t, nil)
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if _, ok := NewFeat(
+				FeatID("Validated Test Feat"),
+				tc.category,
+				prerequisites,
+				tc.fighterBonusFeat,
+				tc.metamagic,
+				tc.itemCreation,
+			); ok {
+				t.Fatal("expected mismatched feat category flags to be rejected")
+			}
+		})
+	}
+}
+
 func TestNewFeat_RejectsInvalidInputs(t *testing.T) {
 	validPrerequisites := mustNewPrerequisiteList(t, nil)
 

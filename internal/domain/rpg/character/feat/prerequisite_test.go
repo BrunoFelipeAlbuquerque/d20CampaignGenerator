@@ -70,9 +70,46 @@ func TestNewPrerequisiteList_AcceptsCorePrerequisiteShapes(t *testing.T) {
 		t.Fatal("expected ability-score prerequisite to preserve score and minimum")
 	}
 
+	if baseAttackPrerequisite.GetMinimumBonus() != 1 {
+		t.Fatal("expected base attack bonus prerequisite to preserve minimum bonus")
+	}
+
+	if skillRanksPrerequisite.GetSkillID() != skill.RideSkillID ||
+		skillRanksPrerequisite.GetMinimumRanks() != 1 {
+		t.Fatal("expected skill ranks prerequisite to preserve skill and minimum ranks")
+	}
+
+	if spellcastingPrerequisite.GetAccess() != ArcaneSpellcastingAccess {
+		t.Fatal("expected spellcasting prerequisite to preserve access")
+	}
+
+	if casterLevelPrerequisite.GetMinimumLevel() != 3 {
+		t.Fatal("expected caster level prerequisite to preserve minimum level")
+	}
+
+	if characterLevelPrerequisite.GetMinimumLevel() != 7 {
+		t.Fatal("expected character level prerequisite to preserve minimum level")
+	}
+
 	if classLevelPrerequisite.GetClassID() != characterclass.FighterClassID ||
 		classLevelPrerequisite.GetMinimumLevel() != 4 {
 		t.Fatal("expected class-level prerequisite to preserve class and minimum level")
+	}
+
+	if classFeaturePrerequisite.GetFeatureID() != characterclass.ChannelEnergyClassFeatureID {
+		t.Fatal("expected class-feature prerequisite to preserve feature")
+	}
+
+	if weaponProficiencyPrerequisite.GetKind() != SelectedWeaponProficiencyPrerequisiteKind {
+		t.Fatal("expected selected weapon prerequisite to expose its kind")
+	}
+
+	if selectedFamiliarEligibilityPrerequisite.GetKind() != SelectedFamiliarEligibilityPrerequisiteKind {
+		t.Fatal("expected selected familiar eligibility prerequisite to expose its kind")
+	}
+
+	if featPrerequisite.GetFeatID() != FeatID("Power Attack") {
+		t.Fatal("expected feat prerequisite to preserve feat id")
 	}
 
 	anySkillIDs := anySkillRanksPrerequisite.GetSkillIDs()
@@ -98,6 +135,10 @@ func TestNewPrerequisiteList_AcceptsCorePrerequisiteShapes(t *testing.T) {
 	if featCategoryCountPrerequisite.GetCategory() != CriticalFeatCategory ||
 		featCategoryCountPrerequisite.GetMinimumCount() != 2 {
 		t.Fatal("expected feat-category count prerequisite to preserve category and minimum")
+	}
+
+	if sameSelectionFeatPrerequisite.GetFeatID() != FeatID("Weapon Focus") {
+		t.Fatal("expected same-selection feat prerequisite to preserve feat id")
 	}
 }
 
@@ -129,6 +170,16 @@ func TestNewPrerequisiteList_RejectsNilAndZeroValuePrerequisites(t *testing.T) {
 	var zeroFeatCategoryCount FeatCategoryCountPrerequisite
 	if _, ok := NewPrerequisiteList([]Prerequisite{zeroFeatCategoryCount}); ok {
 		t.Fatal("expected zero-value feat-category count prerequisite to be rejected")
+	}
+
+	var zeroSameSelectionFeat SameSelectionFeatPrerequisite
+	if _, ok := NewPrerequisiteList([]Prerequisite{zeroSameSelectionFeat}); ok {
+		t.Fatal("expected zero-value same-selection feat prerequisite to be rejected")
+	}
+
+	var zeroSpellSchoolFeat SpellSchoolFeatPrerequisite
+	if _, ok := NewPrerequisiteList([]Prerequisite{zeroSpellSchoolFeat}); ok {
+		t.Fatal("expected zero-value spell-school feat prerequisite to be rejected")
 	}
 }
 
@@ -264,6 +315,10 @@ func TestPrerequisiteConstructors_RejectInvalidInputs(t *testing.T) {
 
 	if _, ok := NewSpellSchoolFeatPrerequisite(FeatID("Spell Focus"), spell.SchoolID("Void")); ok {
 		t.Fatal("expected unsupported spell-school feat prerequisite to be rejected")
+	}
+
+	if _, ok := NewSpellSchoolFeatPrerequisite(FeatID(" Spell Focus"), spell.ConjurationSchoolID); ok {
+		t.Fatal("expected unnormalized spell-school feat prerequisite to be rejected")
 	}
 }
 
