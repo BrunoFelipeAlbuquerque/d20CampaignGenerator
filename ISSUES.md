@@ -11,6 +11,14 @@
 
 ## NEED
 
+- [ ] Restore core multiclass saving-throw math before Class composition builds on the wrong totals:
+  - `SavingThrow.AddClassLevel` tracks `goodBaseBonusApplied` on the whole save and suppresses the `+2` good-save base bonus after the first good progression
+  - `TestSavingThrowAddClassLevel_DoesNotRepeatGoodSaveBaseBonusAcrossMulticlassing` explicitly locks in that behavior
+  - PF1 multiclassing adds the new class's base attack bonus and saving throw bonuses on top of the existing class totals
+  - a character with two classes that both have a good Fortitude save should receive each class table's Fortitude contribution, not one shared good-save base bonus
+  - `README.md` also claims this one-time good-save handling is correct across multiclassing, so docs currently reinforce the wrong composition model
+  - upcoming `Compose Class with character boundary` work would otherwise undercount multiclass saves
+
 - [X] Define the Feat prerequisite model boundary before the Feat chassis locks in an underpowered shape:
   - the next backlog item asks for a `prerequisite model`, not just feat IDs and category flags
   - core feat prerequisites use several distinct inputs: ability scores, BAB, skill ranks, spellcasting/caster level, class level, class-specific access such as fighter bonus feats, and other feats
@@ -108,6 +116,19 @@
 ---
 
 ## SHOULD
+
+- [ ] Expose read-only core feat catalog helpers before feat prerequisite composition reaches around package-private seeds:
+  - core feat data now exists across `coreGeneralFeats`, `coreCombatFeats`, `coreCriticalFeats`, `coreItemCreationFeats`, and `coreMetamagicFeats`
+  - all of those maps and order slices are package-private
+  - outside `feat`, callers cannot ask for a seeded core feat by ID or enumerate the combined catalog
+  - later `Compose feat prerequisites` will need to resolve feat prerequisites and selected feat ownership without duplicating scans or depending on test-only package internals
+  - this should stay query-only with defensive-copy behavior and no new feat data
+
+- [ ] Tighten RaceID validation before race composition accepts malformed race identities:
+  - `NewRace` currently accepts any non-empty `RaceID`, including values with surrounding whitespace such as `" human"`
+  - `ClassID`, `FeatID`, and `SpellID` reject unnormalized IDs, but `RaceID` does not
+  - `GetRaceByID` only resolves canonical core IDs, so malformed `Race` values can be constructed but will not round-trip through the seeded catalog
+  - upcoming race composition should not have to guard against race values that the race domain itself could have rejected
 
 - [X] Add public read-only query helpers for core spell data and spell list bindings before spell composition depends on package-private seeds:
   - `coreSpells` and `coreSpellListEntries` are complete enough to test, but outside `spell` cannot look up a spell by ID or ask for class spell-list entries
