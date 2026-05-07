@@ -220,7 +220,7 @@ The tracked backlog below starts at Race / Modifier / Skill / Class because thos
 
 - [X] Seed core critical feats
 
-- [ ] Seed core item creation feats
+- [X] Seed core item creation feats
 
 - [ ] Seed core metamagic feats
 
