@@ -8,8 +8,8 @@ import (
 	"d20campaigngenerator/internal/domain/rpg/character/skill"
 )
 
-func TestCoreCombatFeats_SeedsNinetyFiveCoreEntries(t *testing.T) {
-	const expectedCount = 95
+func TestCoreCombatFeats_SeedsNinetySixCoreEntries(t *testing.T) {
+	const expectedCount = 96
 
 	if len(coreCombatFeats) != expectedCount {
 		t.Fatalf("expected %d core combat feats, got %d", expectedCount, len(coreCombatFeats))
@@ -63,8 +63,8 @@ func TestCoreCombatFeats_SeedsNinetyFiveCoreEntries(t *testing.T) {
 
 func TestCoreCombatFeats_DoNotSeedOtherCategories(t *testing.T) {
 	nonCombatFeatIDs := []FeatID{
-		ShieldProficiencyFeatID,
-		FeatID("Staggering Critical"),
+		AcrobaticFeatID,
+		FeatID("Bleeding Critical"),
 		FeatID("Brew Potion"),
 		FeatID("Silent Spell"),
 	}
@@ -77,43 +77,40 @@ func TestCoreCombatFeats_DoNotSeedOtherCategories(t *testing.T) {
 }
 
 func TestCoreCombatFeats_SeedKnownCorePrerequisites(t *testing.T) {
-	assertCombatHasAbilityScorePrerequisite(t, PowerAttackFeatID, ability.StrengthScore, 13)
-	assertCombatHasBaseAttackBonusPrerequisite(t, PowerAttackFeatID, 1)
-
-	assertCombatHasFeatPrerequisite(t, ArcaneArmorTrainingFeatID, ArmorProficiencyLightFeatID)
-	assertCombatHasCasterLevelPrerequisite(t, ArcaneArmorTrainingFeatID, 3)
 	assertCombatHasFeatPrerequisite(t, ArcaneArmorMasteryFeatID, ArcaneArmorTrainingFeatID)
 	assertCombatHasFeatPrerequisite(t, ArcaneArmorMasteryFeatID, ArmorProficiencyMediumFeatID)
 	assertCombatHasCasterLevelPrerequisite(t, ArcaneArmorMasteryFeatID, 7)
 	assertCombatHasSpellcastingPrerequisite(t, ArcaneStrikeFeatID, ArcaneSpellcastingAccess)
 
-	assertCombatHasClassFeaturePrerequisite(t, ChannelSmiteFeatID, characterclass.ChannelEnergyClassFeatureID)
-	assertCombatHasClassLevelPrerequisite(t, DisruptiveFeatID, characterclass.FighterClassID, 6)
-	assertCombatHasFeatPrerequisite(t, SpellbreakerFeatID, DisruptiveFeatID)
-	assertCombatHasClassLevelPrerequisite(t, SpellbreakerFeatID, characterclass.FighterClassID, 10)
-
-	assertCombatHasSkillRanksPrerequisite(t, MountedCombatFeatID, skill.RideSkillID, 1)
-	assertCombatHasSkillRanksPrerequisite(t, MountedArcheryFeatID, skill.RideSkillID, 1)
-	assertCombatHasFeatPrerequisite(t, MountedArcheryFeatID, MountedCombatFeatID)
-	assertCombatHasAnyFeatPrerequisite(t, ImprovisedWeaponMasteryFeatID, []FeatID{CatchOffGuardFeatID, ThrowAnythingFeatID})
-
-	assertCombatHasSelectedWeaponProficiencyPrerequisite(t, WeaponFocusFeatID)
-	assertCombatHasBaseAttackBonusPrerequisite(t, WeaponFocusFeatID, 1)
-	assertCombatHasSameSelectionFeatPrerequisite(t, GreaterWeaponFocusFeatID, WeaponFocusFeatID)
-	assertCombatHasClassLevelPrerequisite(t, GreaterWeaponFocusFeatID, characterclass.FighterClassID, 8)
-	assertCombatHasSameSelectionFeatPrerequisite(t, GreaterWeaponSpecializationFeatID, WeaponSpecializationFeatID)
-	assertCombatHasClassLevelPrerequisite(t, GreaterWeaponSpecializationFeatID, characterclass.FighterClassID, 12)
-
-	assertCombatHasFeatPrerequisite(t, ShieldSlamFeatID, ImprovedShieldBashFeatID)
-	assertCombatHasFeatPrerequisite(t, ShieldSlamFeatID, ShieldProficiencyFeatID)
-	assertCombatHasBaseAttackBonusPrerequisite(t, ShieldSlamFeatID, 6)
-
 	assertCombatHasAbilityScorePrerequisite(t, WhirlwindAttackFeatID, ability.DexterityScore, 13)
 	assertCombatHasAbilityScorePrerequisite(t, WhirlwindAttackFeatID, ability.IntelligenceScore, 13)
+	assertCombatHasFeatPrerequisite(t, WhirlwindAttackFeatID, CombatExpertiseFeatID)
+	assertCombatHasFeatPrerequisite(t, WhirlwindAttackFeatID, DodgeFeatID)
+	assertCombatHasFeatPrerequisite(t, WhirlwindAttackFeatID, MobilityFeatID)
 	assertCombatHasFeatPrerequisite(t, WhirlwindAttackFeatID, SpringAttackFeatID)
 	assertCombatHasBaseAttackBonusPrerequisite(t, WhirlwindAttackFeatID, 4)
 
-	assertCombatHasBaseAttackBonusPrerequisite(t, CriticalFocusFeatID, 9)
+	assertCombatHasFeatPrerequisite(t, CriticalMasteryFeatID, CriticalFocusFeatID)
+	assertCombatHasFeatCategoryCountPrerequisite(t, CriticalMasteryFeatID, CriticalFeatCategory, 2)
+	assertCombatHasClassLevelPrerequisite(t, CriticalMasteryFeatID, characterclass.FighterClassID, 14)
+
+	assertCombatHasAnyFeatPrerequisite(t, ImprovisedWeaponMasteryFeatID, []FeatID{CatchOffGuardFeatID, ThrowAnythingFeatID})
+	assertCombatHasBaseAttackBonusPrerequisite(t, ImprovisedWeaponMasteryFeatID, 8)
+
+	assertCombatHasSkillRanksPrerequisite(t, MountedCombatFeatID, skill.RideSkillID, 1)
+	assertCombatHasAbilityScorePrerequisite(t, UnseatFeatID, ability.StrengthScore, 13)
+	assertCombatHasSkillRanksPrerequisite(t, UnseatFeatID, skill.RideSkillID, 1)
+	assertCombatHasFeatPrerequisite(t, UnseatFeatID, MountedCombatFeatID)
+	assertCombatHasFeatPrerequisite(t, UnseatFeatID, PowerAttackFeatID)
+	assertCombatHasFeatPrerequisite(t, UnseatFeatID, ImprovedBullRushFeatID)
+	assertCombatHasBaseAttackBonusPrerequisite(t, UnseatFeatID, 1)
+
+	assertCombatHasSelectedWeaponProficiencyPrerequisite(t, WeaponFocusFeatID)
+	assertCombatHasBaseAttackBonusPrerequisite(t, WeaponFocusFeatID, 1)
+	assertCombatHasSameSelectionFeatPrerequisite(t, GreaterWeaponSpecializationFeatID, GreaterWeaponFocusFeatID)
+	assertCombatHasSameSelectionFeatPrerequisite(t, GreaterWeaponSpecializationFeatID, WeaponFocusFeatID)
+	assertCombatHasSameSelectionFeatPrerequisite(t, GreaterWeaponSpecializationFeatID, WeaponSpecializationFeatID)
+	assertCombatHasClassLevelPrerequisite(t, GreaterWeaponSpecializationFeatID, characterclass.FighterClassID, 12)
 }
 
 func mustCoreCombatFeat(t *testing.T, id FeatID) Feat {
@@ -125,6 +122,86 @@ func mustCoreCombatFeat(t *testing.T, id FeatID) Feat {
 	}
 
 	return value
+}
+
+func assertCombatHasFeatPrerequisite(t *testing.T, featID FeatID, prerequisiteID FeatID) {
+	t.Helper()
+
+	for _, prerequisite := range mustCoreCombatFeat(t, featID).GetPrerequisites() {
+		value, ok := prerequisite.(FeatPrerequisite)
+		if ok && value.GetFeatID() == prerequisiteID {
+			return
+		}
+	}
+
+	t.Fatalf("expected core combat feat %q to require feat %q", featID, prerequisiteID)
+}
+
+func assertCombatHasAnyFeatPrerequisite(t *testing.T, featID FeatID, prerequisiteIDs []FeatID) {
+	t.Helper()
+
+	for _, prerequisite := range mustCoreCombatFeat(t, featID).GetPrerequisites() {
+		value, ok := prerequisite.(AnyFeatPrerequisite)
+		if !ok {
+			continue
+		}
+
+		actualIDs := value.GetFeatIDs()
+		if len(actualIDs) != len(prerequisiteIDs) {
+			continue
+		}
+
+		matches := true
+		for i, prerequisiteID := range prerequisiteIDs {
+			if actualIDs[i] != prerequisiteID {
+				matches = false
+				break
+			}
+		}
+
+		if matches {
+			return
+		}
+	}
+
+	t.Fatalf("expected core combat feat %q to require any feat from %v", featID, prerequisiteIDs)
+}
+
+func assertCombatHasFeatCategoryCountPrerequisite(
+	t *testing.T,
+	featID FeatID,
+	category FeatCategory,
+	minimumCount int,
+) {
+	t.Helper()
+
+	for _, prerequisite := range mustCoreCombatFeat(t, featID).GetPrerequisites() {
+		value, ok := prerequisite.(FeatCategoryCountPrerequisite)
+		if ok &&
+			value.GetCategory() == category &&
+			value.GetMinimumCount() == minimumCount {
+			return
+		}
+	}
+
+	t.Fatalf("expected core combat feat %q to require %d feats from category %q", featID, minimumCount, category)
+}
+
+func assertCombatHasSameSelectionFeatPrerequisite(
+	t *testing.T,
+	featID FeatID,
+	prerequisiteID FeatID,
+) {
+	t.Helper()
+
+	for _, prerequisite := range mustCoreCombatFeat(t, featID).GetPrerequisites() {
+		value, ok := prerequisite.(SameSelectionFeatPrerequisite)
+		if ok && value.GetFeatID() == prerequisiteID {
+			return
+		}
+	}
+
+	t.Fatalf("expected core combat feat %q to require same-selection feat %q", featID, prerequisiteID)
 }
 
 func assertCombatHasAbilityScorePrerequisite(
@@ -147,11 +224,7 @@ func assertCombatHasAbilityScorePrerequisite(
 	t.Fatalf("expected core combat feat %q to require %q %d", featID, abilityScoreID, minimumScore)
 }
 
-func assertCombatHasBaseAttackBonusPrerequisite(
-	t *testing.T,
-	featID FeatID,
-	minimumBonus int,
-) {
+func assertCombatHasBaseAttackBonusPrerequisite(t *testing.T, featID FeatID, minimumBonus int) {
 	t.Helper()
 
 	for _, prerequisite := range mustCoreCombatFeat(t, featID).GetPrerequisites() {
@@ -161,24 +234,27 @@ func assertCombatHasBaseAttackBonusPrerequisite(
 		}
 	}
 
-	t.Fatalf("expected core combat feat %q to require BAB %d", featID, minimumBonus)
+	t.Fatalf("expected core combat feat %q to require base attack bonus %d", featID, minimumBonus)
 }
 
-func assertCombatHasCasterLevelPrerequisite(
+func assertCombatHasSkillRanksPrerequisite(
 	t *testing.T,
 	featID FeatID,
-	minimumLevel int,
+	skillID skill.SkillID,
+	minimumRanks int,
 ) {
 	t.Helper()
 
 	for _, prerequisite := range mustCoreCombatFeat(t, featID).GetPrerequisites() {
-		value, ok := prerequisite.(CasterLevelPrerequisite)
-		if ok && value.GetMinimumLevel() == minimumLevel {
+		value, ok := prerequisite.(SkillRanksPrerequisite)
+		if ok &&
+			value.GetSkillID() == skillID &&
+			value.GetMinimumRanks() == minimumRanks {
 			return
 		}
 	}
 
-	t.Fatalf("expected core combat feat %q to require caster level %d", featID, minimumLevel)
+	t.Fatalf("expected core combat feat %q to require %q %d ranks", featID, skillID, minimumRanks)
 }
 
 func assertCombatHasSpellcastingPrerequisite(
@@ -198,21 +274,17 @@ func assertCombatHasSpellcastingPrerequisite(
 	t.Fatalf("expected core combat feat %q to require spellcasting access %q", featID, access)
 }
 
-func assertCombatHasClassFeaturePrerequisite(
-	t *testing.T,
-	featID FeatID,
-	featureID characterclass.ClassFeatureID,
-) {
+func assertCombatHasCasterLevelPrerequisite(t *testing.T, featID FeatID, minimumLevel int) {
 	t.Helper()
 
 	for _, prerequisite := range mustCoreCombatFeat(t, featID).GetPrerequisites() {
-		value, ok := prerequisite.(ClassFeaturePrerequisite)
-		if ok && value.GetFeatureID() == featureID {
+		value, ok := prerequisite.(CasterLevelPrerequisite)
+		if ok && value.GetMinimumLevel() == minimumLevel {
 			return
 		}
 	}
 
-	t.Fatalf("expected core combat feat %q to require class feature %q", featID, featureID)
+	t.Fatalf("expected core combat feat %q to require caster level %d", featID, minimumLevel)
 }
 
 func assertCombatHasClassLevelPrerequisite(
@@ -235,73 +307,6 @@ func assertCombatHasClassLevelPrerequisite(
 	t.Fatalf("expected core combat feat %q to require class %q level %d", featID, classID, minimumLevel)
 }
 
-func assertCombatHasSkillRanksPrerequisite(
-	t *testing.T,
-	featID FeatID,
-	skillID skill.SkillID,
-	minimumRanks int,
-) {
-	t.Helper()
-
-	for _, prerequisite := range mustCoreCombatFeat(t, featID).GetPrerequisites() {
-		value, ok := prerequisite.(SkillRanksPrerequisite)
-		if ok &&
-			value.GetSkillID() == skillID &&
-			value.GetMinimumRanks() == minimumRanks {
-			return
-		}
-	}
-
-	t.Fatalf("expected core combat feat %q to require skill %q at %d ranks", featID, skillID, minimumRanks)
-}
-
-func assertCombatHasFeatPrerequisite(t *testing.T, featID FeatID, prerequisiteID FeatID) {
-	t.Helper()
-
-	for _, prerequisite := range mustCoreCombatFeat(t, featID).GetPrerequisites() {
-		value, ok := prerequisite.(FeatPrerequisite)
-		if ok && value.GetFeatID() == prerequisiteID {
-			return
-		}
-	}
-
-	t.Fatalf("expected core combat feat %q to require feat %q", featID, prerequisiteID)
-}
-
-func assertCombatHasAnyFeatPrerequisite(
-	t *testing.T,
-	featID FeatID,
-	featIDs []FeatID,
-) {
-	t.Helper()
-
-	for _, prerequisite := range mustCoreCombatFeat(t, featID).GetPrerequisites() {
-		value, ok := prerequisite.(AnyFeatPrerequisite)
-		if !ok {
-			continue
-		}
-
-		actualFeatIDs := value.GetFeatIDs()
-		if len(actualFeatIDs) != len(featIDs) {
-			continue
-		}
-
-		matches := true
-		for i, expected := range featIDs {
-			if actualFeatIDs[i] != expected {
-				matches = false
-				break
-			}
-		}
-
-		if matches {
-			return
-		}
-	}
-
-	t.Fatalf("expected core combat feat %q to require any of %v", featID, featIDs)
-}
-
 func assertCombatHasSelectedWeaponProficiencyPrerequisite(t *testing.T, featID FeatID) {
 	t.Helper()
 
@@ -312,21 +317,4 @@ func assertCombatHasSelectedWeaponProficiencyPrerequisite(t *testing.T, featID F
 	}
 
 	t.Fatalf("expected core combat feat %q to require selected weapon proficiency", featID)
-}
-
-func assertCombatHasSameSelectionFeatPrerequisite(
-	t *testing.T,
-	featID FeatID,
-	prerequisiteID FeatID,
-) {
-	t.Helper()
-
-	for _, prerequisite := range mustCoreCombatFeat(t, featID).GetPrerequisites() {
-		value, ok := prerequisite.(SameSelectionFeatPrerequisite)
-		if ok && value.GetFeatID() == prerequisiteID {
-			return
-		}
-	}
-
-	t.Fatalf("expected core combat feat %q to require same-selection feat %q", featID, prerequisiteID)
 }
