@@ -31,6 +31,8 @@ const (
 	SelectedWeaponProficiencyPrerequisiteKind   PrerequisiteKind = "Selected Weapon Proficiency"
 	SelectedFamiliarEligibilityPrerequisiteKind PrerequisiteKind = "Selected Familiar Eligibility"
 	FeatPrerequisiteKind                        PrerequisiteKind = "Feat"
+	AnyFeatPrerequisiteKind                     PrerequisiteKind = "Any Feat"
+	FeatCategoryCountPrerequisiteKind           PrerequisiteKind = "Feat Category Count"
 	SameSelectionFeatPrerequisiteKind           PrerequisiteKind = "Same Selection Feat"
 	SpellSchoolFeatPrerequisiteKind             PrerequisiteKind = "Spell School Feat"
 )
@@ -116,6 +118,17 @@ type featPrerequisite struct {
 	featID featID
 }
 type FeatPrerequisite = featPrerequisite
+
+type anyFeatPrerequisite struct {
+	featIDs []featID
+}
+type AnyFeatPrerequisite = anyFeatPrerequisite
+
+type featCategoryCountPrerequisite struct {
+	category     featCategory
+	minimumCount int
+}
+type FeatCategoryCountPrerequisite = featCategoryCountPrerequisite
 
 type sameSelectionFeatPrerequisite struct {
 	featID featID
@@ -265,6 +278,35 @@ func NewFeatPrerequisite(id FeatID) (FeatPrerequisite, bool) {
 	return value, true
 }
 
+func NewAnyFeatPrerequisite(ids []FeatID) (AnyFeatPrerequisite, bool) {
+	copied := make([]featID, 0, len(ids))
+	for _, id := range ids {
+		copied = append(copied, id)
+	}
+
+	value := anyFeatPrerequisite{featIDs: copied}
+	if !value.isValid() {
+		return anyFeatPrerequisite{}, false
+	}
+
+	return value, true
+}
+
+func NewFeatCategoryCountPrerequisite(
+	category FeatCategory,
+	minimumCount int,
+) (FeatCategoryCountPrerequisite, bool) {
+	value := featCategoryCountPrerequisite{
+		category:     category,
+		minimumCount: minimumCount,
+	}
+	if !value.isValid() {
+		return featCategoryCountPrerequisite{}, false
+	}
+
+	return value, true
+}
+
 func NewSameSelectionFeatPrerequisite(id FeatID) (SameSelectionFeatPrerequisite, bool) {
 	value := sameSelectionFeatPrerequisite{featID: id}
 	if !value.isValid() {
@@ -397,6 +439,26 @@ func (p featPrerequisite) GetFeatID() FeatID {
 	return p.featID
 }
 
+func (p anyFeatPrerequisite) GetKind() PrerequisiteKind {
+	return AnyFeatPrerequisiteKind
+}
+
+func (p anyFeatPrerequisite) GetFeatIDs() []FeatID {
+	return append([]FeatID(nil), p.featIDs...)
+}
+
+func (p featCategoryCountPrerequisite) GetKind() PrerequisiteKind {
+	return FeatCategoryCountPrerequisiteKind
+}
+
+func (p featCategoryCountPrerequisite) GetCategory() FeatCategory {
+	return p.category
+}
+
+func (p featCategoryCountPrerequisite) GetMinimumCount() int {
+	return p.minimumCount
+}
+
 func (p sameSelectionFeatPrerequisite) GetKind() PrerequisiteKind {
 	return SameSelectionFeatPrerequisiteKind
 }
@@ -505,6 +567,35 @@ func (p featPrerequisite) isPrerequisite() {}
 
 func (p featPrerequisite) isValid() bool {
 	return isValidFeatID(p.featID)
+}
+
+func (p anyFeatPrerequisite) isPrerequisite() {}
+
+func (p anyFeatPrerequisite) isValid() bool {
+	if len(p.featIDs) == 0 {
+		return false
+	}
+
+	seen := make(map[featID]struct{}, len(p.featIDs))
+	for _, id := range p.featIDs {
+		if !isValidFeatID(id) {
+			return false
+		}
+
+		if _, ok := seen[id]; ok {
+			return false
+		}
+
+		seen[id] = struct{}{}
+	}
+
+	return true
+}
+
+func (p featCategoryCountPrerequisite) isPrerequisite() {}
+
+func (p featCategoryCountPrerequisite) isValid() bool {
+	return isValidFeatCategory(p.category) && p.minimumCount > 0
 }
 
 func (p sameSelectionFeatPrerequisite) isPrerequisite() {}

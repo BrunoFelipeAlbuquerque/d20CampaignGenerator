@@ -26,6 +26,11 @@ func TestNewPrerequisiteList_AcceptsCorePrerequisiteShapes(t *testing.T) {
 	weaponProficiencyPrerequisite := NewSelectedWeaponProficiencyPrerequisite()
 	selectedFamiliarEligibilityPrerequisite := NewSelectedFamiliarEligibilityPrerequisite()
 	featPrerequisite := mustNewFeatPrerequisite(t, FeatID("Power Attack"))
+	anyFeatPrerequisite := mustNewAnyFeatPrerequisite(t, []FeatID{
+		FeatID("Catch Off-Guard"),
+		FeatID("Throw Anything"),
+	})
+	featCategoryCountPrerequisite := mustNewFeatCategoryCountPrerequisite(t, CriticalFeatCategory, 2)
 	sameSelectionFeatPrerequisite := mustNewSameSelectionFeatPrerequisite(t, FeatID("Weapon Focus"))
 	spellSchoolFeatPrerequisite := mustNewSpellSchoolFeatPrerequisite(t, FeatID("Spell Focus"), spell.ConjurationSchoolID)
 
@@ -42,6 +47,8 @@ func TestNewPrerequisiteList_AcceptsCorePrerequisiteShapes(t *testing.T) {
 		weaponProficiencyPrerequisite,
 		selectedFamiliarEligibilityPrerequisite,
 		featPrerequisite,
+		anyFeatPrerequisite,
+		featCategoryCountPrerequisite,
 		sameSelectionFeatPrerequisite,
 		spellSchoolFeatPrerequisite,
 	})
@@ -50,8 +57,8 @@ func TestNewPrerequisiteList_AcceptsCorePrerequisiteShapes(t *testing.T) {
 	}
 
 	got := prerequisites.GetPrerequisites()
-	if len(got) != 14 {
-		t.Fatalf("expected 14 prerequisites, got %d", len(got))
+	if len(got) != 16 {
+		t.Fatalf("expected 16 prerequisites, got %d", len(got))
 	}
 
 	if got[0].GetKind() != AbilityScorePrerequisiteKind {
@@ -80,6 +87,18 @@ func TestNewPrerequisiteList_AcceptsCorePrerequisiteShapes(t *testing.T) {
 		spellSchoolFeatPrerequisite.GetSchoolID() != spell.ConjurationSchoolID {
 		t.Fatal("expected spell-school feat prerequisite to preserve feat and school")
 	}
+
+	anyFeatIDs := anyFeatPrerequisite.GetFeatIDs()
+	if len(anyFeatIDs) != 2 ||
+		anyFeatIDs[0] != FeatID("Catch Off-Guard") ||
+		anyFeatIDs[1] != FeatID("Throw Anything") {
+		t.Fatal("expected any-feat prerequisite to preserve feat choices")
+	}
+
+	if featCategoryCountPrerequisite.GetCategory() != CriticalFeatCategory ||
+		featCategoryCountPrerequisite.GetMinimumCount() != 2 {
+		t.Fatal("expected feat-category count prerequisite to preserve category and minimum")
+	}
 }
 
 func TestNewPrerequisiteList_RejectsNilAndZeroValuePrerequisites(t *testing.T) {
@@ -100,6 +119,16 @@ func TestNewPrerequisiteList_RejectsNilAndZeroValuePrerequisites(t *testing.T) {
 	var zeroSelectedFamiliarEligibility SelectedFamiliarEligibilityPrerequisite
 	if _, ok := NewPrerequisiteList([]Prerequisite{zeroSelectedFamiliarEligibility}); ok {
 		t.Fatal("expected zero-value selected familiar eligibility prerequisite to be rejected")
+	}
+
+	var zeroAnyFeat AnyFeatPrerequisite
+	if _, ok := NewPrerequisiteList([]Prerequisite{zeroAnyFeat}); ok {
+		t.Fatal("expected zero-value any-feat prerequisite to be rejected")
+	}
+
+	var zeroFeatCategoryCount FeatCategoryCountPrerequisite
+	if _, ok := NewPrerequisiteList([]Prerequisite{zeroFeatCategoryCount}); ok {
+		t.Fatal("expected zero-value feat-category count prerequisite to be rejected")
 	}
 }
 
@@ -130,6 +159,17 @@ func TestNewPrerequisiteList_ReturnsDefensiveCopy(t *testing.T) {
 
 	if anySkillRanksPrerequisite.GetSkillIDs()[0] != skill.CraftSkillID {
 		t.Fatal("expected any-skill ranks prerequisite getter to return a defensive copy")
+	}
+
+	anyFeatPrerequisite := mustNewAnyFeatPrerequisite(t, []FeatID{
+		FeatID("Catch Off-Guard"),
+		FeatID("Throw Anything"),
+	})
+	featIDs := anyFeatPrerequisite.GetFeatIDs()
+	featIDs[0] = FeatID("Power Attack")
+
+	if anyFeatPrerequisite.GetFeatIDs()[0] != FeatID("Catch Off-Guard") {
+		t.Fatal("expected any-feat prerequisite getter to return a defensive copy")
 	}
 }
 
@@ -196,6 +236,26 @@ func TestPrerequisiteConstructors_RejectInvalidInputs(t *testing.T) {
 
 	if _, ok := NewFeatPrerequisite(FeatID(" Power Attack")); ok {
 		t.Fatal("expected unnormalized feat prerequisite to be rejected")
+	}
+
+	if _, ok := NewAnyFeatPrerequisite(nil); ok {
+		t.Fatal("expected empty any-feat prerequisite to be rejected")
+	}
+
+	if _, ok := NewAnyFeatPrerequisite([]FeatID{FeatID(" Power Attack")}); ok {
+		t.Fatal("expected unnormalized any-feat prerequisite to be rejected")
+	}
+
+	if _, ok := NewAnyFeatPrerequisite([]FeatID{FeatID("Power Attack"), FeatID("Power Attack")}); ok {
+		t.Fatal("expected duplicate any-feat prerequisite to be rejected")
+	}
+
+	if _, ok := NewFeatCategoryCountPrerequisite(FeatCategory("Social"), 1); ok {
+		t.Fatal("expected unsupported feat-category count prerequisite to be rejected")
+	}
+
+	if _, ok := NewFeatCategoryCountPrerequisite(CombatFeatCategory, 0); ok {
+		t.Fatal("expected zero feat-category count prerequisite to be rejected")
 	}
 
 	if _, ok := NewSameSelectionFeatPrerequisite(FeatID(" Weapon Focus")); ok {
@@ -334,6 +394,32 @@ func mustNewFeatPrerequisite(t *testing.T, id FeatID) FeatPrerequisite {
 	prerequisite, ok := NewFeatPrerequisite(id)
 	if !ok {
 		t.Fatalf("expected feat prerequisite %q to be valid", id)
+	}
+
+	return prerequisite
+}
+
+func mustNewAnyFeatPrerequisite(t *testing.T, ids []FeatID) AnyFeatPrerequisite {
+	t.Helper()
+
+	prerequisite, ok := NewAnyFeatPrerequisite(ids)
+	if !ok {
+		t.Fatalf("expected any-feat prerequisite %v to be valid", ids)
+	}
+
+	return prerequisite
+}
+
+func mustNewFeatCategoryCountPrerequisite(
+	t *testing.T,
+	category FeatCategory,
+	minimumCount int,
+) FeatCategoryCountPrerequisite {
+	t.Helper()
+
+	prerequisite, ok := NewFeatCategoryCountPrerequisite(category, minimumCount)
+	if !ok {
+		t.Fatalf("expected feat-category count prerequisite %q %d to be valid", category, minimumCount)
 	}
 
 	return prerequisite
