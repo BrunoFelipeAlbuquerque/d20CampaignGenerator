@@ -63,6 +63,7 @@ Current character-boundary adapters:
 
 - `character_race.go`: selected core race lookup
 - `character_class.go`: selected core class lookup
+- `character_class_hit_points.go`: first-level class HP from selected class hit die
 - `character_spellcasting_progression.go`: class spellcasting progression access
 - `character_spell_list_entry.go`: class spell-list entry access
 - `character_feat.go`: feat prerequisite state and selected feat validation
