@@ -44,3 +44,27 @@ func TestFeat_PublicConstructorComposesPrerequisites(t *testing.T) {
 		t.Fatalf("expected one public feat prerequisite, got %d", len(value.GetPrerequisites()))
 	}
 }
+
+func TestFeat_PublicCoreCatalogHelpersExposeSeededFeats(t *testing.T) {
+	value, ok := feat.GetFeatByID(feat.FeatID("Power Attack"))
+	if !ok {
+		t.Fatal("expected public core feat lookup to succeed")
+	}
+
+	if value.GetID().GetName() != "Power Attack" {
+		t.Fatalf("expected public core feat name %q, got %q", "Power Attack", value.GetID().GetName())
+	}
+
+	if value.GetCategory() != feat.CombatFeatCategory {
+		t.Fatalf("expected public core feat category %q, got %q", feat.CombatFeatCategory, value.GetCategory())
+	}
+
+	catalog := feat.GetFeats()
+	if len(catalog) == 0 {
+		t.Fatal("expected public core feat catalog to be populated")
+	}
+
+	if catalog[0].GetID().GetName() != "Acrobatic" {
+		t.Fatalf("expected public core feat catalog to start with Acrobatic, got %q", catalog[0].GetID().GetName())
+	}
+}

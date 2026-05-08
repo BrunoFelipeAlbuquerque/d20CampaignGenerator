@@ -332,7 +332,7 @@ func NewSpellSchoolFeatPrerequisite(
 }
 
 func (p prerequisiteList) GetPrerequisites() []Prerequisite {
-	return append([]Prerequisite(nil), p.prerequisites...)
+	return clonePrerequisites(p.prerequisites)
 }
 
 func (p abilityScorePrerequisite) GetKind() PrerequisiteKind {
@@ -645,4 +645,26 @@ func isValidSpellSchoolID(id spell.SchoolID) bool {
 func isValidFeatID(id FeatID) bool {
 	value := string(id)
 	return value != "" && strings.TrimSpace(value) == value
+}
+
+func clonePrerequisites(prerequisites []Prerequisite) []Prerequisite {
+	copied := make([]Prerequisite, 0, len(prerequisites))
+	for _, prerequisite := range prerequisites {
+		copied = append(copied, clonePrerequisite(prerequisite))
+	}
+
+	return copied
+}
+
+func clonePrerequisite(prerequisite Prerequisite) Prerequisite {
+	switch value := prerequisite.(type) {
+	case anySkillRanksPrerequisite:
+		value.skillIDs = append([]skill.SkillID(nil), value.skillIDs...)
+		return value
+	case anyFeatPrerequisite:
+		value.featIDs = append([]featID(nil), value.featIDs...)
+		return value
+	default:
+		return prerequisite
+	}
 }
