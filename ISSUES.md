@@ -117,6 +117,11 @@
 
 ## SHOULD
 
+- [X] Move non-core P2 behind the core equipment path:
+  - `BACKLOG.md` now makes core equipment and inventory the next priority area after the completed character creation slice
+  - non-core archetype, prestige class, race, feat, and spell work moved to far future
+  - `docs/project-map.md` now points future work at equipment foundation instead of the completed vertical slice
+
 - [X] Reshape the near-term backlog around a vertical character creation slice:
   - added a P1 milestone for the minimum level-1 core character creation slice
   - clarified the next executable backlog item as slice tests over existing composition adapters

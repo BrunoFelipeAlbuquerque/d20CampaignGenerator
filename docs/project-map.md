@@ -18,6 +18,7 @@ Order of work:
 4. character composition
 
 As of this map, the foundation domains and most current composition adapters are present. Check `BACKLOG.md` for exact unchecked work.
+The next planned area is core equipment and inventory; later non-core work is intentionally deferred.
 
 ---
 
@@ -51,6 +52,7 @@ Do not bulk-read local rule text, solution notes, or internal role files unless 
 | `internal/domain/rpg/character/class` | Core class chassis, class seeds, spellcasting progression tables, class feature/proficiency IDs | Class metadata only; final character stats compose elsewhere |
 | `internal/domain/rpg/character/spell` | Spell chassis, core spell data, spell-list entries, class spell-list queries | Spell/list metadata only; preparation/casting compose later |
 | `internal/domain/rpg/character/feat` | Feat chassis, typed prerequisites, core feat seeds, feat catalog lookup | Feat facts only; selected character feats compose elsewhere |
+| `internal/domain/rpg/character/equipment` | Planned core equipment chassis, seed catalog, and equipment lookup | Equipment facts only; carried inventory composes in `character` later |
 | `internal/domain/rpg/character` | Character composition boundary and thin adapters across domains | Only place for cross-domain character composition |
 | `internal/domain/rpg/modifier` | Modifier refs, sources, entries, and stacking/penalty resolution | Shared modifier logic; not character-specific by itself |
 | `internal/text` | Generic text helpers | No RPG rules |
@@ -73,23 +75,27 @@ Keep composition thin. If logic belongs to a lower domain, add it there only whe
 
 ---
 
-## Next Vertical Slice
+## Next Backlog Path
 
-The next simplification target is a minimum level-1 core character creation slice.
+The next simplification target is core equipment and inventory, starting with an equipment chassis.
 
-Use existing packages in this order:
+Use this order:
 
-1. `race` seed/query data through `character_race.go`
-2. `class` seed/query data through `character_class.go`
-3. HP foundations from `ability` and existing character HP bridge code
-4. spellcasting progression through `character_spellcasting_progression.go`
-5. feat prerequisites through `character_feat.go`
+1. create `internal/domain/rpg/character/equipment` as a small validated domain
+2. seed one bounded Core Rulebook adventuring-gear batch
+3. add equipment query helpers with defensive-copy behavior
+4. compose selected carried equipment through `character`
+5. compose carried weight against existing Strength carrying-capacity math
+6. add weapon and armor/shield chassis only after basic equipment facts are stable
 
-The slice should prove composition with tests before adding new domains.
+The path should prove equipment facts and inventory references before adding combat-facing equipment behavior.
 
-Out of scope for this slice:
+Out of scope for this path:
 
-- equipment and encumbrance
+- magic items
+- wealth generation, shops, or economy rules
+- crafting
+- combat resolution
 - full skill allocation
 - spell preparation or known-spell selection
 - combat state
