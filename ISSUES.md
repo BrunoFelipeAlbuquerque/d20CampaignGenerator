@@ -130,11 +130,11 @@
   - aligned `/internal/ai/skills/codex.md`, `/internal/ai/skills/rules.md`, `/internal/ai/skills/architecture.md`, and `/internal/ai/skills/compound.md`
   - each now points to `docs/pf1`, local chunk search, and `docs/pf1/PFRPG_SRD.pdf`
 
-- [ ] Validate core feat prerequisite references against the seeded feat catalog before prerequisite composition:
-  - `FeatPrerequisite` and `AnyFeatPrerequisite` currently validate normalized feat ID shape only
-  - `SameSelectionFeatPrerequisite` and `SpellSchoolFeatPrerequisite` also accept any normalized feat ID
-  - core seed helpers only panic when prerequisite constructors reject shape, not when the referenced feat is absent from the seeded core catalog
-  - `Compose feat prerequisites` will otherwise need runtime missing-reference handling or side checks
+- [X] Validate core feat prerequisite references against the seeded feat catalog before prerequisite composition:
+  - `FeatPrerequisite`, `AnyFeatPrerequisite`, `SameSelectionFeatPrerequisite`, and `SpellSchoolFeatPrerequisite` still validate reusable prerequisite shape without coupling public constructors to the core catalog
+  - core feat catalog initialization now validates every seeded feat-reference prerequisite against the seeded core feat ID set
+  - missing referenced core feats now panic during package initialization with `missing referenced core feat seed`
+  - added regression coverage for the seeded core catalog and misuse-boundary coverage for each feat-reference prerequisite shape
 
 - [X] Expose read-only core feat catalog helpers before feat prerequisite composition reaches around package-private seeds:
   - core feat data now exists across `coreGeneralFeats`, `coreCombatFeats`, `coreCriticalFeats`, `coreItemCreationFeats`, and `coreMetamagicFeats`

@@ -1,6 +1,10 @@
 package feat
 
-import "testing"
+import (
+	"testing"
+
+	"d20campaigngenerator/internal/domain/rpg/character/spell"
+)
 
 func TestGetFeatByID_ReturnsSeededCoreFeatAcrossCategories(t *testing.T) {
 	testCases := []struct {
@@ -89,6 +93,52 @@ func TestGetFeatByID_RejectsUnknownFeat(t *testing.T) {
 	}
 }
 
+func TestCoreFeatPrerequisiteReferences_SeededCoreFeatsAllResolve(t *testing.T) {
+	feats := GetFeats()
+	if !validateCoreFeatPrerequisiteReferences(feats, seededCoreFeatIDs(feats)) {
+		t.Fatal("expected all seeded core feat prerequisites to reference seeded core feats")
+	}
+}
+
+func TestCoreFeatPrerequisiteReferences_RejectsMissingReferencedFeat(t *testing.T) {
+	missingID := FeatID("Missing Core Feat")
+
+	testCases := []struct {
+		name         string
+		prerequisite Prerequisite
+	}{
+		{
+			name:         "feat prerequisite",
+			prerequisite: mustFeatPrerequisite(missingID),
+		},
+		{
+			name:         "any feat prerequisite",
+			prerequisite: mustAnyFeatPrerequisite([]FeatID{missingID}),
+		},
+		{
+			name:         "same-selection feat prerequisite",
+			prerequisite: mustSameSelectionFeatPrerequisite(missingID),
+		},
+		{
+			name:         "spell-school feat prerequisite",
+			prerequisite: mustSpellSchoolFeatPrerequisite(missingID, spell.ConjurationSchoolID),
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			feat := mustCoreReferenceValidationFeat(t, tc.prerequisite)
+			seededIDs := map[FeatID]struct{}{
+				feat.GetID(): {},
+			}
+
+			if validateCoreFeatPrerequisiteReferences([]Feat{feat}, seededIDs) {
+				t.Fatalf("expected %s with missing referenced feat to be rejected", tc.name)
+			}
+		})
+	}
+}
+
 func TestGetFeats_ReturnsSeededCatalogInCoreOrder(t *testing.T) {
 	feats := GetFeats()
 	if len(feats) != len(coreFeatOrder) {
@@ -145,4 +195,27 @@ func indexOfCoreFeat(t *testing.T, id FeatID) int {
 
 	t.Fatalf("expected core feat order to include %q", id)
 	return -1
+}
+
+func mustCoreReferenceValidationFeat(t *testing.T, prerequisite Prerequisite) Feat {
+	t.Helper()
+
+	prerequisites, ok := NewPrerequisiteList([]Prerequisite{prerequisite})
+	if !ok {
+		t.Fatal("expected prerequisite list to be valid")
+	}
+
+	feat, ok := NewFeat(
+		FeatID("Reference Validation Test Feat"),
+		GeneralFeatCategory,
+		prerequisites,
+		false,
+		false,
+		false,
+	)
+	if !ok {
+		t.Fatal("expected reference validation test feat to be valid")
+	}
+
+	return feat
 }
