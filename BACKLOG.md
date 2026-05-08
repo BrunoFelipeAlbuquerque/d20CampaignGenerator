@@ -277,7 +277,97 @@ Do not expand this slice into:
 
 ---
 
-## P2 — Later (non-core)
+## P2 — Core equipment and inventory
+
+### Equipment foundation
+
+Near-term goal: model core equipment facts in small PR-sized pieces before character inventory, carrying load, or combat-facing equipment expands.
+
+The path should answer:
+
+- can a core item be constructed with validated ID, cost, weight, and category?
+- can a bounded core adventuring-gear batch be looked up defensively?
+- can a character selection reference seeded equipment without owning equipment facts?
+
+Do not expand this path into:
+
+- magic items
+- wealth generation, shops, or economy rules
+- crafting
+- combat resolution
+- non-core equipment
+- archetypes, prestige classes, or other later non-core work
+
+- [ ] Create the Equipment domain chassis (domain/chassis):
+  - EquipmentID
+  - display name
+  - equipment category
+  - cost
+  - weight
+  - validation
+  - tests
+  - no seed catalog, inventory, encumbrance, weapon/armor mechanics, or magic items
+
+- [ ] Seed core adventuring gear batch 1 (core seed data):
+  - Backpack (empty)
+  - Bedroll
+  - Flint and steel
+  - Pouch, belt (empty)
+  - Rations, trail (per day)
+  - Rope, hemp (50 ft.)
+  - Torch
+  - Waterskin
+  - use Core Rulebook cost and weight
+  - no special item rules beyond cost, weight, and category
+
+- [ ] Add equipment query helpers (resolution/query logic):
+  - GetEquipmentByID
+  - catalog enumeration
+  - defensive-copy getters
+
+- [ ] Compose selected equipment with character boundary (resolution/query logic):
+  - selected core equipment ID
+  - quantity
+  - seeded lookup
+  - invalid or unknown equipment fails closed
+  - no purchasing, containers, encumbrance, weapon/armor combat effects, or magic items
+
+- [ ] Compose carried weight with existing Strength carrying capacity (resolution/query logic):
+  - inventory total weight
+  - load category from total weight and existing Strength carrying-capacity math
+  - invalid or unknown carried equipment fails closed
+  - no armor penalties, speed recalculation, containers, or combat effects
+
+- [ ] Create the Weapon domain chassis (domain/chassis):
+  - WeaponID
+  - proficiency category
+  - weapon category
+  - damage profile
+  - critical profile
+  - range increment
+  - cost
+  - weight
+  - validation
+  - tests
+  - no attack roll, damage roll, proficiency application, or combat resolution
+
+- [ ] Create the Armor and Shield domain chassis (domain/chassis):
+  - ArmorID
+  - armor or shield category
+  - armor bonus
+  - maximum Dexterity bonus
+  - armor check penalty
+  - arcane spell failure
+  - speed impact metadata
+  - cost
+  - weight
+  - validation
+  - tests
+  - no AC composition, proficiency application, or combat resolution
+
+---
+
+## P9 — Far future (non-core)
 
 - [ ] Archetype / Alternate Class Feature
 
