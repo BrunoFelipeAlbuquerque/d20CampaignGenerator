@@ -70,6 +70,7 @@ Current character-boundary adapters:
 - `character_spell_list_entry.go`: class spell-list entry access
 - `character_feat.go`: feat prerequisite state and selected feat validation
 - `character_equipment.go`: selected core equipment lookup with quantity
+- `character_carried_weight.go`: carried equipment weight and load category from Strength
 - `racial_hit_points.go`: creature rules to racial HP bridge
 
 Keep composition thin. If logic belongs to a lower domain, add it there only when the backlog item requires it.
@@ -78,12 +79,12 @@ Keep composition thin. If logic belongs to a lower domain, add it there only whe
 
 ## Next Backlog Path
 
-The next simplification target is core equipment and inventory, continuing with carried weight composition.
+The next simplification target is core equipment and inventory, continuing with the weapon domain chassis.
 
 Use this order:
 
-1. compose carried weight against existing Strength carrying-capacity math
-2. add weapon and armor/shield chassis only after basic equipment facts are stable
+1. add the weapon domain chassis
+2. add the armor and shield domain chassis
 
 The path should prove equipment facts and inventory references before adding combat-facing equipment behavior.
 

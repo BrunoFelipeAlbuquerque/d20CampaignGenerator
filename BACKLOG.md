@@ -332,7 +332,7 @@ Do not expand this path into:
   - invalid or unknown equipment fails closed
   - no purchasing, containers, encumbrance, weapon/armor combat effects, or magic items
 
-- [ ] Compose carried weight with existing Strength carrying capacity (resolution/query logic):
+- [X] Compose carried weight with existing Strength carrying capacity (resolution/query logic):
   - inventory total weight
   - load category from total weight and existing Strength carrying-capacity math
   - invalid or unknown carried equipment fails closed
