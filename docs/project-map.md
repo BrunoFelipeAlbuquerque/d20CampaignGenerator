@@ -52,7 +52,7 @@ Do not bulk-read local rule text, solution notes, or internal role files unless 
 | `internal/domain/rpg/character/class` | Core class chassis, class seeds, spellcasting progression tables, class feature/proficiency IDs | Class metadata only; final character stats compose elsewhere |
 | `internal/domain/rpg/character/spell` | Spell chassis, core spell data, spell-list entries, class spell-list queries | Spell/list metadata only; preparation/casting compose later |
 | `internal/domain/rpg/character/feat` | Feat chassis, typed prerequisites, core feat seeds, feat catalog lookup | Feat facts only; selected character feats compose elsewhere |
-| `internal/domain/rpg/character/equipment` | Core equipment chassis, core adventuring-gear seed batch, and planned equipment lookup | Equipment facts only; carried inventory composes in `character` later |
+| `internal/domain/rpg/character/equipment` | Core equipment chassis, core adventuring-gear seed batch, and equipment lookup | Equipment facts only; carried inventory composes in `character` later |
 | `internal/domain/rpg/character` | Character composition boundary and thin adapters across domains | Only place for cross-domain character composition |
 | `internal/domain/rpg/modifier` | Modifier refs, sources, entries, and stacking/penalty resolution | Shared modifier logic; not character-specific by itself |
 | `internal/text` | Generic text helpers | No RPG rules |
@@ -77,14 +77,13 @@ Keep composition thin. If logic belongs to a lower domain, add it there only whe
 
 ## Next Backlog Path
 
-The next simplification target is core equipment and inventory, continuing with equipment query helpers.
+The next simplification target is core equipment and inventory, continuing with selected equipment composition through `character`.
 
 Use this order:
 
-1. add equipment query helpers with defensive-copy behavior
-2. compose selected carried equipment through `character`
-3. compose carried weight against existing Strength carrying-capacity math
-4. add weapon and armor/shield chassis only after basic equipment facts are stable
+1. compose selected carried equipment through `character`
+2. compose carried weight against existing Strength carrying-capacity math
+3. add weapon and armor/shield chassis only after basic equipment facts are stable
 
 The path should prove equipment facts and inventory references before adding combat-facing equipment behavior.
 
