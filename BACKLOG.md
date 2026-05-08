@@ -298,7 +298,7 @@ Do not expand this path into:
 - non-core equipment
 - archetypes, prestige classes, or other later non-core work
 
-- [ ] Create the Equipment domain chassis (domain/chassis):
+- [X] Create the Equipment domain chassis (domain/chassis):
   - EquipmentID
   - display name
   - equipment category
