@@ -1,40 +1,15 @@
 # Agent — Senior Developer
 
-Role:
-Execute tasks.
+Shared rules live in `AGENTS.md`.
+Package orientation lives in `docs/project-map.md`.
 
-Style:
+Use this role to execute the approved scope.
 
-- Caveman
-- Minimal
-- No explanation
+- Make the smallest necessary diff.
+- Do not redesign.
+- Do not expand scope.
+- Prefer existing package patterns.
+- Add or update focused tests when behavior changes.
+- For rule-sensitive implementation, use only local PF1 rules under `docs/pf1` and search `docs/pf1/chunks` with `rg`.
 
-Rules:
-
-- Do exactly what is asked
-- Do NOT redesign
-- Do NOT expand scope
-- Do NOT suggest improvements
-- Do NOT explain
-- Do NOT explore alternatives
-- Do NOT edit `BACKLOG.md`
-- Use only local PF1 rules under `docs/pf1`
-- Search `docs/pf1/chunks` with `rg -i "<rule term>"` before rule-sensitive implementation
-- Do NOT look up Pathfinder rules online
-- Prioritize `docs/pf1/PFRPG_SRD.pdf` for all core rule checks
-
-Code rules:
-
-- Minimal diff
-- Only necessary changes
-- No new abstractions unless required
-- No generics unless explicitly requested
-
-Output:
-
-- Code only
-- No commentary
-
-If unclear:
-
-- Ask one short question
+If unclear, ask one short question.

@@ -1,33 +1,10 @@
 # Compound Skill — Project Learning
 
-Use after review, before commit, only for lessons from the completed task.
+Shared rules live in `AGENTS.md`.
 
-## Purpose
+Use after review, before commit, only when the completed task produced reusable project-specific learning.
 
-Make later work easier by preserving reusable project-specific decisions.
-
-Capture:
-
-- rule boundaries that were clarified
-- invalid shapes that were closed
-- core-rules corrections
-- testing patterns that prevent repeat mistakes
-- architecture constraints that future tasks should follow
-
-Rules source:
-
-- Use only local PF1 rules under `docs/pf1`.
-- Search `docs/pf1/chunks` with `rg -i "<rule term>"` before rule-sensitive notes.
-- Do not look up Pathfinder rules online.
-- Prioritize `docs/pf1/PFRPG_SRD.pdf` for all core rule checks.
-
-Do not capture:
-
-- generic Go advice
-- generic AI workflow advice
-- new feature ideas
-- wishlist items
-- tasks that belong in `BACKLOG.md` or `ISSUES.md`
+Do not write notes for generic workflow advice, normal task summaries, wishlist items, or rules already covered by `AGENTS.md` or `docs/project-map.md`.
 
 ## Output Location
 

@@ -27,8 +27,26 @@ Do not skip steps.
 
 - `BACKLOG.md` is the primary task source.
 - `ISSUES.md` defines interruptions and corrections.
+- `docs/project-map.md` is the compact orientation guide for package boundaries and current repo shape.
 - Do not invent tasks.
 - Do not reorder priorities unless required by `ISSUES.md`.
+
+---
+
+## Context budget rules
+
+Keep project context small.
+
+For normal delivery work, read only:
+
+1. `ISSUES.md`, unless explicitly skipped for the current turn
+2. the relevant `BACKLOG.md` item or user-requested task
+3. `docs/project-map.md` when package boundaries or current repo shape are unclear
+4. the files directly touched by the task
+
+Do not bulk-read `internal/ai/**`, `docs/solutions/**`, `docs/pf1/**`, or unrelated domain packages unless the current task needs them.
+
+Use `rg` for targeted lookup instead of broad file scans.
 
 ---
 
@@ -78,7 +96,9 @@ Before touching the backlog, process `ISSUES.md` unless the user explicitly asks
 
 ## Branching rules
 
-When starting any task, always create/reset the branch first with `git checkout -B`.
+For delivery tasks that edit files, always create/reset the branch first with `git checkout -B`.
+
+Planning mode and read-only audit mode do not require a branch.
 
 ### If the task comes from an issue
 
@@ -121,7 +141,13 @@ Rules:
 
 - `internal/domain/rpg/character/ability`: primitives and value objects
 - `internal/domain/rpg/character/creaturetype`: structural rule resolution
+- `internal/domain/rpg/character/race`: core race seed/query domain
+- `internal/domain/rpg/character/skill`: core skill seed/query domain
+- `internal/domain/rpg/character/class`: core class and spellcasting progression domain
+- `internal/domain/rpg/character/spell`: spell chassis, core spell data, and spell-list bindings
+- `internal/domain/rpg/character/feat`: feat chassis, prerequisites, and core feat seed/query domain
 - `internal/domain/rpg/character`: composition boundary
+- `internal/domain/rpg/modifier`: modifier entries, refs, and stacking resolution
 
 ---
 
@@ -195,20 +221,43 @@ Each item must be one of:
 
 ---
 
-## Working mode
+## Working modes
 
-Use:
+Use the lightest mode that satisfies the user's request.
 
-- `/internal/ai/agents/product-owner.md` → restate task
-- `/internal/ai/agents/senior-dev.md` → implement
-- `/internal/ai/agents/tech-lead.md` → review
+### Delivery mode
 
-Also follow:
+Use when the user asks to make changes, continue the backlog, fix an issue, or perform the next item.
 
-- `/internal/ai/skills/codex.md`
-- `/internal/ai/skills/rules.md`
-- `/internal/ai/skills/architecture.md`
-- `/internal/ai/skills/compound.md`
+- Follow the execution pipeline.
+- Create/reset a branch before editing.
+- Run tests.
+- Commit, push, and output the PR message.
+
+### Planning mode
+
+Use when the user asks to review steps, simplify direction, discuss architecture, or plan.
+
+- Read only the minimum docs/files needed.
+- Do not create a branch.
+- Do not edit files.
+- Do not commit or push.
+
+### Audit mode
+
+Use when the user asks for findings or a system audit.
+
+- Read targeted files and report findings.
+- Only edit `ISSUES.md` if the user explicitly asks to record findings.
+- Do not reorder backlog items from audit findings.
+
+### Internal role reminders
+
+The files under `/internal/ai/agents/` and `/internal/ai/skills/` are short reminders only.
+
+- `AGENTS.md` remains the workflow source of truth.
+- `docs/project-map.md` remains the package orientation source.
+- Do not read all internal role/skill files by default.
 
 ---
 

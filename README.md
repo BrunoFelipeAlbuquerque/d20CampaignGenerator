@@ -11,6 +11,8 @@ This repository is aiming for a rules-aware domain model, not just a loose bag o
 
 The project follows `BACKLOG.md` as the source of truth. Current delivery is backlog-first and core-only: finish the small validated foundation domains, then add core seed data, then add query logic, and only then expand composition under `character`.
 
+For a compact package and workflow orientation before implementation, use [Project Map](docs/project-map.md). It is intentionally shorter than this README and should reduce repeated repo rediscovery during future tasks.
+
 ## What This Project Is Trying To Achieve
 
 The current goal is to model Pathfinder 1e characters and creature logic in a way that stays maintainable as the core rules surface grows one slice at a time.
