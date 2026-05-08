@@ -117,7 +117,7 @@
 
 ## SHOULD
 
-- [ ] Expose read-only core feat catalog helpers before feat prerequisite composition reaches around package-private seeds:
+- [X] Expose read-only core feat catalog helpers before feat prerequisite composition reaches around package-private seeds:
   - core feat data now exists across `coreGeneralFeats`, `coreCombatFeats`, `coreCriticalFeats`, `coreItemCreationFeats`, and `coreMetamagicFeats`
   - all of those maps and order slices are package-private
   - outside `feat`, callers cannot ask for a seeded core feat by ID or enumerate the combined catalog
