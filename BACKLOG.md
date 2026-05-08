@@ -237,7 +237,7 @@ The tracked backlog below starts at Race / Modifier / Skill / Class because thos
 
 - [X] Compose Class with character boundary (no redesign)
 
-- [ ] Compose spellcasting progression with Class
+- [X] Compose spellcasting progression with Class
 
 - [ ] Compose spell list entry with Class spellcasting
 
