@@ -11,13 +11,13 @@
 
 ## NEED
 
-- [ ] Restore core multiclass saving-throw math before Class composition builds on the wrong totals:
-  - `SavingThrow.AddClassLevel` tracks `goodBaseBonusApplied` on the whole save and suppresses the `+2` good-save base bonus after the first good progression
-  - `TestSavingThrowAddClassLevel_DoesNotRepeatGoodSaveBaseBonusAcrossMulticlassing` explicitly locks in that behavior
-  - PF1 multiclassing adds the new class's base attack bonus and saving throw bonuses on top of the existing class totals
-  - a character with two classes that both have a good Fortitude save should receive each class table's Fortitude contribution, not one shared good-save base bonus
-  - `README.md` also claims this one-time good-save handling is correct across multiclassing, so docs currently reinforce the wrong composition model
-  - upcoming `Compose Class with character boundary` work would otherwise undercount multiclass saves
+- [X] Clarify fractional multiclass saving-throw math before Class composition builds on the wrong assumption:
+  - the project uses Pathfinder Unchained fractional base bonuses for core class BAB and base save progression math
+  - added local rule data under `docs/pf1/text/PF_Unchained_Fractional_Base_Bonuses.txt`
+  - added a matching searchable chunk under `docs/pf1/chunks/PF_Unchained_Fractional_Base_Bonuses.jsonl`
+  - under that variant, each good-save class contributes `1/2` per level and the `+2` good-save base bonus is added once per save type
+  - `SavingThrow.AddClassLevel` and `TestSavingThrowAddClassLevel_DoesNotRepeatGoodSaveBaseBonusAcrossMulticlassing` therefore match the adopted variant
+  - restoring Core Rulebook table-stacking behavior would be incorrect while this fractional variant remains the project rule
 
 - [X] Define the Feat prerequisite model boundary before the Feat chassis locks in an underpowered shape:
   - the next backlog item asks for a `prerequisite model`, not just feat IDs and category flags

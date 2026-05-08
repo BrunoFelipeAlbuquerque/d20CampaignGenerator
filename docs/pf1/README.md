@@ -14,6 +14,8 @@ PDF files -> extracted text files -> JSONL chunks -> local rg search
 - `text/`: extracted text files
 - `chunks/`: generated JSONL chunks
 
+Supplemental local rule notes may also live in `text/` with matching searchable entries in `chunks/` when the project intentionally adopts a non-Core variant, such as Pathfinder Unchained fractional base bonuses.
+
 ## Extract PDFs
 
 From the project root:
