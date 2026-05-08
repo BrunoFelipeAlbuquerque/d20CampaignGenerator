@@ -10,9 +10,10 @@
 
 ## Rules Source
 
-* Use only local rules documents in `internal/domain/rpg/resources/rules/`.
+* Use only local PF1 rules under `docs/pf1`.
+* Search `docs/pf1/chunks` with `rg -i "<rule term>"` before rule-sensitive work.
 * Do not look up Pathfinder rules online.
-* Prioritize `PFRPG_SRD.pdf` for all core rule checks.
+* Prioritize `docs/pf1/PFRPG_SRD.pdf` for all core rule checks.
 
 ---
 
