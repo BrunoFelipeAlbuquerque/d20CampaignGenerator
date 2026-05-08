@@ -338,7 +338,7 @@ Do not expand this path into:
   - invalid or unknown carried equipment fails closed
   - no armor penalties, speed recalculation, containers, or combat effects
 
-- [ ] Create the Weapon domain chassis (domain/chassis):
+- [X] Create the Weapon domain chassis (domain/chassis):
   - WeaponID
   - proficiency category
   - weapon category
