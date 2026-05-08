@@ -34,7 +34,14 @@ Do not skip steps.
 
 ## Issue-driven workflow
 
-Before touching the backlog, ALWAYS process `ISSUES.md`.
+Before touching the backlog, process `ISSUES.md` unless the user explicitly asks to skip `ISSUES.md` for the current turn.
+
+### Explicit skip option
+
+- If the user explicitly asks to skip `ISSUES.md`, do not read or process it for that turn.
+- Do not infer this skip from urgency, wording, or task type.
+- The skip applies only to the current turn.
+- The skip does not permit backlog reordering, scope expansion, or ignoring the user's requested task.
 
 ### 1. NEED issues (mandatory)
 
@@ -209,11 +216,12 @@ Also follow:
 
 For each item:
 
-1. Read `ISSUES.md` first.
+1. Read `ISSUES.md` first, unless the user explicitly asked to skip `ISSUES.md` for the current turn.
 2. Decide task source:
    - `NEED` issue → mandatory
    - `SHOULD` issue → only if user chooses it
    - backlog → only if no blocking `NEED` exists
+   - explicit `ISSUES.md` skip → requested task or backlog item only
 3. Create/reset the branch:
    - issue → `git checkout -B issue/{issue-name}`
    - backlog → `git checkout -B feat/{backlog-name}`

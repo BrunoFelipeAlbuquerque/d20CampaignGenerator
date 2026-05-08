@@ -117,6 +117,25 @@
 
 ## SHOULD
 
+- [ ] Restore local PF1 extract/chunk tooling or update docs before rule-sensitive work depends on regeneration:
+  - `Makefile` calls `docs/pf1/extract_rules.sh` and `docs/pf1/chunk_rules.go`
+  - `docs/pf1/README.md` documents those commands as the supported extraction and chunk-generation workflow
+  - neither file is currently tracked, so the checked-in PF1 chunks cannot be regenerated from the documented workflow
+  - `pf1-search` still works against existing chunks, but extraction and chunk generation are not reproducible
+
+- [ ] Align internal agent rule-source docs with `docs/pf1` before they misdirect rule lookups:
+  - `AGENTS.md` says local PF1 rules are under `docs/pf1` and requires `rg` against `docs/pf1/chunks`
+  - `/internal/ai/agents/product-owner.md`, `/internal/ai/agents/senior-dev.md`, and `/internal/ai/agents/tech-lead.md` still point to `internal/domain/rpg/resources/rules/`
+  - `/internal/ai/skills/codex.md`, `/internal/ai/skills/rules.md`, `/internal/ai/skills/architecture.md`, and `/internal/ai/skills/compound.md` also still point to `internal/domain/rpg/resources/rules/`
+  - that directory is not present in the repo
+  - future agent-driven rule checks can follow stale guidance instead of the current local PF1 source
+
+- [ ] Validate core feat prerequisite references against the seeded feat catalog before prerequisite composition:
+  - `FeatPrerequisite` and `AnyFeatPrerequisite` currently validate normalized feat ID shape only
+  - `SameSelectionFeatPrerequisite` and `SpellSchoolFeatPrerequisite` also accept any normalized feat ID
+  - core seed helpers only panic when prerequisite constructors reject shape, not when the referenced feat is absent from the seeded core catalog
+  - `Compose feat prerequisites` will otherwise need runtime missing-reference handling or side checks
+
 - [X] Expose read-only core feat catalog helpers before feat prerequisite composition reaches around package-private seeds:
   - core feat data now exists across `coreGeneralFeats`, `coreCombatFeats`, `coreCriticalFeats`, `coreItemCreationFeats`, and `coreMetamagicFeats`
   - all of those maps and order slices are package-private
