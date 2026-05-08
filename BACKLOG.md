@@ -308,7 +308,7 @@ Do not expand this path into:
   - tests
   - no seed catalog, inventory, encumbrance, weapon/armor mechanics, or magic items
 
-- [ ] Seed core adventuring gear batch 1 (core seed data):
+- [X] Seed core adventuring gear batch 1 (core seed data):
   - Backpack (empty)
   - Bedroll
   - Flint and steel
