@@ -320,7 +320,7 @@ Do not expand this path into:
   - use Core Rulebook cost and weight
   - no special item rules beyond cost, weight, and category
 
-- [ ] Add equipment query helpers (resolution/query logic):
+- [X] Add equipment query helpers (resolution/query logic):
   - GetEquipmentByID
   - catalog enumeration
   - defensive-copy getters

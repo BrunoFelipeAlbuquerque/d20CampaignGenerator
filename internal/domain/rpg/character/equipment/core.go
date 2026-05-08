@@ -24,6 +24,25 @@ var coreEquipmentOrder = []EquipmentID{
 	WaterskinEquipmentID,
 }
 
+func GetEquipmentByID(id EquipmentID) (Equipment, bool) {
+	value, ok := coreEquipment[id]
+	if !ok {
+		return equipment{}, false
+	}
+
+	return cloneEquipment(value), true
+}
+
+func GetEquipment() []Equipment {
+	equipment := make([]Equipment, 0, len(coreEquipmentOrder))
+
+	for _, id := range coreEquipmentOrder {
+		equipment = append(equipment, cloneEquipment(coreEquipment[id]))
+	}
+
+	return equipment
+}
+
 func mustBuildCoreEquipment() map[EquipmentID]Equipment {
 	return map[EquipmentID]Equipment{
 		BackpackEmptyEquipmentID:      mustNewCoreAdventuringGear(BackpackEmptyEquipmentID, "Backpack (empty)", 200, 32),
@@ -54,4 +73,14 @@ func mustNewCoreAdventuringGear(id EquipmentID, displayName string, copperPieces
 	}
 
 	return equipment
+}
+
+func cloneEquipment(value Equipment) Equipment {
+	return equipment{
+		id:          value.id,
+		displayName: value.displayName,
+		category:    value.category,
+		cost:        value.cost,
+		weight:      value.weight,
+	}
 }
