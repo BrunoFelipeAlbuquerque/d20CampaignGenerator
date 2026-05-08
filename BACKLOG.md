@@ -233,7 +233,7 @@ The tracked backlog below starts at Race / Modifier / Skill / Class because thos
 
 ## P1 — Core composition
 
-- [ ] Compose Race with character boundary (no redesign)
+- [X] Compose Race with character boundary (no redesign)
 
 - [ ] Compose Class with character boundary (no redesign)
 
