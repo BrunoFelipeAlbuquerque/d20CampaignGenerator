@@ -1,6 +1,10 @@
 package race
 
-import ability "d20campaigngenerator/internal/domain/rpg/character/ability"
+import (
+	"strings"
+
+	ability "d20campaigngenerator/internal/domain/rpg/character/ability"
+)
 
 type raceID string
 type RaceID = raceID
@@ -187,7 +191,8 @@ func (r race) HasRacialFeature(featureID RacialFeatureID) bool {
 }
 
 func isValidRaceID(value RaceID) bool {
-	return value != ""
+	id := string(value)
+	return id != "" && strings.TrimSpace(id) == id
 }
 
 func isValidSize(value ability.Size) bool {

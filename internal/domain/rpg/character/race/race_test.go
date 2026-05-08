@@ -160,6 +160,12 @@ func TestNewRace_RejectsInvalidInputs(t *testing.T) {
 		t.Fatal("expected empty race id to be rejected")
 	}
 
+	for _, id := range []RaceID{" human", "human ", "\thuman"} {
+		if _, ok := NewRace(id, ability.MediumSize, 30, nil, 0, nil, bonusLanguageChoice{}, nil); ok {
+			t.Fatalf("expected unnormalized race id %q to be rejected", id)
+		}
+	}
+
 	if _, ok := NewRace(RaceID("human"), ability.Size("Gigantic"), 30, nil, 0, nil, bonusLanguageChoice{}, nil); ok {
 		t.Fatal("expected invalid size to be rejected")
 	}
