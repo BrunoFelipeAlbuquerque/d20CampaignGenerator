@@ -117,11 +117,12 @@
 
 ## SHOULD
 
-- [ ] Restore local PF1 extract/chunk tooling or update docs before rule-sensitive work depends on regeneration:
+- [X] Restore local PF1 extract/chunk tooling or update docs before rule-sensitive work depends on regeneration:
   - `Makefile` calls `docs/pf1/extract_rules.sh` and `docs/pf1/chunk_rules.go`
   - `docs/pf1/README.md` documents those commands as the supported extraction and chunk-generation workflow
-  - neither file is currently tracked, so the checked-in PF1 chunks cannot be regenerated from the documented workflow
-  - `pf1-search` still works against existing chunks, but extraction and chunk generation are not reproducible
+  - restored `docs/pf1/extract_rules.sh` using local `pdftotext -layout`
+  - restored `docs/pf1/chunk_rules.go` for deterministic local JSONL chunk generation
+  - added `-dry-run` support so chunk generation can be validated without rewriting checked-in chunks
 
 - [ ] Align internal agent rule-source docs with `docs/pf1` before they misdirect rule lookups:
   - `AGENTS.md` says local PF1 rules are under `docs/pf1` and requires `rg` against `docs/pf1/chunks`
