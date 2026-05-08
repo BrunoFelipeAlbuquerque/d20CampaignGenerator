@@ -124,12 +124,11 @@
   - restored `docs/pf1/chunk_rules.go` for deterministic local JSONL chunk generation
   - added `-dry-run` support so chunk generation can be validated without rewriting checked-in chunks
 
-- [ ] Align internal agent rule-source docs with `docs/pf1` before they misdirect rule lookups:
+- [X] Align internal agent rule-source docs with `docs/pf1` before they misdirect rule lookups:
   - `AGENTS.md` says local PF1 rules are under `docs/pf1` and requires `rg` against `docs/pf1/chunks`
-  - `/internal/ai/agents/product-owner.md`, `/internal/ai/agents/senior-dev.md`, and `/internal/ai/agents/tech-lead.md` still point to `internal/domain/rpg/resources/rules/`
-  - `/internal/ai/skills/codex.md`, `/internal/ai/skills/rules.md`, `/internal/ai/skills/architecture.md`, and `/internal/ai/skills/compound.md` also still point to `internal/domain/rpg/resources/rules/`
-  - that directory is not present in the repo
-  - future agent-driven rule checks can follow stale guidance instead of the current local PF1 source
+  - aligned `/internal/ai/agents/product-owner.md`, `/internal/ai/agents/senior-dev.md`, and `/internal/ai/agents/tech-lead.md`
+  - aligned `/internal/ai/skills/codex.md`, `/internal/ai/skills/rules.md`, `/internal/ai/skills/architecture.md`, and `/internal/ai/skills/compound.md`
+  - each now points to `docs/pf1`, local chunk search, and `docs/pf1/PFRPG_SRD.pdf`
 
 - [ ] Validate core feat prerequisite references against the seeded feat catalog before prerequisite composition:
   - `FeatPrerequisite` and `AnyFeatPrerequisite` currently validate normalized feat ID shape only
