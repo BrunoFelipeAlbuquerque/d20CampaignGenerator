@@ -269,7 +269,7 @@ Do not expand this slice into:
   - skill ranks
   - other feats
 
-- [ ] Add minimum level-1 character creation slice tests (resolution/query logic):
+- [X] Add minimum level-1 character creation slice tests (resolution/query logic):
   - race + class + HP through existing character adapters
   - caster spell slots through existing class spellcasting progression
   - feat prerequisite checks through existing feat prerequisite state

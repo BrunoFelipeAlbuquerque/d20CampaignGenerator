@@ -16,6 +16,10 @@ func TestNewHitDie_CalculatesTotalsAndAverageBaseHP(t *testing.T) {
 		t.Fatalf("expected average base HP 18, got %d", hd.GetAverageBaseHP())
 	}
 
+	if hd.GetMaximumBaseHP() != 32 {
+		t.Fatalf("expected maximum base HP 32, got %d", hd.GetMaximumBaseHP())
+	}
+
 	d8Count, ok := hd.GetDieCount(D8HitDie)
 	if !ok || d8Count != 2 {
 		t.Fatalf("expected d8 count (2, true), got (%d, %t)", d8Count, ok)
@@ -102,6 +106,42 @@ func TestNewStandardHitPoints_UsesConstitutionLedgerAndThreshold(t *testing.T) {
 
 	if sources[1].GetName() != "Constitution" || sources[1].GetValue() != 4 {
 		t.Fatalf("expected constitution source 4, got %q = %d", sources[1].GetName(), sources[1].GetValue())
+	}
+}
+
+func TestNewMaximumStandardHitPoints_UsesMaximumBaseDice(t *testing.T) {
+	hd, ok := NewHitDie(1, 0, 0, 0)
+	if !ok {
+		t.Fatal("expected hit die to be constructed")
+	}
+	hp, ok := NewMaximumStandardHitPoints(hd, 14)
+	if !ok {
+		t.Fatal("expected hit points to be constructed")
+	}
+
+	if hp.GetTotal() != 8 || hp.GetCurrent() != 8 {
+		t.Fatalf("expected total/current 8, got total %d current %d", hp.GetTotal(), hp.GetCurrent())
+	}
+
+	sources := hp.GetSources()
+	if len(sources) != 2 {
+		t.Fatalf("expected 2 HP sources, got %d", len(sources))
+	}
+
+	if sources[0].GetName() != "Base Dice" || sources[0].GetValue() != 6 {
+		t.Fatalf("expected maximum base dice source 6, got %q = %d", sources[0].GetName(), sources[0].GetValue())
+	}
+
+	if sources[1].GetName() != "Constitution" || sources[1].GetValue() != 2 {
+		t.Fatalf("expected constitution source 2, got %q = %d", sources[1].GetName(), sources[1].GetValue())
+	}
+
+	if ok := hp.UpdateConstitutionScore(16); !ok {
+		t.Fatal("expected constitution update to succeed")
+	}
+
+	if hp.GetTotal() != 9 || hp.GetCurrent() != 9 {
+		t.Fatalf("expected max-base total/current 9 after constitution update, got total %d current %d", hp.GetTotal(), hp.GetCurrent())
 	}
 }
 
@@ -603,6 +643,10 @@ func TestHitPointConstructors_RejectInvalidInputs(t *testing.T) {
 		t.Fatal("expected constitution 0 standard HP input to be rejected")
 	}
 
+	if _, ok := NewMaximumStandardHitPoints(hd, 0); ok {
+		t.Fatal("expected constitution 0 maximum standard HP input to be rejected")
+	}
+
 	if _, ok := NewUndeadHitPoints(hd, -1); ok {
 		t.Fatal("expected invalid undead HP input to be rejected")
 	}
@@ -613,6 +657,10 @@ func TestHitPointConstructors_RejectInvalidInputs(t *testing.T) {
 
 	invalidHD := HitDie{}
 	if _, ok := NewStandardHitPoints(invalidHD, 10); ok {
+		t.Fatal("expected semantically invalid hit die payload to be rejected")
+	}
+
+	if _, ok := NewMaximumStandardHitPoints(invalidHD, 10); ok {
 		t.Fatal("expected semantically invalid hit die payload to be rejected")
 	}
 }

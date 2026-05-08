@@ -11,6 +11,7 @@ type HitPointKind = hitPointKind
 
 type hitDieType string
 type HitDieType = hitDieType
+type hitDieBaseMode string
 
 const (
 	StandardHitPoints  HitPointKind = "Standard"
@@ -23,6 +24,11 @@ const (
 	D8HitDie  HitDieType = "d8"
 	D10HitDie HitDieType = "d10"
 	D12HitDie HitDieType = "d12"
+)
+
+const (
+	averageHitDieBaseMode hitDieBaseMode = "Average"
+	maximumHitDieBaseMode hitDieBaseMode = "Maximum"
 )
 
 type hitDie struct {
@@ -48,6 +54,7 @@ type hitPoints struct {
 	size             size
 	constitution     int
 	charisma         int
+	baseMode         hitDieBaseMode
 }
 type HitPoints = hitPoints
 
@@ -105,6 +112,22 @@ func NewStandardHitPoints(hd HitDie, constitutionScore int) (HitPoints, bool) {
 		hd:           hd,
 		kind:         StandardHitPoints,
 		constitution: constitutionScore,
+		baseMode:     averageHitDieBaseMode,
+	}
+	hp.recalculate(true)
+	return hp, true
+}
+
+func NewMaximumStandardHitPoints(hd HitDie, constitutionScore int) (HitPoints, bool) {
+	if !isValidLivingConstitutionScore(constitutionScore) || !isSemanticallyValidHitDie(hd) {
+		return hitPoints{}, false
+	}
+
+	hp := hitPoints{
+		hd:           hd,
+		kind:         StandardHitPoints,
+		constitution: constitutionScore,
+		baseMode:     maximumHitDieBaseMode,
 	}
 	hp.recalculate(true)
 	return hp, true
@@ -167,6 +190,10 @@ func (h hitDie) GetDieCount(kind HitDieType) (int, bool) {
 
 func (h hitDie) GetAverageBaseHP() int {
 	return ((h.d6 * 7) + (h.d8 * 9) + (h.d10 * 11) + (h.d12 * 13)) / 2
+}
+
+func (h hitDie) GetMaximumBaseHP() int {
+	return (h.d6 * 6) + (h.d8 * 8) + (h.d10 * 10) + (h.d12 * 12)
 }
 
 func (h hitPoints) GetTotal() int {
@@ -353,7 +380,7 @@ func (h *hitPoints) recalculate(initial bool) {
 }
 
 func (h hitPoints) resolveCoreState() ([]hpSource, int, int) {
-	baseDice := h.hd.GetAverageBaseHP()
+	baseDice := h.resolveBaseDice()
 	sources := []hpSource{
 		{name: "Base Dice", value: baseDice},
 	}
@@ -382,6 +409,14 @@ func (h hitPoints) resolveCoreState() ([]hpSource, int, int) {
 		total = applyMinimumHitPointFloor(total, minimumHitPoints, &sources)
 		return sources, total, -h.constitution
 	}
+}
+
+func (h hitPoints) resolveBaseDice() int {
+	if h.baseMode == maximumHitDieBaseMode {
+		return h.hd.GetMaximumBaseHP()
+	}
+
+	return h.hd.GetAverageBaseHP()
 }
 
 func (h *hitPoints) recalculateTemporary(preserveActive bool) {
