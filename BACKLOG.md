@@ -233,6 +233,27 @@ The tracked backlog below starts at Race / Modifier / Skill / Class because thos
 
 ## P1 — Core composition
 
+### Minimum level-1 core character creation slice
+
+Near-term goal: prove the existing core domains compose into one small, reviewable character creation path before adding more systems.
+
+The slice should answer:
+
+- can a core race and core class be selected and resolved through `character`?
+- can HP use the existing race/class/ability foundations without a broad character aggregate?
+- can caster spell slots resolve for a caster class?
+- can chosen feats be accepted or rejected from existing prerequisite state?
+
+Do not expand this slice into:
+
+- equipment, wealth, or encumbrance
+- skill-rank allocation rules
+- spell preparation, spellbooks, or known-spell selection
+- combat state
+- a full mutable character aggregate unless the slice proves it is required
+- non-core sources
+- broad folder or package reorganization
+
 - [X] Compose Race with character boundary (no redesign)
 
 - [X] Compose Class with character boundary (no redesign)
@@ -248,10 +269,11 @@ The tracked backlog below starts at Race / Modifier / Skill / Class because thos
   - skill ranks
   - other feats
 
-- [ ] Add character creation slice tests:
-  - race + class + HP
-  - caster spell slots
-  - feat prerequisite checks
+- [ ] Add minimum level-1 character creation slice tests (resolution/query logic):
+  - race + class + HP through existing character adapters
+  - caster spell slots through existing class spellcasting progression
+  - feat prerequisite checks through existing feat prerequisite state
+  - invalid selected inputs fail closed
 
 ---
 
