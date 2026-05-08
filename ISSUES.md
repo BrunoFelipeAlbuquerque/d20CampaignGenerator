@@ -117,6 +117,12 @@
 
 ## SHOULD
 
+- [X] Reshape the near-term backlog around a vertical character creation slice:
+  - added a P1 milestone for the minimum level-1 core character creation slice
+  - clarified the next executable backlog item as slice tests over existing composition adapters
+  - added explicit out-of-scope boundaries for equipment, skill allocation, spell preparation, combat, full aggregate work, non-core sources, and folder reorganization
+  - documented the intended vertical path in `docs/project-map.md`
+
 - [X] Reduce repeated project context reads before continuing deeper character composition:
   - added `docs/project-map.md` as the compact package and workflow orientation guide
   - made `AGENTS.md` the single workflow source for delivery, planning, and audit modes

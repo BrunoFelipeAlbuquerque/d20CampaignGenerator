@@ -72,6 +72,31 @@ Keep composition thin. If logic belongs to a lower domain, add it there only whe
 
 ---
 
+## Next Vertical Slice
+
+The next simplification target is a minimum level-1 core character creation slice.
+
+Use existing packages in this order:
+
+1. `race` seed/query data through `character_race.go`
+2. `class` seed/query data through `character_class.go`
+3. HP foundations from `ability` and existing character HP bridge code
+4. spellcasting progression through `character_spellcasting_progression.go`
+5. feat prerequisites through `character_feat.go`
+
+The slice should prove composition with tests before adding new domains.
+
+Out of scope for this slice:
+
+- equipment and encumbrance
+- full skill allocation
+- spell preparation or known-spell selection
+- combat state
+- non-core content
+- broad folder or package reorganization
+
+---
+
 ## Common Decisions
 
 - Invalid states should fail construction.
