@@ -239,7 +239,7 @@ The tracked backlog below starts at Race / Modifier / Skill / Class because thos
 
 - [X] Compose spellcasting progression with Class
 
-- [ ] Compose spell list entry with Class spellcasting
+- [X] Compose spell list entry with Class spellcasting
 
 - [ ] Compose feat prerequisites with:
   - ability scores
