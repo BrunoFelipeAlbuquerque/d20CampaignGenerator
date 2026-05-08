@@ -124,7 +124,7 @@
   - later `Compose feat prerequisites` will need to resolve feat prerequisites and selected feat ownership without duplicating scans or depending on test-only package internals
   - this should stay query-only with defensive-copy behavior and no new feat data
 
-- [ ] Tighten RaceID validation before race composition accepts malformed race identities:
+- [X] Tighten RaceID validation before race composition accepts malformed race identities:
   - `NewRace` currently accepts any non-empty `RaceID`, including values with surrounding whitespace such as `" human"`
   - `ClassID`, `FeatID`, and `SpellID` reject unnormalized IDs, but `RaceID` does not
   - `GetRaceByID` only resolves canonical core IDs, so malformed `Race` values can be constructed but will not round-trip through the seeded catalog
