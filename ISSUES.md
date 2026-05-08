@@ -117,6 +117,12 @@
 
 ## SHOULD
 
+- [X] Reduce repeated project context reads before continuing deeper character composition:
+  - added `docs/project-map.md` as the compact package and workflow orientation guide
+  - made `AGENTS.md` the single workflow source for delivery, planning, and audit modes
+  - reduced `/internal/ai/agents/*` and `/internal/ai/skills/*` to short role reminders that point back to `AGENTS.md` and `docs/project-map.md`
+  - linked the project map from `README.md`
+
 - [X] Restore local PF1 extract/chunk tooling or update docs before rule-sensitive work depends on regeneration:
   - `Makefile` calls `docs/pf1/extract_rules.sh` and `docs/pf1/chunk_rules.go`
   - `docs/pf1/README.md` documents those commands as the supported extraction and chunk-generation workflow
