@@ -325,7 +325,7 @@ Do not expand this path into:
   - catalog enumeration
   - defensive-copy getters
 
-- [ ] Compose selected equipment with character boundary (resolution/query logic):
+- [X] Compose selected equipment with character boundary (resolution/query logic):
   - selected core equipment ID
   - quantity
   - seeded lookup
