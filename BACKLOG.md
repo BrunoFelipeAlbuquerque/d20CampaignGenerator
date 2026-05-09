@@ -424,7 +424,7 @@ Do not expand this path into:
   - unseeded or malformed weapon refs fail closed
   - no attack roll, damage roll, ammunition tracking, wielded slots, or combat behavior
 
-- [ ] Seed core light armor and shields batch 1 (core seed data):
+- [X] Seed core light armor and shields batch 1 (core seed data):
   - padded armor
   - leather armor
   - studded leather armor
