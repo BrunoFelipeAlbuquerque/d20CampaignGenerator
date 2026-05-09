@@ -451,7 +451,7 @@ Do not expand this path into:
   - unseeded or malformed armor refs fail closed
   - no AC composition, proficiency application, equipped slots, or combat behavior
 
-- [ ] Compose carried weapons, armor, and shields with character inventory (resolution/query logic):
+- [X] Compose carried weapons, armor, and shields with character inventory (resolution/query logic):
   - selected weapon, armor, and shield carryable refs compose through `character`
   - carried weight uses the shared carryable lookup for seeded weapons, armor, and shields
   - invalid, malformed, or unknown carryable refs fail closed

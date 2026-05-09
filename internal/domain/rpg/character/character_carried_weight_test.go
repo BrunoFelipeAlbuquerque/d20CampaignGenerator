@@ -33,6 +33,44 @@ func TestNewCharacterCarriedWeight_ComposesLightLoadFromSelectedEquipment(t *tes
 	}
 }
 
+func TestNewCharacterCarriedWeight_ComposesWeaponsArmorAndShields(t *testing.T) {
+	carriedWeight, ok := NewCharacterCarriedWeight(
+		mustCharacterCarriedWeightStrength(t, 10),
+		[]CharacterEquipment{
+			mustCharacterCarriedWeightCarryable(
+				t,
+				mustCharacterCarriedWeightWeaponRef(t, characterequipment.DaggerWeaponID),
+				2,
+			),
+			mustCharacterCarriedWeightCarryable(
+				t,
+				mustCharacterCarriedWeightArmorRef(t, characterequipment.ChainShirtArmorID),
+				1,
+			),
+			mustCharacterCarriedWeightCarryable(
+				t,
+				mustCharacterCarriedWeightArmorRef(t, characterequipment.ShieldHeavySteelArmorID),
+				1,
+			),
+		},
+	)
+	if !ok {
+		t.Fatal("expected weapons, armor, and shields to compose into carried weight")
+	}
+
+	if carriedWeight.GetTotalOunces() != 672 {
+		t.Fatalf("expected total carried weight 672 oz, got %d oz", carriedWeight.GetTotalOunces())
+	}
+
+	if carriedWeight.GetTotalPounds() != 42 {
+		t.Fatalf("expected total carried weight 42 lb, got %.2f lb", carriedWeight.GetTotalPounds())
+	}
+
+	if carriedWeight.GetLoadCategory() != MediumLoadCategory {
+		t.Fatalf("expected medium load category, got %q", carriedWeight.GetLoadCategory())
+	}
+}
+
 func TestNewCharacterCarriedWeight_ClassifiesMediumHeavyAndOverMaximumLoads(t *testing.T) {
 	testCases := []struct {
 		name      string
@@ -129,14 +167,34 @@ func TestNewCharacterCarriedWeight_RejectsInvalidStrength(t *testing.T) {
 }
 
 func TestNewCharacterCarriedWeight_RejectsInvalidCarriedEquipment(t *testing.T) {
-	if _, ok := NewCharacterCarriedWeight(
-		mustCharacterCarriedWeightStrength(t, 10),
-		[]CharacterEquipment{{
-			ref:      mustCharacterCarriedWeightRef(t, characterequipment.EquipmentID("ten-foot-pole")),
-			quantity: 1,
-		}},
-	); ok {
-		t.Fatal("expected unknown carried equipment to be rejected")
+	testCases := []struct {
+		name string
+		ref  characterequipment.CarryableItemRef
+	}{
+		{
+			name: "equipment",
+			ref:  mustCharacterCarriedWeightRef(t, characterequipment.EquipmentID("ten-foot-pole")),
+		},
+		{
+			name: "weapon",
+			ref:  mustCharacterCarriedWeightWeaponRef(t, characterequipment.WeaponID("longsword")),
+		},
+		{
+			name: "armor",
+			ref:  mustCharacterCarriedWeightArmorRef(t, characterequipment.ArmorID("breastplate")),
+		},
+	}
+
+	for _, tc := range testCases {
+		if _, ok := NewCharacterCarriedWeight(
+			mustCharacterCarriedWeightStrength(t, 10),
+			[]CharacterEquipment{{
+				ref:      tc.ref,
+				quantity: 1,
+			}},
+		); ok {
+			t.Fatalf("expected unknown carried %s to be rejected", tc.name)
+		}
 	}
 
 	backpackRef := mustCharacterCarriedWeightRef(t, characterequipment.BackpackEmptyEquipmentID)
@@ -171,6 +229,21 @@ func mustCharacterCarriedWeightEquipment(
 	return selectedEquipment
 }
 
+func mustCharacterCarriedWeightCarryable(
+	t *testing.T,
+	ref characterequipment.CarryableItemRef,
+	quantity int,
+) CharacterEquipment {
+	t.Helper()
+
+	selectedEquipment, ok := NewCharacterEquipment(ref, quantity)
+	if !ok {
+		t.Fatalf("expected selected carryable item %q/%q x%d to be constructed", ref.GetKind(), ref.GetID(), quantity)
+	}
+
+	return selectedEquipment
+}
+
 func mustCharacterCarriedWeightRef(
 	t *testing.T,
 	id characterequipment.EquipmentID,
@@ -180,6 +253,34 @@ func mustCharacterCarriedWeightRef(
 	ref, ok := characterequipment.NewEquipmentCarryableItemRef(id)
 	if !ok {
 		t.Fatalf("expected carryable equipment ref %q to be constructed", id)
+	}
+
+	return ref
+}
+
+func mustCharacterCarriedWeightWeaponRef(
+	t *testing.T,
+	id characterequipment.WeaponID,
+) characterequipment.CarryableItemRef {
+	t.Helper()
+
+	ref, ok := characterequipment.NewWeaponCarryableItemRef(id)
+	if !ok {
+		t.Fatalf("expected carryable weapon ref %q to be constructed", id)
+	}
+
+	return ref
+}
+
+func mustCharacterCarriedWeightArmorRef(
+	t *testing.T,
+	id characterequipment.ArmorID,
+) characterequipment.CarryableItemRef {
+	t.Helper()
+
+	ref, ok := characterequipment.NewArmorCarryableItemRef(id)
+	if !ok {
+		t.Fatalf("expected carryable armor ref %q to be constructed", id)
 	}
 
 	return ref
