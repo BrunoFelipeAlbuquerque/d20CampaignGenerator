@@ -217,7 +217,7 @@ This table is the current foundation-audit snapshot for specialist review of the
 | `spellcasting progression` | yes | core progression tables seeded for bard, cleric, druid, paladin, ranger, sorcerer, and wizard | table/query surface only; no character spell-slot composition yet | none |
 | `spell` | yes | spell chassis, spell-list entries, core spell-list bindings, and core spell data are seeded with read-only query helpers | no spell preparation, casting, or character spellbook composition yet | none |
 | `feat` | yes | feat chassis, typed prerequisites, core feat seeds, read-only catalog helpers, and character prerequisite composition are present | no full feat allocation engine, selected-weapon choices, spell-school choices, or bonus-feat grant flow yet | none |
-| `equipment` | yes | equipment, weapon, armor/shield chassis, adventuring-gear seed/query helpers, carryable item boundary, character inventory composition, carried-weight composition, and core simple weapon batch 1 seeds are present | weapon query helpers and carryable weapon binding are next; no combat behavior, equipped slots, ammunition tracking, AC composition, or magic items | none |
+| `equipment` | yes | equipment, weapon, armor/shield chassis, dual imperial/metric weight and length values, adventuring-gear seed/query helpers, carryable item boundary, character inventory composition, carried-weight composition, and core simple weapon batch 1 seeds are present | no combat behavior, equipped slots, ammunition tracking, AC composition, or magic items | metric values are stored alongside PF1 imperial values for equipment measurements |
 
 ## Current Domain Snapshot
 

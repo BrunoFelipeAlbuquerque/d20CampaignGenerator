@@ -1,6 +1,9 @@
 package equipment
 
-import "strings"
+import (
+	"math"
+	"strings"
+)
 
 type equipmentID string
 type EquipmentID = equipmentID
@@ -12,6 +15,12 @@ const (
 	AdventuringGearEquipmentCategory EquipmentCategory = "Adventuring Gear"
 )
 
+const (
+	kilogramsPerOunce = 0.028349523125
+	kilogramsPerPound = kilogramsPerOunce * 16
+	metersPerFoot     = 0.3048
+)
+
 type equipmentCost struct {
 	copperPieces int
 	valid        bool
@@ -19,8 +28,9 @@ type equipmentCost struct {
 type EquipmentCost = equipmentCost
 
 type equipmentWeight struct {
-	ounces int
-	valid  bool
+	ounces    int
+	kilograms float64
+	valid     bool
 }
 type EquipmentWeight = equipmentWeight
 
@@ -49,9 +59,28 @@ func NewEquipmentWeightOunces(ounces int) (EquipmentWeight, bool) {
 		return equipmentWeight{}, false
 	}
 
+	return newEquipmentWeight(ounces, ouncesToKilograms(ounces))
+}
+
+func NewEquipmentWeightKilograms(kilograms float64) (EquipmentWeight, bool) {
+	if !isValidMetricValue(kilograms, true) {
+		return equipmentWeight{}, false
+	}
+
+	return newEquipmentWeight(kilogramsToOunces(kilograms), kilograms)
+}
+
+func newEquipmentWeight(ounces int, kilograms float64) (EquipmentWeight, bool) {
+	if ounces < 0 ||
+		!isValidMetricValue(kilograms, true) ||
+		kilogramsToOunces(kilograms) != ounces {
+		return equipmentWeight{}, false
+	}
+
 	return equipmentWeight{
-		ounces: ounces,
-		valid:  true,
+		ounces:    ounces,
+		kilograms: kilograms,
+		valid:     true,
 	}, true
 }
 
@@ -96,7 +125,11 @@ func (w equipmentWeight) GetOunces() int {
 }
 
 func (w equipmentWeight) GetPounds() float64 {
-	return float64(w.ounces) / 16
+	return w.kilograms / kilogramsPerPound
+}
+
+func (w equipmentWeight) GetKilograms() float64 {
+	return w.kilograms
 }
 
 func (e equipment) GetID() EquipmentID {
@@ -142,5 +175,36 @@ func isValidEquipmentCost(cost EquipmentCost) bool {
 }
 
 func isValidEquipmentWeight(weight EquipmentWeight) bool {
-	return weight.valid && weight.ounces >= 0
+	return weight.valid &&
+		weight.ounces >= 0 &&
+		isValidMetricValue(weight.kilograms, true) &&
+		kilogramsToOunces(weight.kilograms) == weight.ounces
+}
+
+func isValidMetricValue(value float64, allowZero bool) bool {
+	if math.IsNaN(value) || math.IsInf(value, 0) {
+		return false
+	}
+
+	if allowZero {
+		return value >= 0
+	}
+
+	return value > 0
+}
+
+func ouncesToKilograms(ounces int) float64 {
+	return float64(ounces) * kilogramsPerOunce
+}
+
+func kilogramsToOunces(kilograms float64) int {
+	return int(math.Round(kilograms / kilogramsPerOunce))
+}
+
+func feetToMeters(feet int) float64 {
+	return float64(feet) * metersPerFoot
+}
+
+func metersToFeet(meters float64) int {
+	return int(math.Round(meters / metersPerFoot))
 }

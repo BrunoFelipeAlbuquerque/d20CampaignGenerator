@@ -42,11 +42,13 @@ type armorArcaneSpellFailureChance struct {
 type ArmorArcaneSpellFailureChance = armorArcaneSpellFailureChance
 
 type armorSpeedImpact struct {
-	speedFor30FeetBase int
-	speedFor20FeetBase int
-	limitsRunning      bool
-	hasImpact          bool
-	valid              bool
+	speedFor30FeetBase       int
+	speedFor30FeetBaseMeters float64
+	speedFor20FeetBase       int
+	speedFor20FeetBaseMeters float64
+	limitsRunning            bool
+	hasImpact                bool
+	valid                    bool
 }
 type ArmorSpeedImpact = armorSpeedImpact
 
@@ -120,19 +122,55 @@ func NewArmorSpeedImpact(
 	speedFor20FeetBase int,
 	limitsRunning bool,
 ) (ArmorSpeedImpact, bool) {
+	return newArmorSpeedImpact(
+		speedFor30FeetBase,
+		feetToMeters(speedFor30FeetBase),
+		speedFor20FeetBase,
+		feetToMeters(speedFor20FeetBase),
+		limitsRunning,
+	)
+}
+
+func NewArmorSpeedImpactMeters(
+	speedFor30FeetBaseMeters float64,
+	speedFor20FeetBaseMeters float64,
+	limitsRunning bool,
+) (ArmorSpeedImpact, bool) {
+	return newArmorSpeedImpact(
+		metersToFeet(speedFor30FeetBaseMeters),
+		speedFor30FeetBaseMeters,
+		metersToFeet(speedFor20FeetBaseMeters),
+		speedFor20FeetBaseMeters,
+		limitsRunning,
+	)
+}
+
+func newArmorSpeedImpact(
+	speedFor30FeetBase int,
+	speedFor30FeetBaseMeters float64,
+	speedFor20FeetBase int,
+	speedFor20FeetBaseMeters float64,
+	limitsRunning bool,
+) (ArmorSpeedImpact, bool) {
 	if speedFor30FeetBase <= 0 ||
 		speedFor30FeetBase >= 30 ||
+		!isValidMetricValue(speedFor30FeetBaseMeters, false) ||
+		metersToFeet(speedFor30FeetBaseMeters) != speedFor30FeetBase ||
 		speedFor20FeetBase <= 0 ||
-		speedFor20FeetBase >= 20 {
+		speedFor20FeetBase >= 20 ||
+		!isValidMetricValue(speedFor20FeetBaseMeters, false) ||
+		metersToFeet(speedFor20FeetBaseMeters) != speedFor20FeetBase {
 		return armorSpeedImpact{}, false
 	}
 
 	return armorSpeedImpact{
-		speedFor30FeetBase: speedFor30FeetBase,
-		speedFor20FeetBase: speedFor20FeetBase,
-		limitsRunning:      limitsRunning,
-		hasImpact:          true,
-		valid:              true,
+		speedFor30FeetBase:       speedFor30FeetBase,
+		speedFor30FeetBaseMeters: speedFor30FeetBaseMeters,
+		speedFor20FeetBase:       speedFor20FeetBase,
+		speedFor20FeetBaseMeters: speedFor20FeetBaseMeters,
+		limitsRunning:            limitsRunning,
+		hasImpact:                true,
+		valid:                    true,
 	}, true
 }
 
@@ -210,8 +248,24 @@ func (s armorSpeedImpact) GetSpeedFor30FeetBase() int {
 	return s.speedFor30FeetBase
 }
 
+func (s armorSpeedImpact) GetSpeedFor30FeetBaseMeters() float64 {
+	if !s.HasImpact() {
+		return 0
+	}
+
+	return s.speedFor30FeetBaseMeters
+}
+
 func (s armorSpeedImpact) GetSpeedFor20FeetBase() int {
 	return s.speedFor20FeetBase
+}
+
+func (s armorSpeedImpact) GetSpeedFor20FeetBaseMeters() float64 {
+	if !s.HasImpact() {
+		return 0
+	}
+
+	return s.speedFor20FeetBaseMeters
 }
 
 func (s armorSpeedImpact) LimitsRunning() bool {
@@ -307,14 +361,20 @@ func isValidArmorSpeedImpact(speedImpact ArmorSpeedImpact) bool {
 
 	if !speedImpact.hasImpact {
 		return speedImpact.speedFor30FeetBase == 0 &&
+			speedImpact.speedFor30FeetBaseMeters == 0 &&
 			speedImpact.speedFor20FeetBase == 0 &&
+			speedImpact.speedFor20FeetBaseMeters == 0 &&
 			!speedImpact.limitsRunning
 	}
 
 	return speedImpact.speedFor30FeetBase > 0 &&
 		speedImpact.speedFor30FeetBase < 30 &&
+		isValidMetricValue(speedImpact.speedFor30FeetBaseMeters, false) &&
+		metersToFeet(speedImpact.speedFor30FeetBaseMeters) == speedImpact.speedFor30FeetBase &&
 		speedImpact.speedFor20FeetBase > 0 &&
-		speedImpact.speedFor20FeetBase < 20
+		speedImpact.speedFor20FeetBase < 20 &&
+		isValidMetricValue(speedImpact.speedFor20FeetBaseMeters, false) &&
+		metersToFeet(speedImpact.speedFor20FeetBaseMeters) == speedImpact.speedFor20FeetBase
 }
 
 func isValidArmorCost(cost EquipmentCost) bool {
