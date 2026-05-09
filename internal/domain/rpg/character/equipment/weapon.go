@@ -65,6 +65,7 @@ type WeaponCriticalProfile = weaponCriticalProfile
 
 type weaponRangeIncrement struct {
 	feet     int
+	meters   float64
 	hasRange bool
 	valid    bool
 }
@@ -201,8 +202,27 @@ func NewWeaponRangeIncrementFeet(feet int) (WeaponRangeIncrement, bool) {
 		return weaponRangeIncrement{}, false
 	}
 
+	return newWeaponRangeIncrement(feet, feetToMeters(feet))
+}
+
+func NewWeaponRangeIncrementMeters(meters float64) (WeaponRangeIncrement, bool) {
+	if !isValidMetricValue(meters, false) {
+		return weaponRangeIncrement{}, false
+	}
+
+	return newWeaponRangeIncrement(metersToFeet(meters), meters)
+}
+
+func newWeaponRangeIncrement(feet int, meters float64) (WeaponRangeIncrement, bool) {
+	if feet <= 0 ||
+		!isValidMetricValue(meters, false) ||
+		metersToFeet(meters) != feet {
+		return weaponRangeIncrement{}, false
+	}
+
 	return weaponRangeIncrement{
 		feet:     feet,
+		meters:   meters,
 		hasRange: true,
 		valid:    true,
 	}, true
@@ -333,6 +353,14 @@ func (r weaponRangeIncrement) HasRangeIncrement() bool {
 
 func (r weaponRangeIncrement) GetFeet() int {
 	return r.feet
+}
+
+func (r weaponRangeIncrement) GetMeters() float64 {
+	if !r.HasRangeIncrement() {
+		return 0
+	}
+
+	return r.meters
 }
 
 func (w weapon) GetID() WeaponID {
@@ -492,10 +520,12 @@ func isValidWeaponRangeIncrement(rangeIncrement WeaponRangeIncrement) bool {
 	}
 
 	if rangeIncrement.hasRange {
-		return rangeIncrement.feet > 0
+		return rangeIncrement.feet > 0 &&
+			isValidMetricValue(rangeIncrement.meters, false) &&
+			metersToFeet(rangeIncrement.meters) == rangeIncrement.feet
 	}
 
-	return rangeIncrement.feet == 0
+	return rangeIncrement.feet == 0 && rangeIncrement.meters == 0
 }
 
 func isValidWeaponCost(cost EquipmentCost) bool {

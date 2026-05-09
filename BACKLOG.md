@@ -365,6 +365,15 @@ Do not expand this path into:
   - tests
   - no AC composition, proficiency application, or combat resolution
 
+- [X] Add dual imperial and metric equipment measurements (domain/chassis):
+  - equipment weight stores both ounces and kilograms
+  - weapon range increments store both feet and meters
+  - armor speed impacts store both feet and meters
+  - constructors support imperial and metric entry points
+  - existing PF1 imperial getters remain available
+  - tests cover both unit systems and seeded storage
+  - no combat behavior, encumbrance behavior changes, UI formatting, or new seed data
+
 ---
 
 ## P3 — Core carryable equipment catalogs
