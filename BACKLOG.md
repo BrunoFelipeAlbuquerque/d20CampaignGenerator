@@ -411,7 +411,7 @@ Do not expand this path into:
   - use Core Rulebook cost, weight, damage, critical, range, category, and proficiency
   - no attack roll, damage roll, ammunition tracking, proficiency application, special materials, masterwork, or magic versions
 
-- [ ] Add weapon query helpers (resolution/query logic):
+- [X] Add weapon query helpers (resolution/query logic):
   - GetWeaponByID
   - catalog enumeration for seeded core weapons
   - defensive-copy behavior

@@ -374,6 +374,175 @@ func TestCoreSimpleWeaponOrder_ContainsOnlySeededBatchOneIDs(t *testing.T) {
 	}
 }
 
+func TestGetWeaponByID_ReturnsSeededCoreWeapon(t *testing.T) {
+	weapon, ok := GetWeaponByID(DaggerWeaponID)
+	if !ok {
+		t.Fatal("expected dagger to be returned from core weapon lookup")
+	}
+
+	if weapon.GetID() != DaggerWeaponID {
+		t.Fatalf("expected weapon id %q, got %q", DaggerWeaponID, weapon.GetID())
+	}
+
+	if weapon.GetDisplayName() != "Dagger" {
+		t.Fatalf("expected display name %q, got %q", "Dagger", weapon.GetDisplayName())
+	}
+
+	if weapon.GetProficiencyCategory() != SimpleWeaponProficiencyCategory {
+		t.Fatalf("expected proficiency category %q, got %q", SimpleWeaponProficiencyCategory, weapon.GetProficiencyCategory())
+	}
+
+	if weapon.GetCategory() != LightMeleeWeaponCategory {
+		t.Fatalf("expected category %q, got %q", LightMeleeWeaponCategory, weapon.GetCategory())
+	}
+
+	if weapon.GetCost().GetCopperPieces() != 200 {
+		t.Fatalf("expected dagger cost 200 cp, got %d cp", weapon.GetCost().GetCopperPieces())
+	}
+
+	if weapon.GetWeight().GetOunces() != 16 {
+		t.Fatalf("expected dagger weight 16 oz, got %d oz", weapon.GetWeight().GetOunces())
+	}
+
+	assertCoreWeaponDamage(t, DaggerWeaponID, weapon.GetDamageProfile().GetSmallDamage(), 1, 3, "small")
+	assertCoreWeaponDamage(t, DaggerWeaponID, weapon.GetDamageProfile().GetMediumDamage(), 1, 4, "medium")
+
+	if weapon.GetCriticalProfile().GetThreatMinimum() != 19 {
+		t.Fatalf("expected dagger threat minimum 19, got %d", weapon.GetCriticalProfile().GetThreatMinimum())
+	}
+
+	if weapon.GetCriticalProfile().GetPrimaryMultiplier() != 2 {
+		t.Fatalf("expected dagger critical multiplier 2, got %d", weapon.GetCriticalProfile().GetPrimaryMultiplier())
+	}
+
+	if weapon.GetRangeIncrement().GetFeet() != 10 {
+		t.Fatalf("expected dagger range increment 10 ft, got %d ft", weapon.GetRangeIncrement().GetFeet())
+	}
+}
+
+func TestGetWeaponByID_ReturnsDetachedCopy(t *testing.T) {
+	first, ok := GetWeaponByID(DaggerWeaponID)
+	if !ok {
+		t.Fatal("expected dagger to be returned from core weapon lookup")
+	}
+
+	first.id = "changed"
+	first.displayName = "Changed"
+	first.proficiencyCategory = MartialWeaponProficiencyCategory
+	first.category = RangedWeaponCategory
+	first.damageProfile.mediumPrimary.dieSides = 12
+	first.criticalProfile.threatMinimum = 20
+	first.rangeIncrement.feet = 999
+	first.cost.copperPieces = 999
+	first.weight.ounces = 999
+
+	second, ok := GetWeaponByID(DaggerWeaponID)
+	if !ok {
+		t.Fatal("expected dagger to be returned from core weapon lookup")
+	}
+
+	if second.GetID() != DaggerWeaponID {
+		t.Fatalf("expected stored weapon id to remain %q, got %q", DaggerWeaponID, second.GetID())
+	}
+
+	if second.GetDisplayName() != "Dagger" {
+		t.Fatalf("expected stored display name to remain %q, got %q", "Dagger", second.GetDisplayName())
+	}
+
+	if second.GetProficiencyCategory() != SimpleWeaponProficiencyCategory {
+		t.Fatalf("expected stored proficiency category to remain %q, got %q", SimpleWeaponProficiencyCategory, second.GetProficiencyCategory())
+	}
+
+	if second.GetCategory() != LightMeleeWeaponCategory {
+		t.Fatalf("expected stored category to remain %q, got %q", LightMeleeWeaponCategory, second.GetCategory())
+	}
+
+	if second.GetDamageProfile().GetMediumDamage().GetDieSides() != 4 {
+		t.Fatalf("expected stored medium damage die to remain d4, got d%d", second.GetDamageProfile().GetMediumDamage().GetDieSides())
+	}
+
+	if second.GetCriticalProfile().GetThreatMinimum() != 19 {
+		t.Fatalf("expected stored threat minimum to remain 19, got %d", second.GetCriticalProfile().GetThreatMinimum())
+	}
+
+	if second.GetRangeIncrement().GetFeet() != 10 {
+		t.Fatalf("expected stored range increment to remain 10 ft, got %d ft", second.GetRangeIncrement().GetFeet())
+	}
+
+	if second.GetCost().GetCopperPieces() != 200 {
+		t.Fatalf("expected stored cost to remain 200 cp, got %d cp", second.GetCost().GetCopperPieces())
+	}
+
+	if second.GetWeight().GetOunces() != 16 {
+		t.Fatalf("expected stored weight to remain 16 oz, got %d oz", second.GetWeight().GetOunces())
+	}
+}
+
+func TestGetWeaponByID_RejectsUnknownWeapon(t *testing.T) {
+	if _, ok := GetWeaponByID(WeaponID("longbow")); ok {
+		t.Fatal("expected unknown weapon lookup to fail")
+	}
+}
+
+func TestGetWeapons_ReturnsSeededCatalogInCoreOrder(t *testing.T) {
+	weapons := GetWeapons()
+	if len(weapons) != len(coreSimpleWeaponOrder) {
+		t.Fatalf("expected %d queried weapon entries, got %d", len(coreSimpleWeaponOrder), len(weapons))
+	}
+
+	for i, expectedID := range coreSimpleWeaponOrder {
+		if weapons[i].GetID() != expectedID {
+			t.Fatalf("expected weapon at index %d to be %q, got %q", i, expectedID, weapons[i].GetID())
+		}
+	}
+}
+
+func TestGetWeapons_ReturnsDetachedCopies(t *testing.T) {
+	first := GetWeapons()
+	second := GetWeapons()
+
+	first[0].id = "changed"
+	first[0].displayName = "Changed"
+	first[0].proficiencyCategory = MartialWeaponProficiencyCategory
+	first[0].category = RangedWeaponCategory
+	first[0].damageProfile.mediumPrimary.dieSides = 12
+	first[0].criticalProfile.threatMinimum = 19
+	first[0].cost.copperPieces = 999
+	first[0].weight.ounces = 999
+
+	if second[0].GetID() != GauntletWeaponID {
+		t.Fatalf("expected stored weapon id to remain %q, got %q", GauntletWeaponID, second[0].GetID())
+	}
+
+	if second[0].GetDisplayName() != "Gauntlet" {
+		t.Fatalf("expected stored display name to remain %q, got %q", "Gauntlet", second[0].GetDisplayName())
+	}
+
+	if second[0].GetProficiencyCategory() != SimpleWeaponProficiencyCategory {
+		t.Fatalf("expected stored proficiency category to remain %q, got %q", SimpleWeaponProficiencyCategory, second[0].GetProficiencyCategory())
+	}
+
+	if second[0].GetCategory() != UnarmedAttackWeaponCategory {
+		t.Fatalf("expected stored category to remain %q, got %q", UnarmedAttackWeaponCategory, second[0].GetCategory())
+	}
+
+	if second[0].GetDamageProfile().GetMediumDamage().GetDieSides() != 3 {
+		t.Fatalf("expected stored medium damage die to remain d3, got d%d", second[0].GetDamageProfile().GetMediumDamage().GetDieSides())
+	}
+
+	if second[0].GetCriticalProfile().GetThreatMinimum() != 20 {
+		t.Fatalf("expected stored threat minimum to remain 20, got %d", second[0].GetCriticalProfile().GetThreatMinimum())
+	}
+
+	if second[0].GetCost().GetCopperPieces() != 200 {
+		t.Fatalf("expected stored cost to remain 200 cp, got %d cp", second[0].GetCost().GetCopperPieces())
+	}
+
+	if second[0].GetWeight().GetOunces() != 16 {
+		t.Fatalf("expected stored weight to remain 16 oz, got %d oz", second[0].GetWeight().GetOunces())
+	}
+}
+
 func assertCoreWeaponDamage(
 	t *testing.T,
 	id WeaponID,
