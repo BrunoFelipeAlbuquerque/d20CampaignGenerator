@@ -18,7 +18,7 @@ Order of work:
 4. character composition
 
 As of this map, the foundation domains and most current composition adapters are present. Check `BACKLOG.md` for exact unchecked work.
-The next planned area is core equipment and inventory; later non-core work is intentionally deferred.
+The next planned area is core feat selection context; later non-core work is intentionally deferred.
 
 ---
 
@@ -79,13 +79,13 @@ Keep composition thin. If logic belongs to a lower domain, add it there only whe
 
 ## Next Backlog Path
 
-The next core-only backlog path is P3 core carryable equipment catalogs.
+The next core-only backlog path is P4 core feat selection context.
 
-Start with the bounded core simple-weapon seed batch, then add weapon query helpers, then bind seeded weapons into the carryable lookup. After that, continue with the bounded light-armor and shield seed batch, armor query helpers, carryable lookup binding, and character carried-inventory composition tests.
+The P3 carryable equipment catalog path is complete. Continue by closing the remaining selection-sensitive core feat prerequisite gaps at the `character` boundary: selected weapon proficiency, same-selection weapon feats, spell-school feat selections, and familiar eligibility.
 
 Check `BACKLOG.md` before starting any far-future non-core item.
 
-The path should prove equipment facts and inventory references before adding combat-facing equipment behavior.
+The path should prove explicit character selection facts before adding any combat-facing feat behavior.
 
 Out of scope for this path:
 
@@ -95,9 +95,11 @@ Out of scope for this path:
 - wealth generation, shops, or economy rules
 - crafting
 - combat resolution
+- attack rolls, damage rolls, or feat bonus application
+- spell DCs, spell preparation, or school powers
+- familiar stat blocks or companion advancement
 - equipped slots or wielded slots
 - full skill allocation
-- spell preparation or known-spell selection
 - combat state
 - non-core content
 - broad folder or package reorganization

@@ -459,6 +459,75 @@ Do not expand this path into:
 
 ---
 
+## P4 — Core feat selection context
+
+### Selection-sensitive core feat prerequisites
+
+Audit snapshot:
+
+- `go test ./...` passes
+- `ISSUES.md` has no open issue markers
+- the remaining executable core gap is selection-sensitive feat prerequisite composition
+- current `character` feat composition intentionally fails closed for:
+  - selected weapon proficiency prerequisites
+  - same-selection feat prerequisites
+  - spell-school feat prerequisites
+  - selected familiar eligibility prerequisites
+
+Near-term goal: model the smallest explicit character selection facts needed for seeded core feats with selection-sensitive prerequisites.
+
+The path should answer:
+
+- can a selected core weapon satisfy selected-weapon prerequisites without combat behavior?
+- can selected feat ownership preserve the selected weapon or spell school needed by same-selection prerequisites?
+- can core spell-school feat chains compose without spell DC or casting behavior?
+- can explicit familiar eligibility compose without familiar stat blocks?
+
+Do not expand this path into:
+
+- attack rolls or damage rolls
+- feat bonus application
+- weapon proficiency bonus application
+- spell DCs, school powers, or spell preparation
+- familiar stat blocks, animal companion rules, or companion advancement
+- feat-slot accounting, retraining, or a full mutable character aggregate
+- non-core feats or archetypes
+
+- [ ] Compose selected weapon proficiency feat prerequisites (resolution/query logic):
+  - add explicit selected core weapon context to `CharacterFeatPrerequisiteState`
+  - selected weapon IDs resolve through the seeded weapon catalog
+  - selected weapon proficiency checks use existing core class weapon proficiency metadata
+  - unknown, malformed, or unsupported selected weapon facts fail closed
+  - no attack rolls, damage rolls, feat bonuses, or combat behavior
+
+- [ ] Compose same-selection weapon feat prerequisites (resolution/query logic):
+  - model selected feat ownership with a selected core weapon key
+  - same-selection prerequisites compare the requested feat and selected weapon key
+  - missing, duplicate, mismatched, or unknown selected feat facts fail closed
+  - no feat-slot accounting, retraining, attack bonuses, or weapon bonus application
+
+- [ ] Compose spell-school feat prerequisites (resolution/query logic):
+  - model selected feat ownership with a selected core spell school key
+  - `Spell Focus` can satisfy seeded same-school prerequisites such as `Greater Spell Focus`
+  - `Spell Focus (conjuration)` can satisfy `Augment Summoning`
+  - invalid spell schools or mismatched selected schools fail closed
+  - no spell DCs, prepared spells, spell slots, or school power behavior
+
+- [ ] Compose selected familiar eligibility prerequisites (resolution/query logic):
+  - add explicit familiar eligibility context to `CharacterFeatPrerequisiteState`
+  - `Improved Familiar` requires both seeded familiar access and familiar eligibility facts
+  - missing or zero-value eligibility facts fail closed
+  - no familiar stat blocks, familiar selection catalog, or companion advancement
+
+- [ ] Refresh minimum level-1 character creation slice for selected feat contexts (resolution/query logic):
+  - keep the slice test-only and adapter-focused
+  - include one accepted selected-weapon feat path
+  - include one accepted spell-school feat path
+  - include fail-closed mismatched selection coverage
+  - no full character aggregate or non-core content
+
+---
+
 ## P9 — Far future (non-core)
 
 - [ ] Archetype / Alternate Class Feature
