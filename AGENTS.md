@@ -248,6 +248,9 @@ Use when the user asks to review steps, simplify direction, discuss architecture
 Use when the user asks for findings or a system audit.
 
 - Read targeted files and report findings.
+- For independent or full system audits, follow `docs/independent-audit-protocol.md`.
+- Treat project docs as claims to verify against code, tests, and local PF1 rules,
+  not as proof by themselves.
 - Only edit `ISSUES.md` if the user explicitly asks to record findings.
 - Do not reorder backlog items from audit findings.
 
