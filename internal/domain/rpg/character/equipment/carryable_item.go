@@ -148,8 +148,14 @@ func GetCarryableItemByRef(ref CarryableItemRef) (CarryableItem, bool) {
 		}
 
 		return NewCarryableItemFromEquipment(value)
-	case WeaponCarryableItemKind,
-		ArmorCarryableItemKind:
+	case WeaponCarryableItemKind:
+		value, ok := GetWeaponByID(WeaponID(ref.id))
+		if !ok {
+			return carryableItem{}, false
+		}
+
+		return NewCarryableItemFromWeapon(value)
+	case ArmorCarryableItemKind:
 		return carryableItem{}, false
 	default:
 		return carryableItem{}, false
