@@ -497,6 +497,9 @@ Do not expand this path into:
   - add explicit selected core weapon context to `CharacterFeatPrerequisiteState`
   - selected weapon IDs resolve through the seeded weapon catalog
   - selected weapon proficiency checks use existing core class weapon proficiency metadata
+  - use an explicit `character` adapter between `equipment.WeaponID` / `WeaponProficiencyCategory` and `class.WeaponProficiencyID`
+  - do not compare raw weapon IDs, display names, or proficiency labels as the rule boundary
+  - cover category proficiency, individual proficiency, unknown selected weapons, malformed selected weapon facts, and unsupported mappings
   - unknown, malformed, or unsupported selected weapon facts fail closed
   - no attack rolls, damage rolls, feat bonuses, or combat behavior
 
