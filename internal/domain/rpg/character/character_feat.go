@@ -19,6 +19,12 @@ type characterClassLevel struct {
 }
 type CharacterClassLevel = characterClassLevel
 
+type characterCasterLevel struct {
+	source ability.CasterSource
+	level  int
+}
+type CharacterCasterLevel = characterCasterLevel
+
 type characterSkillRanks struct {
 	skillID skill.SkillID
 	ranks   int
@@ -29,6 +35,7 @@ type characterFeatPrerequisiteState struct {
 	valid           bool
 	abilityScores   map[ability.AbilityScoreID]int
 	baseAttackBonus int
+	casterLevels    map[ability.CasterSource]int
 	classLevels     map[characterclass.ClassID]int
 	classFeatures   map[characterclass.ClassFeatureID]struct{}
 	skillRanks      map[skill.SkillID]int
@@ -71,6 +78,22 @@ func NewCharacterClassLevel(
 	}, true
 }
 
+func NewCharacterCasterLevel(source ability.CasterSource, level int) (CharacterCasterLevel, bool) {
+	if level <= 0 {
+		return characterCasterLevel{}, false
+	}
+
+	casterLevel := ability.NewImpossibleCasterLevel()
+	if !casterLevel.SetSourceLevel(source, level) {
+		return characterCasterLevel{}, false
+	}
+
+	return characterCasterLevel{
+		source: source,
+		level:  level,
+	}, true
+}
+
 func NewCharacterSkillRanks(id skill.SkillID, ranks int) (CharacterSkillRanks, bool) {
 	if ranks <= 0 || !isValidCharacterSkillID(id) {
 		return characterSkillRanks{}, false
@@ -85,6 +108,7 @@ func NewCharacterSkillRanks(id skill.SkillID, ranks int) (CharacterSkillRanks, b
 func NewCharacterFeatPrerequisiteState(
 	abilityScores []CharacterAbilityScore,
 	baseAttackBonus int,
+	casterLevels []CharacterCasterLevel,
 	classLevels []CharacterClassLevel,
 	classFeatures []characterclass.ClassFeatureID,
 	skillRanks []CharacterSkillRanks,
@@ -95,6 +119,11 @@ func NewCharacterFeatPrerequisiteState(
 	}
 
 	abilityScoreMap, ok := buildCharacterAbilityScoreMap(abilityScores)
+	if !ok {
+		return characterFeatPrerequisiteState{}, false
+	}
+
+	casterLevelMap, ok := buildCharacterCasterLevelMap(casterLevels)
 	if !ok {
 		return characterFeatPrerequisiteState{}, false
 	}
@@ -123,6 +152,7 @@ func NewCharacterFeatPrerequisiteState(
 		valid:           true,
 		abilityScores:   abilityScoreMap,
 		baseAttackBonus: baseAttackBonus,
+		casterLevels:    casterLevelMap,
 		classLevels:     classLevelMap,
 		classFeatures:   classFeatureSet,
 		skillRanks:      skillRankMap,
@@ -155,6 +185,14 @@ func (l characterClassLevel) GetClassID() characterclass.ClassID {
 }
 
 func (l characterClassLevel) GetLevel() int {
+	return l.level
+}
+
+func (l characterCasterLevel) GetSource() ability.CasterSource {
+	return l.source
+}
+
+func (l characterCasterLevel) GetLevel() int {
 	return l.level
 }
 
@@ -208,6 +246,8 @@ func (s characterFeatPrerequisiteState) SatisfiesPrerequisite(
 		return false
 	case characterfeat.SpellcastingPrerequisite:
 		return s.satisfiesSpellcastingAccess(value.GetAccess())
+	case characterfeat.CasterLevelPrerequisite:
+		return s.satisfiesCasterLevel(value.GetMinimumLevel())
 	case characterfeat.CharacterLevelPrerequisite:
 		return s.totalCharacterLevel() >= value.GetMinimumLevel()
 	case characterfeat.ClassLevelPrerequisite:
@@ -282,6 +322,20 @@ func (s characterFeatPrerequisiteState) satisfiesSpellcastingAccess(
 	return false
 }
 
+func (s characterFeatPrerequisiteState) satisfiesCasterLevel(minimumLevel int) bool {
+	if minimumLevel <= 0 {
+		return false
+	}
+
+	for _, level := range s.casterLevels {
+		if level >= minimumLevel {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (s characterFeatPrerequisiteState) featCategoryCount(
 	category characterfeat.FeatCategory,
 ) int {
@@ -315,6 +369,26 @@ func buildCharacterAbilityScoreMap(
 		}
 
 		result[value.id] = value.score
+	}
+
+	return result, true
+}
+
+func buildCharacterCasterLevelMap(
+	values []CharacterCasterLevel,
+) (map[ability.CasterSource]int, bool) {
+	result := make(map[ability.CasterSource]int, len(values))
+
+	for _, value := range values {
+		if _, ok := NewCharacterCasterLevel(value.source, value.level); !ok {
+			return nil, false
+		}
+
+		if _, ok := result[value.source]; ok {
+			return nil, false
+		}
+
+		result[value.source] = value.level
 	}
 
 	return result, true

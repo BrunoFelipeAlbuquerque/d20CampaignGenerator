@@ -211,6 +211,58 @@ func TestNewCharacterFeat_ComposesCharacterLevelAndSpellcastingPrerequisites(t *
 	}
 }
 
+func TestNewCharacterFeat_ComposesCasterLevelPrerequisites(t *testing.T) {
+	firstLevelCasterState := mustNewCharacterFeatPrerequisiteStateWithCasterLevelsForTest(
+		t,
+		nil,
+		0,
+		[]CharacterCasterLevel{mustNewCharacterCasterLevelForTest(t, ability.ArcaneCasterSource, 1)},
+		nil,
+		nil,
+		nil,
+		nil,
+	)
+
+	if _, ok := NewCharacterFeat(characterfeat.ScribeScrollFeatID, firstLevelCasterState); !ok {
+		t.Fatal("expected scribe scroll caster-level prerequisite to compose")
+	}
+
+	if _, ok := NewCharacterFeat(characterfeat.BrewPotionFeatID, firstLevelCasterState); ok {
+		t.Fatal("expected brew potion to reject a low caster level")
+	}
+
+	thirdLevelCasterState := mustNewCharacterFeatPrerequisiteStateWithCasterLevelsForTest(
+		t,
+		nil,
+		0,
+		[]CharacterCasterLevel{mustNewCharacterCasterLevelForTest(t, ability.DivineCasterSource, 3)},
+		nil,
+		nil,
+		nil,
+		nil,
+	)
+
+	if _, ok := NewCharacterFeat(characterfeat.BrewPotionFeatID, thirdLevelCasterState); !ok {
+		t.Fatal("expected brew potion caster-level prerequisite to compose from any caster source")
+	}
+}
+
+func TestNewCharacterFeat_CasterLevelPrerequisiteRequiresExplicitCasterLevelFact(t *testing.T) {
+	classOnlyState := mustNewCharacterFeatPrerequisiteStateForTest(
+		t,
+		nil,
+		0,
+		[]CharacterClassLevel{mustNewCharacterClassLevelForTest(t, characterclass.WizardClassID, 5)},
+		nil,
+		nil,
+		nil,
+	)
+
+	if _, ok := NewCharacterFeat(characterfeat.BrewPotionFeatID, classOnlyState); ok {
+		t.Fatal("expected caster-level prerequisites to reject class levels without a caster-level fact")
+	}
+}
+
 func TestNewCharacterFeat_RejectsUnsupportedSelectionPrerequisites(t *testing.T) {
 	state := mustNewCharacterFeatPrerequisiteStateForTest(t, nil, 1, nil, nil, nil, nil)
 
@@ -237,13 +289,22 @@ func TestNewCharacterFeat_RejectsUnsupportedSelectionPrerequisites(t *testing.T)
 }
 
 func TestNewCharacterFeatPrerequisiteState_RejectsInvalidEntries(t *testing.T) {
-	if _, ok := NewCharacterFeatPrerequisiteState(nil, -1, nil, nil, nil, nil); ok {
+	if _, ok := NewCharacterFeatPrerequisiteState(nil, -1, nil, nil, nil, nil, nil); ok {
 		t.Fatal("expected negative base attack bonus to be rejected")
+	}
+
+	if _, ok := NewCharacterCasterLevel(ability.CasterSource("Mystic"), 1); ok {
+		t.Fatal("expected unknown caster source to be rejected")
+	}
+
+	if _, ok := NewCharacterCasterLevel(ability.ArcaneCasterSource, 0); ok {
+		t.Fatal("expected zero caster level to be rejected")
 	}
 
 	if _, ok := NewCharacterFeatPrerequisiteState(
 		[]CharacterAbilityScore{{id: ability.AbilityScoreID("LUCK"), score: 10}},
 		0,
+		nil,
 		nil,
 		nil,
 		nil,
@@ -255,6 +316,19 @@ func TestNewCharacterFeatPrerequisiteState_RejectsInvalidEntries(t *testing.T) {
 	if _, ok := NewCharacterFeatPrerequisiteState(
 		nil,
 		0,
+		[]CharacterCasterLevel{{source: ability.CasterSource("Mystic"), level: 1}},
+		nil,
+		nil,
+		nil,
+		nil,
+	); ok {
+		t.Fatal("expected invalid caster level to be rejected")
+	}
+
+	if _, ok := NewCharacterFeatPrerequisiteState(
+		nil,
+		0,
+		nil,
 		[]CharacterClassLevel{{classID: characterclass.ClassID("alchemist"), level: 1}},
 		nil,
 		nil,
@@ -266,6 +340,7 @@ func TestNewCharacterFeatPrerequisiteState_RejectsInvalidEntries(t *testing.T) {
 	if _, ok := NewCharacterFeatPrerequisiteState(
 		nil,
 		0,
+		nil,
 		nil,
 		[]characterclass.ClassFeatureID{characterclass.ClassFeatureID("alchemy")},
 		nil,
@@ -279,6 +354,7 @@ func TestNewCharacterFeatPrerequisiteState_RejectsInvalidEntries(t *testing.T) {
 		0,
 		nil,
 		nil,
+		nil,
 		[]CharacterSkillRanks{{skillID: skill.SkillID("Sailing"), ranks: 1}},
 		nil,
 	); ok {
@@ -288,6 +364,7 @@ func TestNewCharacterFeatPrerequisiteState_RejectsInvalidEntries(t *testing.T) {
 	if _, ok := NewCharacterFeatPrerequisiteState(
 		nil,
 		0,
+		nil,
 		nil,
 		nil,
 		nil,
@@ -306,14 +383,29 @@ func TestNewCharacterFeatPrerequisiteState_RejectsDuplicateEntries(t *testing.T)
 		nil,
 		nil,
 		nil,
+		nil,
 	); ok {
 		t.Fatal("expected duplicate ability scores to be rejected")
+	}
+
+	casterLevel := mustNewCharacterCasterLevelForTest(t, ability.ArcaneCasterSource, 1)
+	if _, ok := NewCharacterFeatPrerequisiteState(
+		nil,
+		0,
+		[]CharacterCasterLevel{casterLevel, casterLevel},
+		nil,
+		nil,
+		nil,
+		nil,
+	); ok {
+		t.Fatal("expected duplicate caster levels to be rejected")
 	}
 
 	fighterLevel := mustNewCharacterClassLevelForTest(t, characterclass.FighterClassID, 1)
 	if _, ok := NewCharacterFeatPrerequisiteState(
 		nil,
 		0,
+		nil,
 		[]CharacterClassLevel{fighterLevel, fighterLevel},
 		nil,
 		nil,
@@ -328,6 +420,7 @@ func TestNewCharacterFeatPrerequisiteState_RejectsDuplicateEntries(t *testing.T)
 		0,
 		nil,
 		nil,
+		nil,
 		[]CharacterSkillRanks{rideRanks, rideRanks},
 		nil,
 	); ok {
@@ -337,6 +430,7 @@ func TestNewCharacterFeatPrerequisiteState_RejectsDuplicateEntries(t *testing.T)
 	if _, ok := NewCharacterFeatPrerequisiteState(
 		nil,
 		0,
+		nil,
 		nil,
 		nil,
 		nil,
@@ -406,6 +500,21 @@ func mustNewCharacterClassLevelForTest(
 	return value
 }
 
+func mustNewCharacterCasterLevelForTest(
+	t *testing.T,
+	source ability.CasterSource,
+	level int,
+) CharacterCasterLevel {
+	t.Helper()
+
+	value, ok := NewCharacterCasterLevel(source, level)
+	if !ok {
+		t.Fatalf("expected caster level %q %d to compose", source, level)
+	}
+
+	return value
+}
+
 func mustNewCharacterSkillRanksForTest(
 	t *testing.T,
 	id skill.SkillID,
@@ -432,9 +541,34 @@ func mustNewCharacterFeatPrerequisiteStateForTest(
 ) CharacterFeatPrerequisiteState {
 	t.Helper()
 
+	return mustNewCharacterFeatPrerequisiteStateWithCasterLevelsForTest(
+		t,
+		abilityScores,
+		baseAttackBonus,
+		nil,
+		classLevels,
+		classFeatures,
+		skillRanks,
+		feats,
+	)
+}
+
+func mustNewCharacterFeatPrerequisiteStateWithCasterLevelsForTest(
+	t *testing.T,
+	abilityScores []CharacterAbilityScore,
+	baseAttackBonus int,
+	casterLevels []CharacterCasterLevel,
+	classLevels []CharacterClassLevel,
+	classFeatures []characterclass.ClassFeatureID,
+	skillRanks []CharacterSkillRanks,
+	feats []characterfeat.FeatID,
+) CharacterFeatPrerequisiteState {
+	t.Helper()
+
 	state, ok := NewCharacterFeatPrerequisiteState(
 		abilityScores,
 		baseAttackBonus,
+		casterLevels,
 		classLevels,
 		classFeatures,
 		skillRanks,
