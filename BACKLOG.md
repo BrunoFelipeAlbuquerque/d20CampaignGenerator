@@ -24,7 +24,7 @@ These packages already exist and are part of the current project baseline. They 
 - `internal/domain/rpg/character`
   - current composition boundary already established
 
-The tracked backlog below starts at Race / Modifier / Skill / Class because those are the remaining source-of-truth delivery items after that existing foundation.
+The remaining planned backlog below starts at Race / Modifier / Skill / Class because those are the remaining source-of-truth delivery items after that existing foundation.
 
 ---
 
@@ -35,6 +35,16 @@ The tracked backlog below starts at Race / Modifier / Skill / Class because thos
   - Add `pf1-extract`, `pf1-chunk`, and `pf1-search` Makefile targets
   - Update `AGENTS.md` with Pathfinder rules lookup policy
   - Ensure rule-sensitive tasks require local `rg` lookup before implementation
+
+---
+
+## Completed foundation alignment
+
+- [X] Align Size measurement storage with Equipment dual-unit measurements (domain/chassis):
+  - length values store both feet and meters
+  - weight values store both pounds and kilograms
+  - existing imperial and metric getters remain available
+  - tests cover stored dual-unit values
 
 ---
 

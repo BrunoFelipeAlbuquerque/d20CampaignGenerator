@@ -90,6 +90,36 @@ func TestSizeGetTypicalRanges_ExposeImperialAndMetricValues(t *testing.T) {
 	}
 }
 
+func TestSizeMeasurements_StoreImperialAndMetricValues(t *testing.T) {
+	mediumHeight, ok := MediumSize.GetTypicalHeightRange()
+	if !ok {
+		t.Fatal("expected medium size height range to exist")
+	}
+
+	minimumHeight := mediumHeight.GetMin()
+	if minimumHeight.feet != 4 {
+		t.Fatalf("expected medium minimum height to store 4ft, got %.1fft", minimumHeight.feet)
+	}
+
+	if !almostEqual(minimumHeight.meters, 1.2192) {
+		t.Fatalf("expected medium minimum height to store about 1.2192m, got %.4fm", minimumHeight.meters)
+	}
+
+	mediumWeight, ok := MediumSize.GetTypicalWeightRange()
+	if !ok {
+		t.Fatal("expected medium size weight range to exist")
+	}
+
+	minimumWeight := mediumWeight.GetMin()
+	if !almostEqual(minimumWeight.pounds, 60) {
+		t.Fatalf("expected medium minimum weight to store 60lb, got %.2flb", minimumWeight.pounds)
+	}
+
+	if !almostEqual(minimumWeight.kilograms, 27.2155422) {
+		t.Fatalf("expected medium minimum weight to store about 27.22kg, got %.4fkg", minimumWeight.kilograms)
+	}
+}
+
 func TestSizeGetConstructBonusHP_UsesCoreTableAndProjectTitanic(t *testing.T) {
 	colossalBonus, ok := ColossalSize.GetConstructBonusHP()
 	if !ok || colossalBonus != 80 {
