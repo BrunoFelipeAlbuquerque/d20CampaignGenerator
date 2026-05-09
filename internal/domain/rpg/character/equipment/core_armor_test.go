@@ -208,3 +208,189 @@ func TestCoreArmorOrder_ContainsOnlySeededBatchOneIDs(t *testing.T) {
 		seen[id] = struct{}{}
 	}
 }
+
+func TestGetArmorByID_ReturnsSeededCoreArmor(t *testing.T) {
+	armor, ok := GetArmorByID(ChainShirtArmorID)
+	if !ok {
+		t.Fatal("expected chain shirt to be returned from core armor lookup")
+	}
+
+	if armor.GetID() != ChainShirtArmorID {
+		t.Fatalf("expected armor id %q, got %q", ChainShirtArmorID, armor.GetID())
+	}
+
+	if armor.GetDisplayName() != "Chain shirt" {
+		t.Fatalf("expected display name %q, got %q", "Chain shirt", armor.GetDisplayName())
+	}
+
+	if armor.GetCategory() != LightArmorCategory {
+		t.Fatalf("expected category %q, got %q", LightArmorCategory, armor.GetCategory())
+	}
+
+	if armor.GetArmorClassBonus().GetPoints() != 4 {
+		t.Fatalf("expected armor class bonus 4, got %d", armor.GetArmorClassBonus().GetPoints())
+	}
+
+	if !armor.GetMaximumDexterityBonus().HasMaximum() ||
+		armor.GetMaximumDexterityBonus().GetPoints() != 4 {
+		t.Fatal("expected maximum Dexterity bonus 4")
+	}
+
+	if armor.GetArmorCheckPenalty().GetPenalty() != -2 {
+		t.Fatalf("expected armor check penalty -2, got %d", armor.GetArmorCheckPenalty().GetPenalty())
+	}
+
+	if armor.GetArcaneSpellFailureChance().GetPercent() != 20 {
+		t.Fatalf("expected arcane spell failure chance 20, got %d", armor.GetArcaneSpellFailureChance().GetPercent())
+	}
+
+	if armor.GetSpeedImpact().HasImpact() {
+		t.Fatal("expected chain shirt to have no speed impact metadata")
+	}
+
+	if armor.GetCost().GetCopperPieces() != 10000 {
+		t.Fatalf("expected chain shirt cost 10000 cp, got %d cp", armor.GetCost().GetCopperPieces())
+	}
+
+	if armor.GetWeight().GetOunces() != 400 {
+		t.Fatalf("expected chain shirt weight 400 oz, got %d oz", armor.GetWeight().GetOunces())
+	}
+}
+
+func TestGetArmorByID_ReturnsDetachedCopy(t *testing.T) {
+	first, ok := GetArmorByID(ChainShirtArmorID)
+	if !ok {
+		t.Fatal("expected chain shirt to be returned from core armor lookup")
+	}
+
+	first.id = "changed"
+	first.displayName = "Changed"
+	first.category = HeavyArmorCategory
+	first.armorClassBonus.points = 99
+	first.maximumDexterityBonus.points = 99
+	first.armorCheckPenalty.penalty = 0
+	first.arcaneSpellFailureChance.percent = 99
+	first.speedImpact.hasImpact = true
+	first.cost.copperPieces = 999
+	first.weight.ounces = 999
+
+	second, ok := GetArmorByID(ChainShirtArmorID)
+	if !ok {
+		t.Fatal("expected chain shirt to be returned from core armor lookup")
+	}
+
+	if second.GetID() != ChainShirtArmorID {
+		t.Fatalf("expected stored armor id to remain %q, got %q", ChainShirtArmorID, second.GetID())
+	}
+
+	if second.GetDisplayName() != "Chain shirt" {
+		t.Fatalf("expected stored display name to remain %q, got %q", "Chain shirt", second.GetDisplayName())
+	}
+
+	if second.GetCategory() != LightArmorCategory {
+		t.Fatalf("expected stored category to remain %q, got %q", LightArmorCategory, second.GetCategory())
+	}
+
+	if second.GetArmorClassBonus().GetPoints() != 4 {
+		t.Fatalf("expected stored armor class bonus to remain 4, got %d", second.GetArmorClassBonus().GetPoints())
+	}
+
+	if second.GetMaximumDexterityBonus().GetPoints() != 4 {
+		t.Fatalf("expected stored maximum Dexterity bonus to remain 4, got %d", second.GetMaximumDexterityBonus().GetPoints())
+	}
+
+	if second.GetArmorCheckPenalty().GetPenalty() != -2 {
+		t.Fatalf("expected stored armor check penalty to remain -2, got %d", second.GetArmorCheckPenalty().GetPenalty())
+	}
+
+	if second.GetArcaneSpellFailureChance().GetPercent() != 20 {
+		t.Fatalf("expected stored arcane spell failure chance to remain 20, got %d", second.GetArcaneSpellFailureChance().GetPercent())
+	}
+
+	if second.GetSpeedImpact().HasImpact() {
+		t.Fatal("expected stored speed impact metadata to remain absent")
+	}
+
+	if second.GetCost().GetCopperPieces() != 10000 {
+		t.Fatalf("expected stored cost to remain 10000 cp, got %d cp", second.GetCost().GetCopperPieces())
+	}
+
+	if second.GetWeight().GetOunces() != 400 {
+		t.Fatalf("expected stored weight to remain 400 oz, got %d oz", second.GetWeight().GetOunces())
+	}
+}
+
+func TestGetArmorByID_RejectsUnknownArmor(t *testing.T) {
+	if _, ok := GetArmorByID(ArmorID("breastplate")); ok {
+		t.Fatal("expected unknown armor lookup to fail")
+	}
+}
+
+func TestGetArmor_ReturnsSeededCatalogInCoreOrder(t *testing.T) {
+	armor := GetArmor()
+	if len(armor) != len(coreArmorOrder) {
+		t.Fatalf("expected %d queried armor entries, got %d", len(coreArmorOrder), len(armor))
+	}
+
+	for i, expectedID := range coreArmorOrder {
+		if armor[i].GetID() != expectedID {
+			t.Fatalf("expected armor at index %d to be %q, got %q", i, expectedID, armor[i].GetID())
+		}
+	}
+}
+
+func TestGetArmor_ReturnsDetachedCopies(t *testing.T) {
+	first := GetArmor()
+	second := GetArmor()
+
+	first[0].id = "changed"
+	first[0].displayName = "Changed"
+	first[0].category = HeavyArmorCategory
+	first[0].armorClassBonus.points = 99
+	first[0].maximumDexterityBonus.points = 99
+	first[0].armorCheckPenalty.penalty = -9
+	first[0].arcaneSpellFailureChance.percent = 99
+	first[0].speedImpact.hasImpact = true
+	first[0].cost.copperPieces = 999
+	first[0].weight.ounces = 999
+
+	if second[0].GetID() != PaddedArmorID {
+		t.Fatalf("expected stored armor id to remain %q, got %q", PaddedArmorID, second[0].GetID())
+	}
+
+	if second[0].GetDisplayName() != "Padded" {
+		t.Fatalf("expected stored display name to remain %q, got %q", "Padded", second[0].GetDisplayName())
+	}
+
+	if second[0].GetCategory() != LightArmorCategory {
+		t.Fatalf("expected stored category to remain %q, got %q", LightArmorCategory, second[0].GetCategory())
+	}
+
+	if second[0].GetArmorClassBonus().GetPoints() != 1 {
+		t.Fatalf("expected stored armor class bonus to remain 1, got %d", second[0].GetArmorClassBonus().GetPoints())
+	}
+
+	if second[0].GetMaximumDexterityBonus().GetPoints() != 8 {
+		t.Fatalf("expected stored maximum Dexterity bonus to remain 8, got %d", second[0].GetMaximumDexterityBonus().GetPoints())
+	}
+
+	if second[0].GetArmorCheckPenalty().GetPenalty() != 0 {
+		t.Fatalf("expected stored armor check penalty to remain 0, got %d", second[0].GetArmorCheckPenalty().GetPenalty())
+	}
+
+	if second[0].GetArcaneSpellFailureChance().GetPercent() != 5 {
+		t.Fatalf("expected stored arcane spell failure chance to remain 5, got %d", second[0].GetArcaneSpellFailureChance().GetPercent())
+	}
+
+	if second[0].GetSpeedImpact().HasImpact() {
+		t.Fatal("expected stored speed impact metadata to remain absent")
+	}
+
+	if second[0].GetCost().GetCopperPieces() != 500 {
+		t.Fatalf("expected stored cost to remain 500 cp, got %d cp", second[0].GetCost().GetCopperPieces())
+	}
+
+	if second[0].GetWeight().GetOunces() != 160 {
+		t.Fatalf("expected stored weight to remain 160 oz, got %d oz", second[0].GetWeight().GetOunces())
+	}
+}

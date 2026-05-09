@@ -438,7 +438,7 @@ Do not expand this path into:
   - use Core Rulebook cost, weight, armor bonus, max Dexterity, armor check penalty, arcane spell failure, and speed impact metadata
   - no AC composition, proficiency application, armor speed recalculation, special materials, masterwork, or magic versions
 
-- [ ] Add armor and shield query helpers (resolution/query logic):
+- [X] Add armor and shield query helpers (resolution/query logic):
   - GetArmorByID
   - catalog enumeration for seeded core armor and shields
   - defensive-copy behavior

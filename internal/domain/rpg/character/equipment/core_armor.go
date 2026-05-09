@@ -28,6 +28,25 @@ var coreArmorOrder = []ArmorID{
 	ShieldTowerArmorID,
 }
 
+func GetArmorByID(id ArmorID) (Armor, bool) {
+	value, ok := coreArmor[id]
+	if !ok {
+		return armor{}, false
+	}
+
+	return cloneArmor(value), true
+}
+
+func GetArmor() []Armor {
+	values := make([]Armor, 0, len(coreArmorOrder))
+
+	for _, id := range coreArmorOrder {
+		values = append(values, cloneArmor(coreArmor[id]))
+	}
+
+	return values
+}
+
 func mustBuildCoreArmor() map[ArmorID]Armor {
 	return map[ArmorID]Armor{
 		PaddedArmorID: mustNewCoreLightArmor(
@@ -274,4 +293,19 @@ func mustNewCoreArmorArcaneSpellFailureChance(percent int) ArmorArcaneSpellFailu
 	}
 
 	return chance
+}
+
+func cloneArmor(value Armor) Armor {
+	return armor{
+		id:                       value.id,
+		displayName:              value.displayName,
+		category:                 value.category,
+		armorClassBonus:          value.armorClassBonus,
+		maximumDexterityBonus:    value.maximumDexterityBonus,
+		armorCheckPenalty:        value.armorCheckPenalty,
+		arcaneSpellFailureChance: value.arcaneSpellFailureChance,
+		speedImpact:              value.speedImpact,
+		cost:                     value.cost,
+		weight:                   value.weight,
+	}
 }
