@@ -108,6 +108,64 @@ func TestGetCarryableItemByRef_ReturnsSeededCoreWeapon(t *testing.T) {
 	}
 }
 
+func TestGetCarryableItemByRef_ReturnsSeededCoreArmor(t *testing.T) {
+	ref := mustNewArmorCarryableItemRefForTest(t, ChainShirtArmorID)
+
+	item, ok := GetCarryableItemByRef(ref)
+	if !ok {
+		t.Fatal("expected chain shirt to resolve through carryable lookup")
+	}
+
+	if item.GetRef().GetKind() != ArmorCarryableItemKind {
+		t.Fatalf("expected carryable kind %q, got %q", ArmorCarryableItemKind, item.GetRef().GetKind())
+	}
+
+	if item.GetRef().GetID() != string(ChainShirtArmorID) {
+		t.Fatalf("expected carryable id %q, got %q", ChainShirtArmorID, item.GetRef().GetID())
+	}
+
+	if item.GetDisplayName() != "Chain shirt" {
+		t.Fatalf("expected chain shirt display name, got %q", item.GetDisplayName())
+	}
+
+	if item.GetCost().GetCopperPieces() != 10000 {
+		t.Fatalf("expected chain shirt carryable cost 10000 cp, got %d cp", item.GetCost().GetCopperPieces())
+	}
+
+	if item.GetWeight().GetOunces() != 400 {
+		t.Fatalf("expected chain shirt carryable weight 400 oz, got %d oz", item.GetWeight().GetOunces())
+	}
+}
+
+func TestGetCarryableItemByRef_ReturnsSeededCoreShield(t *testing.T) {
+	ref := mustNewArmorCarryableItemRefForTest(t, ShieldHeavySteelArmorID)
+
+	item, ok := GetCarryableItemByRef(ref)
+	if !ok {
+		t.Fatal("expected heavy steel shield to resolve through carryable lookup")
+	}
+
+	if item.GetRef().GetKind() != ArmorCarryableItemKind {
+		t.Fatalf("expected carryable kind %q, got %q", ArmorCarryableItemKind, item.GetRef().GetKind())
+	}
+
+	if item.GetRef().GetID() != string(ShieldHeavySteelArmorID) {
+		t.Fatalf("expected carryable id %q, got %q", ShieldHeavySteelArmorID, item.GetRef().GetID())
+	}
+
+	if item.GetDisplayName() != "Shield, heavy steel" {
+		t.Fatalf("expected heavy steel shield display name, got %q", item.GetDisplayName())
+	}
+
+	if item.GetCost().GetCopperPieces() != 2000 {
+		t.Fatalf("expected heavy steel shield carryable cost 2000 cp, got %d cp", item.GetCost().GetCopperPieces())
+	}
+
+	if item.GetWeight().GetOunces() != 240 {
+		t.Fatalf("expected heavy steel shield carryable weight 240 oz, got %d oz", item.GetWeight().GetOunces())
+	}
+}
+
 func TestGetCarryableItemByRef_FailsClosedForUnseededWeaponAndArmorRefs(t *testing.T) {
 	weaponRef, ok := NewWeaponCarryableItemRef(WeaponID("longsword"))
 	if !ok {
@@ -252,6 +310,17 @@ func mustNewEquipmentCarryableItemRefForTest(t *testing.T, id EquipmentID) Carry
 	ref, ok := NewEquipmentCarryableItemRef(id)
 	if !ok {
 		t.Fatalf("expected equipment carryable ref %q to compose", id)
+	}
+
+	return ref
+}
+
+func mustNewArmorCarryableItemRefForTest(t *testing.T, id ArmorID) CarryableItemRef {
+	t.Helper()
+
+	ref, ok := NewArmorCarryableItemRef(id)
+	if !ok {
+		t.Fatalf("expected armor carryable ref %q to compose", id)
 	}
 
 	return ref
