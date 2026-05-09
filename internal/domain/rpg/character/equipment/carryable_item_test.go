@@ -118,7 +118,7 @@ func TestGetCarryableItemByRef_FailsClosedForUnseededWeaponAndArmorRefs(t *testi
 		t.Fatal("expected unseeded weapon lookup to fail closed")
 	}
 
-	armorRef, ok := NewArmorCarryableItemRef(ArmorID("chain-shirt"))
+	armorRef, ok := NewArmorCarryableItemRef(ArmorID("breastplate"))
 	if !ok {
 		t.Fatal("expected valid armor carryable ref to compose")
 	}
