@@ -11,6 +11,15 @@
 
 ## NEED
 
+- [ ] Compose caster-level feat prerequisites before selected core feats silently fail:
+  - `CasterLevelPrerequisite` is a validated prerequisite shape in the Feat domain
+  - core item creation feats such as `Scribe Scroll`, `Brew Potion`, `Craft Wand`, and `Forge Ring` are seeded with caster-level prerequisites
+  - core combat feats such as `Arcane Armor Training` and `Arcane Armor Mastery` are also seeded with caster-level prerequisites
+  - `CharacterFeatPrerequisiteState` currently accepts ability scores, BAB, class levels, class features, skill ranks, and feats, but no caster-level fact
+  - `CharacterFeatPrerequisiteState.SatisfiesPrerequisite` does not handle `CasterLevelPrerequisite`
+  - valid core feats with caster-level prerequisites therefore cannot compose through `character`
+  - fix the composition surface before adding another domain or expanding feat selection
+
 - [X] Clarify fractional multiclass saving-throw math before Class composition builds on the wrong assumption:
   - the project uses Pathfinder Unchained fractional base bonuses for core class BAB and base save progression math
   - added local rule data under `docs/pf1/text/PF_Unchained_Fractional_Base_Bonuses.txt`
@@ -116,6 +125,28 @@
 ---
 
 ## SHOULD
+
+- [ ] Define the carryable item lookup boundary before seeding core weapons or armor:
+  - `CharacterEquipment` currently accepts only `EquipmentID`
+  - `CharacterEquipment.GetEquipment` resolves only through `equipment.GetEquipmentByID`
+  - the seeded `Equipment` catalog currently covers the bounded adventuring-gear batch only
+  - the new `Weapon` and `Armor` chassis have separate IDs while also carrying cost and weight facts
+  - seeding core weapons or armor without a shared carryable lookup boundary would push inventory and carried weight toward duplicate side tables or special-case composition
+  - decide the smallest query/composition surface that lets gear, weapons, armor, and shields participate in carried inventory without adding combat behavior
+
+- [ ] Restore an executable core backlog path before continuing delivery:
+  - `BACKLOG.md` has completed P2 through the armor and shield chassis
+  - the first unchecked backlog items are now P9 far-future non-core work
+  - project rules say not to proceed into non-core content by default
+  - add the next core-only milestone before asking agents to continue with "next step"
+  - the likely next path is core equipment seed/query work after the carryable item boundary is clarified
+
+- [ ] Refresh README status after Feat and Equipment foundation work:
+  - `README.md` still says the status matrix reflects delivery only through Class, Spellcasting Progression, and Spell
+  - the status matrix omits the completed Feat and Equipment foundation surfaces
+  - `README.md` still says the next major tracked backlog area is `feat`
+  - `BACKLOG.md` and `docs/project-map.md` now show Feat is complete and the core equipment foundation path is complete through armor and shield chassis
+  - stale README guidance can send later planning back toward already-completed work
 
 - [X] Move non-core P2 behind the core equipment path:
   - `BACKLOG.md` now makes core equipment and inventory the next priority area after the completed character creation slice
