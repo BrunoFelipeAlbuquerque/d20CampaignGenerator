@@ -27,7 +27,8 @@ const (
 )
 
 type lengthValue struct {
-	feet float64
+	feet   float64
+	meters float64
 }
 type LengthValue = lengthValue
 
@@ -64,7 +65,7 @@ func (l lengthValue) GetFeet() float64 {
 }
 
 func (l lengthValue) GetMeters() float64 {
-	return l.feet * metersPerFoot
+	return l.meters
 }
 
 func (r lengthRange) GetMin() LengthValue {
@@ -208,7 +209,10 @@ func getSizeProfile(value Size) (sizeProfile, bool) {
 }
 
 func feet(value float64) lengthValue {
-	return lengthValue{feet: value}
+	return lengthValue{
+		feet:   value,
+		meters: feetToMeters(value),
+	}
 }
 
 func heightRange(minFeet float64, maxFeet float64, hasUpperBound bool) lengthRange {
@@ -220,11 +224,14 @@ func heightRange(minFeet float64, maxFeet float64, hasUpperBound bool) lengthRan
 }
 
 func pounds(value float64) weightValue {
-	return weightValue{grams: int(value * gramsPerPound)}
+	return weightValue{
+		pounds:    value,
+		kilograms: poundsToKilograms(value),
+	}
 }
 
 func tons(value float64) weightValue {
-	return pounds(value * 2000)
+	return pounds(value * poundsPerShortTon)
 }
 
 func weightRangePounds(minPounds float64, maxPounds float64, hasUpperBound bool) sizeWeightRange {
@@ -241,6 +248,14 @@ func weightRangeTons(minTons float64, maxTons float64, hasUpperBound bool) sizeW
 		max:           tons(maxTons),
 		hasUpperBound: hasUpperBound,
 	}
+}
+
+func feetToMeters(value float64) float64 {
+	return value * metersPerFoot
+}
+
+func poundsToKilograms(value float64) float64 {
+	return value * kilogramsPerPound
 }
 
 var sizeProfiles = map[Size]sizeProfile{

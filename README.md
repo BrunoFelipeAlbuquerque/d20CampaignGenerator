@@ -197,7 +197,7 @@ Current repo-specific differences include:
 
 - caster level tracked by source instead of by individual class
 - `Titanic` as an officialized project creature size
-- project-authored metric conversions for creature size ranges
+- project-authored dual imperial/metric creature size measurements
 
 Those differences exist in the repository, but they are not the source of truth for current delivery priority. `BACKLOG.md` and `AGENTS.md` are.
 
@@ -207,7 +207,7 @@ This table is the current foundation-audit snapshot for specialist review of the
 
 | Area | Exists | Core-correct now | Intentional limit | Project-specific note |
 | --- | --- | --- | --- | --- |
-| `ability` | yes | carrying capacity, hit point averages, core construct HP table, and core size ladder behavior are aligned for the current surface | not a full combat-state engine | `Titanic`, metric size conversions, source-based caster levels |
+| `ability` | yes | carrying capacity, hit point averages, core construct HP table, and core size ladder behavior are aligned for the current surface | not a full combat-state engine | `Titanic`, dual imperial/metric size measurements, source-based caster levels |
 | `creaturetype` | yes | supported base types and the currently supported subtype effects resolve structurally | partial subtype coverage and partial trait model by design | none beyond project-specific sizes if a caller uses them |
 | `character` | yes | composition helpers for race, class, HP, spellcasting progression, spell-list entries, feat prerequisites, selected carryable equipment, and carried weight | not a full character aggregate yet | none |
 | `race` | yes | 7 core races seeded with lookup helpers and automatic/bonus language metadata | core seed/query slice only | none |
@@ -301,7 +301,7 @@ Important notes:
 - includes Fly and Stealth modifiers
 - includes construct HP bonus
 - includes space and reach by body shape
-- includes typical height and weight ranges in imperial and metric
+- includes typical height and weight ranges with imperial and metric values stored together
 - includes the repo-specific `Titanic` size entry
 
 ## Glossary

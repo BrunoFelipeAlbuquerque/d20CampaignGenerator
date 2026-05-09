@@ -7,7 +7,8 @@ type weightRange struct {
 type WeightRange = weightRange
 
 type weightValue struct {
-	grams int
+	pounds    float64
+	kilograms float64
 }
 type WeightValue = weightValue
 
@@ -25,11 +26,11 @@ type spellcastingAbilityProfile struct {
 type SpellcastingAbilityProfile = spellcastingAbilityProfile
 
 func (w weightValue) GetKilograms() float64 {
-	return float64(w.grams) / 1000
+	return w.kilograms
 }
 
 func (w weightValue) GetPounds() float64 {
-	return float64(w.grams) / gramsPerPound
+	return w.pounds
 }
 
 func (r weightRange) GetMin() WeightValue {
@@ -129,12 +130,19 @@ func (r weightRange) multiply(multiplier int) weightRange {
 }
 
 func (w weightValue) multiply(multiplier int) weightValue {
+	factor := float64(multiplier)
+
 	return weightValue{
-		grams: w.grams * multiplier,
+		pounds:    w.pounds * factor,
+		kilograms: w.kilograms * factor,
 	}
 }
 
-const gramsPerPound = 453.59237
+const (
+	gramsPerPound     = 453.59237
+	kilogramsPerPound = gramsPerPound / 1000
+	poundsPerShortTon = 2000
+)
 
 func carryingCapacityRange(minPounds float64, maxPounds float64) weightRange {
 	return weightRange{
