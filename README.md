@@ -203,19 +203,21 @@ Those differences exist in the repository, but they are not the source of truth 
 
 ## Current Status Matrix
 
-This table is the current foundation-audit snapshot for specialist review of the existing repo surface. It reflects the delivered core foundation through Class, Spellcasting Progression, and Spell.
+This table is the current foundation-audit snapshot for specialist review of the existing repo surface. It reflects the delivered core foundation through Feat, the current Equipment foundation, and the first bounded simple-weapon seed batch.
 
 | Area | Exists | Core-correct now | Intentional limit | Project-specific note |
 | --- | --- | --- | --- | --- |
 | `ability` | yes | carrying capacity, hit point averages, core construct HP table, and core size ladder behavior are aligned for the current surface | not a full combat-state engine | `Titanic`, metric size conversions, source-based caster levels |
 | `creaturetype` | yes | supported base types and the currently supported subtype effects resolve structurally | partial subtype coverage and partial trait model by design | none beyond project-specific sizes if a caller uses them |
-| `character` | yes | composition helpers for the current foundation slices | not a full character aggregate yet | none |
+| `character` | yes | composition helpers for race, class, HP, spellcasting progression, spell-list entries, feat prerequisites, selected carryable equipment, and carried weight | not a full character aggregate yet | none |
 | `race` | yes | 7 core races seeded with lookup helpers and automatic/bonus language metadata | core seed/query slice only | none |
 | `modifier` | yes | validated modifier chassis, stacking resolution, and usable target/condition refs | not full downstream composition yet | none |
 | `skill` | yes | core catalog seeded with public lookup and grouped specializations accepted by the domain | not skill-rank composition yet | none |
 | `class` | yes | 11 core classes seeded with validated chassis, lookup helper, and spellcasting metadata | class feature details and character composition are not modeled yet | none |
 | `spellcasting progression` | yes | core progression tables seeded for bard, cleric, druid, paladin, ranger, sorcerer, and wizard | table/query surface only; no character spell-slot composition yet | none |
 | `spell` | yes | spell chassis, spell-list entries, core spell-list bindings, and core spell data are seeded with read-only query helpers | no spell preparation, casting, or character spellbook composition yet | none |
+| `feat` | yes | feat chassis, typed prerequisites, core feat seeds, read-only catalog helpers, and character prerequisite composition are present | no full feat allocation engine, selected-weapon choices, spell-school choices, or bonus-feat grant flow yet | none |
+| `equipment` | yes | equipment, weapon, armor/shield chassis, adventuring-gear seed/query helpers, carryable item boundary, character inventory composition, carried-weight composition, and core simple weapon batch 1 seeds are present | weapon query helpers and carryable weapon binding are next; no combat behavior, equipped slots, ammunition tracking, AC composition, or magic items | none |
 
 ## Current Domain Snapshot
 
@@ -386,18 +388,17 @@ Invalid body shapes are rejected.
 
 The next major tracked backlog area is:
 
-- feat
+- core carryable equipment catalogs
 
 That work will likely interact with:
 
-- ability scores
-- base attack bonus
-- class metadata
-- skill ranks
-- spellcasting metadata
-- existing feats as prerequisites
+- seeded weapon facts
+- equipment query helpers
+- carryable item lookup
+- character inventory
+- carried-weight composition
 
-So it is important to keep the current domains clean before building on top of them.
+The next executable backlog item is the weapon query helper slice for the seeded core simple weapons. Keep it query-only: no attack rolls, damage rolls, ammunition tracking, wielded slots, proficiency application, or combat behavior.
 
 ## Philosophy In One Sentence
 
