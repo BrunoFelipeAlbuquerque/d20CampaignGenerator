@@ -79,7 +79,9 @@ Keep composition thin. If logic belongs to a lower domain, add it there only whe
 
 ## Next Backlog Path
 
-The current core equipment and inventory foundation path is complete through the armor and shield chassis.
+The next core-only backlog path is P3 core carryable equipment catalogs.
+
+Start with the bounded core simple-weapon seed batch, then add weapon query helpers, then bind seeded weapons into the carryable lookup. After that, continue with the bounded light-armor and shield seed batch, armor query helpers, carryable lookup binding, and character carried-inventory composition tests.
 
 Check `BACKLOG.md` before starting any far-future non-core item.
 
@@ -88,9 +90,12 @@ The path should prove equipment facts and inventory references before adding com
 Out of scope for this path:
 
 - magic items
+- masterwork items or special materials
+- ammunition tracking
 - wealth generation, shops, or economy rules
 - crafting
 - combat resolution
+- equipped slots or wielded slots
 - full skill allocation
 - spell preparation or known-spell selection
 - combat state

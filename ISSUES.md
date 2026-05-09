@@ -134,7 +134,7 @@
   - seeding core weapons or armor without a shared carryable lookup boundary would push inventory and carried weight toward duplicate side tables or special-case composition
   - decide the smallest query/composition surface that lets gear, weapons, armor, and shields participate in carried inventory without adding combat behavior
 
-- [ ] Restore an executable core backlog path before continuing delivery:
+- [X] Restore an executable core backlog path before continuing delivery:
   - `BACKLOG.md` has completed P2 through the armor and shield chassis
   - the first unchecked backlog items are now P9 far-future non-core work
   - project rules say not to proceed into non-core content by default

@@ -367,6 +367,98 @@ Do not expand this path into:
 
 ---
 
+## P3 — Core carryable equipment catalogs
+
+### Weapon, armor, and shield seed/query path
+
+Near-term goal: expand the core carryable catalog in bounded batches now that inventory can address gear, weapons, armor, and shields through one carryable lookup.
+
+The path should answer:
+
+- can core weapon facts be seeded and queried without combat resolution?
+- can core armor and shield facts be seeded and queried without AC or proficiency resolution?
+- can seeded weapons, armor, and shields resolve through the carryable lookup used by character inventory?
+
+Do not expand this path into:
+
+- attack rolls or damage rolls
+- AC composition
+- weapon or armor proficiency application
+- wielded slots, equipped slots, or container contents
+- ammunition tracking
+- masterwork items, special materials, or magic items
+- wealth generation, shops, economy rules, or crafting
+- non-core sources
+
+- [ ] Seed core simple weapons batch 1 (core seed data):
+  - unarmed strike
+  - gauntlet
+  - dagger
+  - light mace
+  - sickle
+  - club
+  - heavy mace
+  - morningstar
+  - shortspear
+  - longspear
+  - quarterstaff
+  - spear
+  - crossbow, heavy
+  - crossbow, light
+  - dart
+  - javelin
+  - sling
+  - use Core Rulebook cost, weight, damage, critical, range, category, and proficiency
+  - no attack roll, damage roll, ammunition tracking, proficiency application, special materials, masterwork, or magic versions
+
+- [ ] Add weapon query helpers (resolution/query logic):
+  - GetWeaponByID
+  - catalog enumeration for seeded core weapons
+  - defensive-copy behavior
+  - unknown weapon IDs fail closed
+  - no new weapon seed data
+
+- [ ] Resolve seeded weapons through carryable item lookup (resolution/query logic):
+  - `GetCarryableItemByRef` resolves seeded `Weapon` refs
+  - display name, cost, and weight come from the weapon seed
+  - unseeded or malformed weapon refs fail closed
+  - no attack roll, damage roll, ammunition tracking, wielded slots, or combat behavior
+
+- [ ] Seed core light armor and shields batch 1 (core seed data):
+  - padded armor
+  - leather armor
+  - studded leather armor
+  - chain shirt
+  - buckler
+  - light wooden shield
+  - light steel shield
+  - heavy wooden shield
+  - heavy steel shield
+  - tower shield
+  - use Core Rulebook cost, weight, armor bonus, max Dexterity, armor check penalty, arcane spell failure, and speed impact metadata
+  - no AC composition, proficiency application, armor speed recalculation, special materials, masterwork, or magic versions
+
+- [ ] Add armor and shield query helpers (resolution/query logic):
+  - GetArmorByID
+  - catalog enumeration for seeded core armor and shields
+  - defensive-copy behavior
+  - unknown armor IDs fail closed
+  - no new armor or shield seed data
+
+- [ ] Resolve seeded armor and shields through carryable item lookup (resolution/query logic):
+  - `GetCarryableItemByRef` resolves seeded `Armor` refs
+  - display name, cost, and weight come from the armor or shield seed
+  - unseeded or malformed armor refs fail closed
+  - no AC composition, proficiency application, equipped slots, or combat behavior
+
+- [ ] Compose carried weapons, armor, and shields with character inventory (resolution/query logic):
+  - selected weapon, armor, and shield carryable refs compose through `character`
+  - carried weight uses the shared carryable lookup for seeded weapons, armor, and shields
+  - invalid, malformed, or unknown carryable refs fail closed
+  - no equipped slots, attack rolls, AC composition, proficiency application, or combat behavior
+
+---
+
 ## P9 — Far future (non-core)
 
 - [ ] Archetype / Alternate Class Feature
