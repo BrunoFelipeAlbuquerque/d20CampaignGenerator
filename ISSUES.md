@@ -141,7 +141,7 @@
   - add the next core-only milestone before asking agents to continue with "next step"
   - the likely next path is core equipment seed/query work after the carryable item boundary is clarified
 
-- [ ] Refresh README status after Feat and Equipment foundation work:
+- [X] Refresh README status after Feat and Equipment foundation work:
   - `README.md` still says the status matrix reflects delivery only through Class, Spellcasting Progression, and Spell
   - the status matrix omits the completed Feat and Equipment foundation surfaces
   - `README.md` still says the next major tracked backlog area is `feat`
