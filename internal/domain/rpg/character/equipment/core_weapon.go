@@ -42,6 +42,25 @@ var coreSimpleWeaponOrder = []WeaponID{
 	SlingWeaponID,
 }
 
+func GetWeaponByID(id WeaponID) (Weapon, bool) {
+	value, ok := coreSimpleWeapons[id]
+	if !ok {
+		return weapon{}, false
+	}
+
+	return cloneWeapon(value), true
+}
+
+func GetWeapons() []Weapon {
+	weapons := make([]Weapon, 0, len(coreSimpleWeaponOrder))
+
+	for _, id := range coreSimpleWeaponOrder {
+		weapons = append(weapons, cloneWeapon(coreSimpleWeapons[id]))
+	}
+
+	return weapons
+}
+
 func mustBuildCoreSimpleWeapons() map[WeaponID]Weapon {
 	return map[WeaponID]Weapon{
 		GauntletWeaponID: mustNewCoreSimpleWeapon(
@@ -317,4 +336,18 @@ func mustNewCoreWeaponRangeIncrement(feet int) WeaponRangeIncrement {
 	}
 
 	return rangeIncrement
+}
+
+func cloneWeapon(value Weapon) Weapon {
+	return weapon{
+		id:                  value.id,
+		displayName:         value.displayName,
+		proficiencyCategory: value.proficiencyCategory,
+		category:            value.category,
+		damageProfile:       value.damageProfile,
+		criticalProfile:     value.criticalProfile,
+		rangeIncrement:      value.rangeIncrement,
+		cost:                value.cost,
+		weight:              value.weight,
+	}
 }
