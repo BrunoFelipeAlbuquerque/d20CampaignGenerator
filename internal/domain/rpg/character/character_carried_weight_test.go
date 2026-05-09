@@ -131,21 +131,26 @@ func TestNewCharacterCarriedWeight_RejectsInvalidStrength(t *testing.T) {
 func TestNewCharacterCarriedWeight_RejectsInvalidCarriedEquipment(t *testing.T) {
 	if _, ok := NewCharacterCarriedWeight(
 		mustCharacterCarriedWeightStrength(t, 10),
-		[]CharacterEquipment{{id: characterequipment.EquipmentID("ten-foot-pole"), quantity: 1}},
+		[]CharacterEquipment{{
+			ref:      mustCharacterCarriedWeightRef(t, characterequipment.EquipmentID("ten-foot-pole")),
+			quantity: 1,
+		}},
 	); ok {
 		t.Fatal("expected unknown carried equipment to be rejected")
 	}
 
+	backpackRef := mustCharacterCarriedWeightRef(t, characterequipment.BackpackEmptyEquipmentID)
+
 	if _, ok := NewCharacterCarriedWeight(
 		mustCharacterCarriedWeightStrength(t, 10),
-		[]CharacterEquipment{{id: characterequipment.BackpackEmptyEquipmentID, quantity: 0}},
+		[]CharacterEquipment{{ref: backpackRef, quantity: 0}},
 	); ok {
 		t.Fatal("expected carried equipment with zero quantity to be rejected")
 	}
 
 	if _, ok := NewCharacterCarriedWeight(
 		mustCharacterCarriedWeightStrength(t, 10),
-		[]CharacterEquipment{{id: characterequipment.BackpackEmptyEquipmentID, quantity: -1}},
+		[]CharacterEquipment{{ref: backpackRef, quantity: -1}},
 	); ok {
 		t.Fatal("expected carried equipment with negative quantity to be rejected")
 	}
@@ -158,12 +163,26 @@ func mustCharacterCarriedWeightEquipment(
 ) CharacterEquipment {
 	t.Helper()
 
-	selectedEquipment, ok := NewCharacterEquipment(id, quantity)
+	selectedEquipment, ok := NewCharacterEquipment(mustCharacterCarriedWeightRef(t, id), quantity)
 	if !ok {
 		t.Fatalf("expected selected equipment %q x%d to be constructed", id, quantity)
 	}
 
 	return selectedEquipment
+}
+
+func mustCharacterCarriedWeightRef(
+	t *testing.T,
+	id characterequipment.EquipmentID,
+) characterequipment.CarryableItemRef {
+	t.Helper()
+
+	ref, ok := characterequipment.NewEquipmentCarryableItemRef(id)
+	if !ok {
+		t.Fatalf("expected carryable equipment ref %q to be constructed", id)
+	}
+
+	return ref
 }
 
 func mustCharacterCarriedWeightStrength(t *testing.T, score int) ability.AbilityScore {
