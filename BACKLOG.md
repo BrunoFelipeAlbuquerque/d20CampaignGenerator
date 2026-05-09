@@ -390,7 +390,7 @@ Do not expand this path into:
 - wealth generation, shops, economy rules, or crafting
 - non-core sources
 
-- [ ] Seed core simple weapons batch 1 (core seed data):
+- [X] Seed core simple weapons batch 1 (core seed data):
   - unarmed strike
   - gauntlet
   - dagger
