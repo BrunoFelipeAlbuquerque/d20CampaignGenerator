@@ -57,17 +57,115 @@ func TestNewCharacterEquipment_ComposesCoreEquipmentThroughCharacterBoundary(t *
 	}
 }
 
-func TestNewCharacterEquipment_RejectsUnknownEquipment(t *testing.T) {
-	ref := mustNewCharacterEquipmentRefForTest(t, characterequipment.EquipmentID("ten-foot-pole"))
+func TestNewCharacterEquipment_ComposesCoreWeaponArmorAndShieldThroughCharacterBoundary(t *testing.T) {
+	testCases := []struct {
+		name        string
+		ref         characterequipment.CarryableItemRef
+		kind        characterequipment.CarryableItemKind
+		displayName string
+		cost        int
+		ounces      int
+	}{
+		{
+			name:        "weapon",
+			ref:         mustNewCharacterWeaponRefForTest(t, characterequipment.DaggerWeaponID),
+			kind:        characterequipment.WeaponCarryableItemKind,
+			displayName: "Dagger",
+			cost:        200,
+			ounces:      16,
+		},
+		{
+			name:        "armor",
+			ref:         mustNewCharacterArmorRefForTest(t, characterequipment.ChainShirtArmorID),
+			kind:        characterequipment.ArmorCarryableItemKind,
+			displayName: "Chain shirt",
+			cost:        10000,
+			ounces:      400,
+		},
+		{
+			name:        "shield",
+			ref:         mustNewCharacterArmorRefForTest(t, characterequipment.ShieldHeavySteelArmorID),
+			kind:        characterequipment.ArmorCarryableItemKind,
+			displayName: "Shield, heavy steel",
+			cost:        2000,
+			ounces:      240,
+		},
+	}
 
-	if _, ok := NewCharacterEquipment(ref, 1); ok {
-		t.Fatal("expected unknown equipment to be rejected")
+	for _, tc := range testCases {
+		selectedEquipment, ok := NewCharacterEquipment(tc.ref, 1)
+		if !ok {
+			t.Fatalf("expected core %s to compose through character boundary", tc.name)
+		}
+
+		if selectedEquipment.GetCarryableItemRef().GetKind() != tc.kind {
+			t.Fatalf("expected selected %s carryable kind %q, got %q", tc.name, tc.kind, selectedEquipment.GetCarryableItemRef().GetKind())
+		}
+
+		if selectedEquipment.GetEquipmentID() != "" {
+			t.Fatalf("expected selected %s not to expose an equipment id, got %q", tc.name, selectedEquipment.GetEquipmentID())
+		}
+
+		if _, ok := selectedEquipment.GetEquipment(); ok {
+			t.Fatalf("expected selected %s not to resolve through equipment-only getter", tc.name)
+		}
+
+		carryableItem, ok := selectedEquipment.GetCarryableItem()
+		if !ok {
+			t.Fatalf("expected selected %s carryable item to resolve", tc.name)
+		}
+
+		if carryableItem.GetDisplayName() != tc.displayName {
+			t.Fatalf("expected selected %s display name %q, got %q", tc.name, tc.displayName, carryableItem.GetDisplayName())
+		}
+
+		if carryableItem.GetCost().GetCopperPieces() != tc.cost {
+			t.Fatalf("expected selected %s cost %d cp, got %d cp", tc.name, tc.cost, carryableItem.GetCost().GetCopperPieces())
+		}
+
+		if carryableItem.GetWeight().GetOunces() != tc.ounces {
+			t.Fatalf("expected selected %s weight %d oz, got %d oz", tc.name, tc.ounces, carryableItem.GetWeight().GetOunces())
+		}
 	}
 }
 
-func TestNewCharacterEquipment_RejectsMalformedEquipmentID(t *testing.T) {
+func TestNewCharacterEquipment_RejectsUnknownCarryableRefs(t *testing.T) {
+	testCases := []struct {
+		name string
+		ref  characterequipment.CarryableItemRef
+	}{
+		{
+			name: "equipment",
+			ref:  mustNewCharacterEquipmentRefForTest(t, characterequipment.EquipmentID("ten-foot-pole")),
+		},
+		{
+			name: "weapon",
+			ref:  mustNewCharacterWeaponRefForTest(t, characterequipment.WeaponID("longsword")),
+		},
+		{
+			name: "armor",
+			ref:  mustNewCharacterArmorRefForTest(t, characterequipment.ArmorID("breastplate")),
+		},
+	}
+
+	for _, tc := range testCases {
+		if _, ok := NewCharacterEquipment(tc.ref, 1); ok {
+			t.Fatalf("expected unknown %s carryable ref to be rejected", tc.name)
+		}
+	}
+}
+
+func TestNewCharacterEquipment_RejectsMalformedCarryableIDs(t *testing.T) {
 	if _, ok := characterequipment.NewEquipmentCarryableItemRef(characterequipment.EquipmentID(" backpack-empty")); ok {
 		t.Fatal("expected malformed equipment id to be rejected")
+	}
+
+	if _, ok := characterequipment.NewWeaponCarryableItemRef(characterequipment.WeaponID(" dagger")); ok {
+		t.Fatal("expected malformed weapon id to be rejected")
+	}
+
+	if _, ok := characterequipment.NewArmorCarryableItemRef(characterequipment.ArmorID(" chain-shirt")); ok {
+		t.Fatal("expected malformed armor id to be rejected")
 	}
 
 	if _, ok := NewCharacterEquipment(characterequipment.CarryableItemRef{}, 1); ok {
@@ -117,6 +215,34 @@ func mustNewCharacterEquipmentRefForTest(
 	ref, ok := characterequipment.NewEquipmentCarryableItemRef(id)
 	if !ok {
 		t.Fatalf("expected equipment carryable ref %q to compose", id)
+	}
+
+	return ref
+}
+
+func mustNewCharacterWeaponRefForTest(
+	t *testing.T,
+	id characterequipment.WeaponID,
+) characterequipment.CarryableItemRef {
+	t.Helper()
+
+	ref, ok := characterequipment.NewWeaponCarryableItemRef(id)
+	if !ok {
+		t.Fatalf("expected weapon carryable ref %q to compose", id)
+	}
+
+	return ref
+}
+
+func mustNewCharacterArmorRefForTest(
+	t *testing.T,
+	id characterequipment.ArmorID,
+) characterequipment.CarryableItemRef {
+	t.Helper()
+
+	ref, ok := characterequipment.NewArmorCarryableItemRef(id)
+	if !ok {
+		t.Fatalf("expected armor carryable ref %q to compose", id)
 	}
 
 	return ref
