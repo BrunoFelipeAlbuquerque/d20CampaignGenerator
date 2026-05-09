@@ -126,6 +126,22 @@
 
 ## SHOULD
 
+- [ ] Refresh README next-step guidance after the independent audit:
+  - independent audit found `README.md` still says the next major tracked backlog area is core carryable equipment catalogs
+  - `README.md` still says the next executable backlog item is the weapon query helper slice for seeded core simple weapons
+  - `BACKLOG.md` and `docs/project-map.md` now show P4 core feat selection context is the next core-only path
+  - stale README guidance can send future delivery back into already-completed P3 equipment work
+  - update README status and near-term next steps without changing backlog order
+
+- [ ] Define the selected-weapon proficiency adapter boundary before composing P4 weapon feats:
+  - independent audit found the next P4 item is valid but has a vocabulary mismatch risk
+  - `class` stores weapon proficiency facts as `WeaponProficiencyID` labels such as `Simple Weapons`, `Martial Weapons`, and individual weapon names
+  - `equipment` stores seeded weapons as `WeaponID` slugs plus `WeaponProficiencyCategory` values such as `Simple`, `Martial`, and `Exotic`
+  - raw string matching between those surfaces would either fail valid core cases or couple domains accidentally
+  - the first P4 backlog item should use an explicit `character`-boundary adapter for category and individual proficiency checks
+  - cover category proficiency, individual proficiency, unknown or malformed selected weapons, and unsupported mappings
+  - do not add attack rolls, damage rolls, feat bonus application, wielded slots, or combat behavior
+
 - [X] Define the carryable item lookup boundary before seeding core weapons or armor:
   - `CharacterEquipment` currently accepts only `EquipmentID`
   - `CharacterEquipment.GetEquipment` resolves only through `equipment.GetEquipmentByID`
