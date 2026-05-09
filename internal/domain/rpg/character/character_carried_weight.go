@@ -63,12 +63,12 @@ func totalCarriedEquipmentOunces(equipment []CharacterEquipment) (int, bool) {
 			return 0, false
 		}
 
-		resolvedEquipment, ok := selectedEquipment.GetEquipment()
+		carryableItem, ok := selectedEquipment.GetCarryableItem()
 		if !ok {
 			return 0, false
 		}
 
-		weightOunces := resolvedEquipment.GetWeight().GetOunces()
+		weightOunces := carryableItem.GetWeight().GetOunces()
 		if weightOunces < 0 || wouldOverflowWeightTotal(total, weightOunces, selectedEquipment.quantity) {
 			return 0, false
 		}

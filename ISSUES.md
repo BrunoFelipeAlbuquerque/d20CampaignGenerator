@@ -126,7 +126,7 @@
 
 ## SHOULD
 
-- [ ] Define the carryable item lookup boundary before seeding core weapons or armor:
+- [X] Define the carryable item lookup boundary before seeding core weapons or armor:
   - `CharacterEquipment` currently accepts only `EquipmentID`
   - `CharacterEquipment.GetEquipment` resolves only through `equipment.GetEquipmentByID`
   - the seeded `Equipment` catalog currently covers the bounded adventuring-gear batch only

@@ -52,7 +52,7 @@ Do not bulk-read local rule text, solution notes, or internal role files unless 
 | `internal/domain/rpg/character/class` | Core class chassis, class seeds, spellcasting progression tables, class feature/proficiency IDs | Class metadata only; final character stats compose elsewhere |
 | `internal/domain/rpg/character/spell` | Spell chassis, core spell data, spell-list entries, class spell-list queries | Spell/list metadata only; preparation/casting compose later |
 | `internal/domain/rpg/character/feat` | Feat chassis, typed prerequisites, core feat seeds, feat catalog lookup | Feat facts only; selected character feats compose elsewhere |
-| `internal/domain/rpg/character/equipment` | Core equipment chassis, weapon chassis, armor/shield chassis, core adventuring-gear seed batch, and equipment lookup | Equipment facts only; selection and carried inventory compose in `character` |
+| `internal/domain/rpg/character/equipment` | Core equipment chassis, weapon chassis, armor/shield chassis, core adventuring-gear seed batch, and carryable item lookup | Equipment facts only; selection and carried inventory compose in `character` |
 | `internal/domain/rpg/character` | Character composition boundary and thin adapters across domains | Only place for cross-domain character composition |
 | `internal/domain/rpg/modifier` | Modifier refs, sources, entries, and stacking/penalty resolution | Shared modifier logic; not character-specific by itself |
 | `internal/text` | Generic text helpers | No RPG rules |
@@ -69,7 +69,7 @@ Current character-boundary adapters:
 - `character_spellcasting_progression.go`: class spellcasting progression access
 - `character_spell_list_entry.go`: class spell-list entry access
 - `character_feat.go`: feat prerequisite state and selected feat validation
-- `character_equipment.go`: selected core equipment lookup with quantity
+- `character_equipment.go`: selected carryable item lookup with quantity
 - `character_carried_weight.go`: carried equipment weight and load category from Strength
 - `racial_hit_points.go`: creature rules to racial HP bridge
 
