@@ -445,7 +445,7 @@ Do not expand this path into:
   - unknown armor IDs fail closed
   - no new armor or shield seed data
 
-- [ ] Resolve seeded armor and shields through carryable item lookup (resolution/query logic):
+- [X] Resolve seeded armor and shields through carryable item lookup (resolution/query logic):
   - `GetCarryableItemByRef` resolves seeded `Armor` refs
   - display name, cost, and weight come from the armor or shield seed
   - unseeded or malformed armor refs fail closed
