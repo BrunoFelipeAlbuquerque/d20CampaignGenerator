@@ -351,7 +351,7 @@ Do not expand this path into:
   - tests
   - no attack roll, damage roll, proficiency application, or combat resolution
 
-- [ ] Create the Armor and Shield domain chassis (domain/chassis):
+- [X] Create the Armor and Shield domain chassis (domain/chassis):
   - ArmorID
   - armor or shield category
   - armor bonus
