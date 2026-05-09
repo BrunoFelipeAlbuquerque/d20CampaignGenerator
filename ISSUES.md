@@ -11,7 +11,7 @@
 
 ## NEED
 
-- [ ] Compose caster-level feat prerequisites before selected core feats silently fail:
+- [X] Compose caster-level feat prerequisites before selected core feats silently fail:
   - `CasterLevelPrerequisite` is a validated prerequisite shape in the Feat domain
   - core item creation feats such as `Scribe Scroll`, `Brew Potion`, `Craft Wand`, and `Forge Ring` are seeded with caster-level prerequisites
   - core combat feats such as `Arcane Armor Training` and `Arcane Armor Mastery` are also seeded with caster-level prerequisites
