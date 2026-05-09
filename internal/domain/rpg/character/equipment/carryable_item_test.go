@@ -79,6 +79,35 @@ func TestGetCarryableItemByRef_ReturnsSeededCoreEquipment(t *testing.T) {
 	}
 }
 
+func TestGetCarryableItemByRef_ReturnsSeededCoreWeapon(t *testing.T) {
+	ref := mustNewWeaponCarryableItemRefForTest(t, DaggerWeaponID)
+
+	item, ok := GetCarryableItemByRef(ref)
+	if !ok {
+		t.Fatal("expected dagger to resolve through carryable lookup")
+	}
+
+	if item.GetRef().GetKind() != WeaponCarryableItemKind {
+		t.Fatalf("expected carryable kind %q, got %q", WeaponCarryableItemKind, item.GetRef().GetKind())
+	}
+
+	if item.GetRef().GetID() != string(DaggerWeaponID) {
+		t.Fatalf("expected carryable id %q, got %q", DaggerWeaponID, item.GetRef().GetID())
+	}
+
+	if item.GetDisplayName() != "Dagger" {
+		t.Fatalf("expected dagger display name, got %q", item.GetDisplayName())
+	}
+
+	if item.GetCost().GetCopperPieces() != 200 {
+		t.Fatalf("expected dagger carryable cost 200 cp, got %d cp", item.GetCost().GetCopperPieces())
+	}
+
+	if item.GetWeight().GetOunces() != 16 {
+		t.Fatalf("expected dagger carryable weight 16 oz, got %d oz", item.GetWeight().GetOunces())
+	}
+}
+
 func TestGetCarryableItemByRef_FailsClosedForUnseededWeaponAndArmorRefs(t *testing.T) {
 	weaponRef, ok := NewWeaponCarryableItemRef(WeaponID("longsword"))
 	if !ok {
@@ -223,6 +252,17 @@ func mustNewEquipmentCarryableItemRefForTest(t *testing.T, id EquipmentID) Carry
 	ref, ok := NewEquipmentCarryableItemRef(id)
 	if !ok {
 		t.Fatalf("expected equipment carryable ref %q to compose", id)
+	}
+
+	return ref
+}
+
+func mustNewWeaponCarryableItemRefForTest(t *testing.T, id WeaponID) CarryableItemRef {
+	t.Helper()
+
+	ref, ok := NewWeaponCarryableItemRef(id)
+	if !ok {
+		t.Fatalf("expected weapon carryable ref %q to compose", id)
 	}
 
 	return ref

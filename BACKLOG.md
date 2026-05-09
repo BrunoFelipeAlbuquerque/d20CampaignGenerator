@@ -418,7 +418,7 @@ Do not expand this path into:
   - unknown weapon IDs fail closed
   - no new weapon seed data
 
-- [ ] Resolve seeded weapons through carryable item lookup (resolution/query logic):
+- [X] Resolve seeded weapons through carryable item lookup (resolution/query logic):
   - `GetCarryableItemByRef` resolves seeded `Weapon` refs
   - display name, cost, and weight come from the weapon seed
   - unseeded or malformed weapon refs fail closed
