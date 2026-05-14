@@ -33,18 +33,19 @@ type characterSkillRanks struct {
 type CharacterSkillRanks = characterSkillRanks
 
 type characterFeatPrerequisiteState struct {
-	valid                    bool
-	abilityScores            map[ability.AbilityScoreID]int
-	baseAttackBonus          int
-	casterLevels             map[ability.CasterSource]int
-	classLevels              map[characterclass.ClassID]int
-	classFeatures            map[characterclass.ClassFeatureID]struct{}
-	skillRanks               map[skill.SkillID]int
-	selectedWeapon           characterSelectedWeapon
-	selectedWeaponFeats      map[characterfeat.FeatID]characterSelectedWeapon
-	selectedSpellSchool      characterSelectedSpellSchool
-	selectedSpellSchoolFeats map[characterfeat.FeatID]characterSelectedSpellSchool
-	feats                    map[characterfeat.FeatID]struct{}
+	valid                       bool
+	abilityScores               map[ability.AbilityScoreID]int
+	baseAttackBonus             int
+	casterLevels                map[ability.CasterSource]int
+	classLevels                 map[characterclass.ClassID]int
+	classFeatures               map[characterclass.ClassFeatureID]struct{}
+	skillRanks                  map[skill.SkillID]int
+	selectedWeapon              characterSelectedWeapon
+	selectedWeaponFeats         map[characterfeat.FeatID]characterSelectedWeapon
+	selectedSpellSchool         characterSelectedSpellSchool
+	selectedSpellSchoolFeats    map[characterfeat.FeatID]characterSelectedSpellSchool
+	selectedFamiliarEligibility characterSelectedFamiliarEligibility
+	feats                       map[characterfeat.FeatID]struct{}
 }
 type CharacterFeatPrerequisiteState = characterFeatPrerequisiteState
 
@@ -130,6 +131,7 @@ func NewCharacterFeatPrerequisiteState(
 		nil,
 		characterSelectedSpellSchool{},
 		nil,
+		characterSelectedFamiliarEligibility{},
 		feats,
 	)
 }
@@ -155,6 +157,7 @@ func NewCharacterFeatPrerequisiteStateWithSelectedWeapon(
 		nil,
 		characterSelectedSpellSchool{},
 		nil,
+		characterSelectedFamiliarEligibility{},
 		feats,
 	)
 }
@@ -181,6 +184,7 @@ func NewCharacterFeatPrerequisiteStateWithSelectedWeaponFeats(
 		selectedWeaponFeats,
 		characterSelectedSpellSchool{},
 		nil,
+		characterSelectedFamiliarEligibility{},
 		feats,
 	)
 }
@@ -207,6 +211,33 @@ func NewCharacterFeatPrerequisiteStateWithSelectedSpellSchoolFeats(
 		nil,
 		selectedSpellSchool,
 		selectedSpellSchoolFeats,
+		characterSelectedFamiliarEligibility{},
+		feats,
+	)
+}
+
+func NewCharacterFeatPrerequisiteStateWithSelectedFamiliarEligibility(
+	abilityScores []CharacterAbilityScore,
+	baseAttackBonus int,
+	casterLevels []CharacterCasterLevel,
+	classLevels []CharacterClassLevel,
+	classFeatures []characterclass.ClassFeatureID,
+	skillRanks []CharacterSkillRanks,
+	selectedFamiliarEligibility CharacterSelectedFamiliarEligibility,
+	feats []characterfeat.FeatID,
+) (CharacterFeatPrerequisiteState, bool) {
+	return newCharacterFeatPrerequisiteState(
+		abilityScores,
+		baseAttackBonus,
+		casterLevels,
+		classLevels,
+		classFeatures,
+		skillRanks,
+		characterSelectedWeapon{},
+		nil,
+		characterSelectedSpellSchool{},
+		nil,
+		selectedFamiliarEligibility,
 		feats,
 	)
 }
@@ -222,6 +253,7 @@ func newCharacterFeatPrerequisiteState(
 	selectedWeaponFeats []CharacterSelectedWeaponFeat,
 	selectedSpellSchool CharacterSelectedSpellSchool,
 	selectedSpellSchoolFeats []CharacterSelectedSpellSchoolFeat,
+	selectedFamiliarEligibility CharacterSelectedFamiliarEligibility,
 	feats []characterfeat.FeatID,
 ) (CharacterFeatPrerequisiteState, bool) {
 	if baseAttackBonus < 0 {
@@ -273,6 +305,11 @@ func newCharacterFeatPrerequisiteState(
 		return characterFeatPrerequisiteState{}, false
 	}
 
+	selectedFamiliarEligibilityValue, ok := buildCharacterSelectedFamiliarEligibility(selectedFamiliarEligibility)
+	if !ok {
+		return characterFeatPrerequisiteState{}, false
+	}
+
 	featSet, ok := buildCharacterFeatSet(feats)
 	if !ok {
 		return characterFeatPrerequisiteState{}, false
@@ -283,18 +320,19 @@ func newCharacterFeatPrerequisiteState(
 	}
 
 	return characterFeatPrerequisiteState{
-		valid:                    true,
-		abilityScores:            abilityScoreMap,
-		baseAttackBonus:          baseAttackBonus,
-		casterLevels:             casterLevelMap,
-		classLevels:              classLevelMap,
-		classFeatures:            classFeatureSet,
-		skillRanks:               skillRankMap,
-		selectedWeapon:           selectedWeaponValue,
-		selectedWeaponFeats:      selectedWeaponFeatMap,
-		selectedSpellSchool:      selectedSpellSchoolValue,
-		selectedSpellSchoolFeats: spellSchoolFeatMap,
-		feats:                    featSet,
+		valid:                       true,
+		abilityScores:               abilityScoreMap,
+		baseAttackBonus:             baseAttackBonus,
+		casterLevels:                casterLevelMap,
+		classLevels:                 classLevelMap,
+		classFeatures:               classFeatureSet,
+		skillRanks:                  skillRankMap,
+		selectedWeapon:              selectedWeaponValue,
+		selectedWeaponFeats:         selectedWeaponFeatMap,
+		selectedSpellSchool:         selectedSpellSchoolValue,
+		selectedSpellSchoolFeats:    spellSchoolFeatMap,
+		selectedFamiliarEligibility: selectedFamiliarEligibilityValue,
+		feats:                       featSet,
 	}, true
 }
 
@@ -395,6 +433,8 @@ func (s characterFeatPrerequisiteState) SatisfiesPrerequisite(
 		return ok
 	case characterfeat.SelectedWeaponProficiencyPrerequisite:
 		return s.satisfiesSelectedWeaponProficiency()
+	case characterfeat.SelectedFamiliarEligibilityPrerequisite:
+		return s.selectedFamiliarEligibility.IsEligible()
 	case characterfeat.SameSelectionFeatPrerequisite:
 		return s.satisfiesSameSelectedWeaponFeat(value.GetFeatID()) ||
 			s.satisfiesSameSelectedSpellSchoolFeat(value.GetFeatID())
