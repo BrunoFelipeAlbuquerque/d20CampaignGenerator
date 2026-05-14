@@ -326,6 +326,92 @@ func TestNewCharacterFeat_RejectsSelectedWeaponProficiencyWithoutSelectedWeaponC
 	}
 }
 
+func TestNewCharacterFeat_ComposesSameSelectionWeaponPrerequisite(t *testing.T) {
+	selectedWeapon := mustNewCharacterSelectedWeaponForTest(t, characterequipment.DaggerWeaponID)
+	weaponFocus := mustNewCharacterSelectedWeaponFeatForTest(t, characterfeat.WeaponFocusFeatID, selectedWeapon)
+	state := mustNewCharacterFeatPrerequisiteStateWithSelectedWeaponFeatsForTest(
+		t,
+		nil,
+		1,
+		nil,
+		[]CharacterClassLevel{mustNewCharacterClassLevelForTest(t, characterclass.FighterClassID, 8)},
+		nil,
+		nil,
+		selectedWeapon,
+		[]CharacterSelectedWeaponFeat{weaponFocus},
+		nil,
+	)
+
+	if _, ok := NewCharacterFeat(characterfeat.GreaterWeaponFocusFeatID, state); !ok {
+		t.Fatal("expected greater weapon focus to compose from weapon focus with the same selected weapon")
+	}
+}
+
+func TestNewCharacterFeat_SelectedWeaponFeatOwnershipSatisfiesPlainFeatPrerequisites(t *testing.T) {
+	selectedWeapon := mustNewCharacterSelectedWeaponForTest(t, characterequipment.DaggerWeaponID)
+	weaponFocus := mustNewCharacterSelectedWeaponFeatForTest(t, characterfeat.WeaponFocusFeatID, selectedWeapon)
+	dazzlingDisplay := mustNewCharacterSelectedWeaponFeatForTest(t, characterfeat.DazzlingDisplayFeatID, selectedWeapon)
+	state := mustNewCharacterFeatPrerequisiteStateWithSelectedWeaponFeatsForTest(
+		t,
+		nil,
+		6,
+		nil,
+		[]CharacterClassLevel{mustNewCharacterClassLevelForTest(t, characterclass.FighterClassID, 6)},
+		nil,
+		nil,
+		selectedWeapon,
+		[]CharacterSelectedWeaponFeat{weaponFocus, dazzlingDisplay},
+		nil,
+	)
+
+	if _, ok := NewCharacterFeat(characterfeat.ShatterDefensesFeatID, state); !ok {
+		t.Fatal("expected shatter defenses to compose from selected dazzling display and same-weapon focus")
+	}
+}
+
+func TestNewCharacterFeat_RejectsMismatchedSameSelectionWeaponPrerequisite(t *testing.T) {
+	selectedWeapon := mustNewCharacterSelectedWeaponForTest(t, characterequipment.DaggerWeaponID)
+	weaponFocus := mustNewCharacterSelectedWeaponFeatForTest(
+		t,
+		characterfeat.WeaponFocusFeatID,
+		mustNewCharacterSelectedWeaponForTest(t, characterequipment.SlingWeaponID),
+	)
+	state := mustNewCharacterFeatPrerequisiteStateWithSelectedWeaponFeatsForTest(
+		t,
+		nil,
+		1,
+		nil,
+		[]CharacterClassLevel{mustNewCharacterClassLevelForTest(t, characterclass.FighterClassID, 8)},
+		nil,
+		nil,
+		selectedWeapon,
+		[]CharacterSelectedWeaponFeat{weaponFocus},
+		nil,
+	)
+
+	if _, ok := NewCharacterFeat(characterfeat.GreaterWeaponFocusFeatID, state); ok {
+		t.Fatal("expected greater weapon focus to reject weapon focus with a different selected weapon")
+	}
+}
+
+func TestNewCharacterFeat_RejectsSameSelectionWeaponPrerequisiteWithoutSelectedFeatFact(t *testing.T) {
+	state := mustNewCharacterFeatPrerequisiteStateWithSelectedWeaponForTest(
+		t,
+		nil,
+		1,
+		nil,
+		[]CharacterClassLevel{mustNewCharacterClassLevelForTest(t, characterclass.FighterClassID, 8)},
+		nil,
+		nil,
+		mustNewCharacterSelectedWeaponForTest(t, characterequipment.DaggerWeaponID),
+		[]characterfeat.FeatID{characterfeat.WeaponFocusFeatID},
+	)
+
+	if _, ok := NewCharacterFeat(characterfeat.GreaterWeaponFocusFeatID, state); ok {
+		t.Fatal("expected greater weapon focus to reject flat weapon focus without selected weapon ownership")
+	}
+}
+
 func TestNewCharacterFeat_RejectsRemainingUnsupportedSelectionPrerequisites(t *testing.T) {
 	state := mustNewCharacterFeatPrerequisiteStateForTest(t, nil, 1, nil, nil, nil, nil)
 
@@ -415,6 +501,87 @@ func TestCharacterFeatPrerequisiteState_UnsupportedSelectedWeaponMappingFailsClo
 
 	if state.SatisfiesPrerequisite(characterfeat.NewSelectedWeaponProficiencyPrerequisite()) {
 		t.Fatal("expected unsupported selected weapon proficiency mapping to fail closed")
+	}
+}
+
+func TestNewCharacterSelectedWeaponFeat_RejectsInvalidSelectedFeatFacts(t *testing.T) {
+	selectedWeapon := mustNewCharacterSelectedWeaponForTest(t, characterequipment.DaggerWeaponID)
+
+	if _, ok := NewCharacterSelectedWeaponFeat(characterfeat.FeatID("Weapon Focus "), selectedWeapon); ok {
+		t.Fatal("expected malformed selected feat id to be rejected")
+	}
+
+	if _, ok := NewCharacterSelectedWeaponFeat(characterfeat.FeatID("Laser Focus"), selectedWeapon); ok {
+		t.Fatal("expected unknown selected feat id to be rejected")
+	}
+
+	if _, ok := NewCharacterSelectedWeaponFeat(characterfeat.SpellFocusFeatID, selectedWeapon); ok {
+		t.Fatal("expected non-weapon selected feat id to be rejected")
+	}
+
+	if _, ok := NewCharacterSelectedWeaponFeat(characterfeat.WeaponFocusFeatID, CharacterSelectedWeapon{}); ok {
+		t.Fatal("expected zero-value selected weapon to be rejected for selected feat ownership")
+	}
+}
+
+func TestCharacterFeatPrerequisiteState_RejectsDuplicateAndOverlappingSelectedWeaponFeatFacts(t *testing.T) {
+	selectedWeapon := mustNewCharacterSelectedWeaponForTest(t, characterequipment.DaggerWeaponID)
+	weaponFocus := mustNewCharacterSelectedWeaponFeatForTest(t, characterfeat.WeaponFocusFeatID, selectedWeapon)
+
+	if _, ok := NewCharacterFeatPrerequisiteStateWithSelectedWeaponFeats(
+		nil,
+		1,
+		nil,
+		[]CharacterClassLevel{mustNewCharacterClassLevelForTest(t, characterclass.FighterClassID, 8)},
+		nil,
+		nil,
+		selectedWeapon,
+		[]CharacterSelectedWeaponFeat{weaponFocus, weaponFocus},
+		nil,
+	); ok {
+		t.Fatal("expected duplicate selected weapon feat facts to be rejected")
+	}
+
+	if _, ok := NewCharacterFeatPrerequisiteStateWithSelectedWeaponFeats(
+		nil,
+		1,
+		nil,
+		[]CharacterClassLevel{mustNewCharacterClassLevelForTest(t, characterclass.FighterClassID, 8)},
+		nil,
+		nil,
+		selectedWeapon,
+		[]CharacterSelectedWeaponFeat{weaponFocus},
+		[]characterfeat.FeatID{characterfeat.WeaponFocusFeatID},
+	); ok {
+		t.Fatal("expected overlapping flat and selected feat ownership to be rejected")
+	}
+}
+
+func TestCharacterFeatPrerequisiteState_RejectsMalformedSelectedWeaponFeatFacts(t *testing.T) {
+	selectedWeapon := mustNewCharacterSelectedWeaponForTest(t, characterequipment.DaggerWeaponID)
+
+	if _, ok := NewCharacterFeatPrerequisiteStateWithSelectedWeaponFeats(
+		nil,
+		1,
+		nil,
+		[]CharacterClassLevel{mustNewCharacterClassLevelForTest(t, characterclass.FighterClassID, 8)},
+		nil,
+		nil,
+		selectedWeapon,
+		[]CharacterSelectedWeaponFeat{
+			{
+				featID: characterfeat.WeaponFocusFeatID,
+				selectedWeapon: characterSelectedWeapon{
+					id:                  characterequipment.WeaponID(" dagger"),
+					proficiencyCategory: characterequipment.SimpleWeaponProficiencyCategory,
+					valid:               true,
+				},
+				valid: true,
+			},
+		},
+		nil,
+	); ok {
+		t.Fatal("expected malformed selected weapon feat fact to be rejected")
 	}
 }
 
@@ -660,6 +827,21 @@ func mustNewCharacterSkillRanksForTest(
 	return value
 }
 
+func mustNewCharacterSelectedWeaponFeatForTest(
+	t *testing.T,
+	id characterfeat.FeatID,
+	selectedWeapon CharacterSelectedWeapon,
+) CharacterSelectedWeaponFeat {
+	t.Helper()
+
+	value, ok := NewCharacterSelectedWeaponFeat(id, selectedWeapon)
+	if !ok {
+		t.Fatalf("expected selected weapon feat %q to compose", id)
+	}
+
+	return value
+}
+
 func mustNewCharacterFeatPrerequisiteStateForTest(
 	t *testing.T,
 	abilityScores []CharacterAbilityScore,
@@ -721,7 +903,8 @@ func mustNewCharacterFeatPrerequisiteStateWithSelectedWeaponForTest(
 ) CharacterFeatPrerequisiteState {
 	t.Helper()
 
-	state, ok := NewCharacterFeatPrerequisiteStateWithSelectedWeapon(
+	return mustNewCharacterFeatPrerequisiteStateWithSelectedWeaponFeatsForTest(
+		t,
 		abilityScores,
 		baseAttackBonus,
 		casterLevels,
@@ -729,6 +912,34 @@ func mustNewCharacterFeatPrerequisiteStateWithSelectedWeaponForTest(
 		classFeatures,
 		skillRanks,
 		selectedWeapon,
+		nil,
+		feats,
+	)
+}
+
+func mustNewCharacterFeatPrerequisiteStateWithSelectedWeaponFeatsForTest(
+	t *testing.T,
+	abilityScores []CharacterAbilityScore,
+	baseAttackBonus int,
+	casterLevels []CharacterCasterLevel,
+	classLevels []CharacterClassLevel,
+	classFeatures []characterclass.ClassFeatureID,
+	skillRanks []CharacterSkillRanks,
+	selectedWeapon CharacterSelectedWeapon,
+	selectedWeaponFeats []CharacterSelectedWeaponFeat,
+	feats []characterfeat.FeatID,
+) CharacterFeatPrerequisiteState {
+	t.Helper()
+
+	state, ok := NewCharacterFeatPrerequisiteStateWithSelectedWeaponFeats(
+		abilityScores,
+		baseAttackBonus,
+		casterLevels,
+		classLevels,
+		classFeatures,
+		skillRanks,
+		selectedWeapon,
+		selectedWeaponFeats,
 		feats,
 	)
 	if !ok {

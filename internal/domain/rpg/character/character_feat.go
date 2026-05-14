@@ -32,15 +32,16 @@ type characterSkillRanks struct {
 type CharacterSkillRanks = characterSkillRanks
 
 type characterFeatPrerequisiteState struct {
-	valid           bool
-	abilityScores   map[ability.AbilityScoreID]int
-	baseAttackBonus int
-	casterLevels    map[ability.CasterSource]int
-	classLevels     map[characterclass.ClassID]int
-	classFeatures   map[characterclass.ClassFeatureID]struct{}
-	skillRanks      map[skill.SkillID]int
-	selectedWeapon  characterSelectedWeapon
-	feats           map[characterfeat.FeatID]struct{}
+	valid               bool
+	abilityScores       map[ability.AbilityScoreID]int
+	baseAttackBonus     int
+	casterLevels        map[ability.CasterSource]int
+	classLevels         map[characterclass.ClassID]int
+	classFeatures       map[characterclass.ClassFeatureID]struct{}
+	skillRanks          map[skill.SkillID]int
+	selectedWeapon      characterSelectedWeapon
+	selectedWeaponFeats map[characterfeat.FeatID]characterSelectedWeapon
+	feats               map[characterfeat.FeatID]struct{}
 }
 type CharacterFeatPrerequisiteState = characterFeatPrerequisiteState
 
@@ -123,6 +124,7 @@ func NewCharacterFeatPrerequisiteState(
 		classFeatures,
 		skillRanks,
 		characterSelectedWeapon{},
+		nil,
 		feats,
 	)
 }
@@ -145,6 +147,31 @@ func NewCharacterFeatPrerequisiteStateWithSelectedWeapon(
 		classFeatures,
 		skillRanks,
 		selectedWeapon,
+		nil,
+		feats,
+	)
+}
+
+func NewCharacterFeatPrerequisiteStateWithSelectedWeaponFeats(
+	abilityScores []CharacterAbilityScore,
+	baseAttackBonus int,
+	casterLevels []CharacterCasterLevel,
+	classLevels []CharacterClassLevel,
+	classFeatures []characterclass.ClassFeatureID,
+	skillRanks []CharacterSkillRanks,
+	selectedWeapon CharacterSelectedWeapon,
+	selectedWeaponFeats []CharacterSelectedWeaponFeat,
+	feats []characterfeat.FeatID,
+) (CharacterFeatPrerequisiteState, bool) {
+	return newCharacterFeatPrerequisiteState(
+		abilityScores,
+		baseAttackBonus,
+		casterLevels,
+		classLevels,
+		classFeatures,
+		skillRanks,
+		selectedWeapon,
+		selectedWeaponFeats,
 		feats,
 	)
 }
@@ -157,6 +184,7 @@ func newCharacterFeatPrerequisiteState(
 	classFeatures []characterclass.ClassFeatureID,
 	skillRanks []CharacterSkillRanks,
 	selectedWeapon CharacterSelectedWeapon,
+	selectedWeaponFeats []CharacterSelectedWeaponFeat,
 	feats []characterfeat.FeatID,
 ) (CharacterFeatPrerequisiteState, bool) {
 	if baseAttackBonus < 0 {
@@ -193,21 +221,31 @@ func newCharacterFeatPrerequisiteState(
 		return characterFeatPrerequisiteState{}, false
 	}
 
+	selectedWeaponFeatMap, ok := buildCharacterSelectedWeaponFeatMap(selectedWeaponFeats)
+	if !ok {
+		return characterFeatPrerequisiteState{}, false
+	}
+
 	featSet, ok := buildCharacterFeatSet(feats)
 	if !ok {
 		return characterFeatPrerequisiteState{}, false
 	}
 
+	if hasOverlappingFeatOwnership(featSet, selectedWeaponFeatMap) {
+		return characterFeatPrerequisiteState{}, false
+	}
+
 	return characterFeatPrerequisiteState{
-		valid:           true,
-		abilityScores:   abilityScoreMap,
-		baseAttackBonus: baseAttackBonus,
-		casterLevels:    casterLevelMap,
-		classLevels:     classLevelMap,
-		classFeatures:   classFeatureSet,
-		skillRanks:      skillRankMap,
-		selectedWeapon:  selectedWeaponValue,
-		feats:           featSet,
+		valid:               true,
+		abilityScores:       abilityScoreMap,
+		baseAttackBonus:     baseAttackBonus,
+		casterLevels:        casterLevelMap,
+		classLevels:         classLevelMap,
+		classFeatures:       classFeatureSet,
+		skillRanks:          skillRankMap,
+		selectedWeapon:      selectedWeaponValue,
+		selectedWeaponFeats: selectedWeaponFeatMap,
+		feats:               featSet,
 	}, true
 }
 
@@ -308,12 +346,13 @@ func (s characterFeatPrerequisiteState) SatisfiesPrerequisite(
 		return ok
 	case characterfeat.SelectedWeaponProficiencyPrerequisite:
 		return s.satisfiesSelectedWeaponProficiency()
+	case characterfeat.SameSelectionFeatPrerequisite:
+		return s.satisfiesSameSelectedWeaponFeat(value.GetFeatID())
 	case characterfeat.FeatPrerequisite:
-		_, ok := s.feats[value.GetFeatID()]
-		return ok
+		return s.hasFeat(value.GetFeatID())
 	case characterfeat.AnyFeatPrerequisite:
 		for _, featID := range value.GetFeatIDs() {
-			if _, ok := s.feats[featID]; ok {
+			if s.hasFeat(featID) {
 				return true
 			}
 		}
@@ -323,6 +362,15 @@ func (s characterFeatPrerequisiteState) SatisfiesPrerequisite(
 	default:
 		return false
 	}
+}
+
+func (s characterFeatPrerequisiteState) hasFeat(id characterfeat.FeatID) bool {
+	if _, ok := s.feats[id]; ok {
+		return true
+	}
+
+	_, ok := s.selectedWeaponFeats[id]
+	return ok
 }
 
 func (f characterFeat) GetFeatID() characterfeat.FeatID {
@@ -408,11 +456,37 @@ func (s characterFeatPrerequisiteState) satisfiesSelectedWeaponProficiency() boo
 	return false
 }
 
+func (s characterFeatPrerequisiteState) satisfiesSameSelectedWeaponFeat(
+	featID characterfeat.FeatID,
+) bool {
+	if !s.selectedWeapon.valid {
+		return false
+	}
+
+	previousSelection, ok := s.selectedWeaponFeats[featID]
+	if !ok {
+		return false
+	}
+
+	return previousSelection.valid && previousSelection.id == s.selectedWeapon.id
+}
+
 func (s characterFeatPrerequisiteState) featCategoryCount(
 	category characterfeat.FeatCategory,
 ) int {
 	count := 0
 	for featID := range s.feats {
+		feat, ok := characterfeat.GetFeatByID(featID)
+		if !ok {
+			return 0
+		}
+
+		if feat.GetCategory() == category {
+			count++
+		}
+	}
+
+	for featID := range s.selectedWeaponFeats {
 		feat, ok := characterfeat.GetFeatByID(featID)
 		if !ok {
 			return 0
@@ -545,6 +619,40 @@ func buildCharacterSelectedWeapon(
 	}
 
 	return selectedWeapon, true
+}
+
+func buildCharacterSelectedWeaponFeatMap(
+	values []CharacterSelectedWeaponFeat,
+) (map[characterfeat.FeatID]characterSelectedWeapon, bool) {
+	result := make(map[characterfeat.FeatID]characterSelectedWeapon, len(values))
+
+	for _, value := range values {
+		selectedFeat, ok := NewCharacterSelectedWeaponFeat(value.featID, value.selectedWeapon)
+		if !ok {
+			return nil, false
+		}
+
+		if _, ok := result[selectedFeat.featID]; ok {
+			return nil, false
+		}
+
+		result[selectedFeat.featID] = selectedFeat.selectedWeapon
+	}
+
+	return result, true
+}
+
+func hasOverlappingFeatOwnership(
+	feats map[characterfeat.FeatID]struct{},
+	selectedWeaponFeats map[characterfeat.FeatID]characterSelectedWeapon,
+) bool {
+	for featID := range selectedWeaponFeats {
+		if _, ok := feats[featID]; ok {
+			return true
+		}
+	}
+
+	return false
 }
 
 func isEmptyCharacterSelectedWeapon(value CharacterSelectedWeapon) bool {
