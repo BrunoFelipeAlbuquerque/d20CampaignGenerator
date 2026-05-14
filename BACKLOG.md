@@ -528,7 +528,7 @@ Do not expand this path into:
   - missing, duplicate, mismatched, or unknown selected feat facts fail closed
   - no feat-slot accounting, retraining, attack bonuses, or weapon bonus application
 
-- [ ] Compose spell-school feat prerequisites (resolution/query logic):
+- [X] Compose spell-school feat prerequisites (resolution/query logic):
   - model selected feat ownership with a selected core spell school key
   - `Spell Focus` can satisfy seeded same-school prerequisites such as `Greater Spell Focus`
   - `Spell Focus (conjuration)` can satisfy `Augment Summoning`

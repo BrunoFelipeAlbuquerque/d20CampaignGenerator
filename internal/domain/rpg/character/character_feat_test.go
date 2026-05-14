@@ -8,6 +8,7 @@ import (
 	characterequipment "d20campaigngenerator/internal/domain/rpg/character/equipment"
 	characterfeat "d20campaigngenerator/internal/domain/rpg/character/feat"
 	"d20campaigngenerator/internal/domain/rpg/character/skill"
+	characterspell "d20campaigngenerator/internal/domain/rpg/character/spell"
 )
 
 func TestNewCharacterFeat_ComposesAbilityScoreAndBaseAttackBonusPrerequisites(t *testing.T) {
@@ -412,11 +413,109 @@ func TestNewCharacterFeat_RejectsSameSelectionWeaponPrerequisiteWithoutSelectedF
 	}
 }
 
-func TestNewCharacterFeat_RejectsRemainingUnsupportedSelectionPrerequisites(t *testing.T) {
-	state := mustNewCharacterFeatPrerequisiteStateForTest(t, nil, 1, nil, nil, nil, nil)
+func TestNewCharacterFeat_ComposesSameSelectionSpellSchoolPrerequisite(t *testing.T) {
+	selectedSchool := mustNewCharacterSelectedSpellSchoolForTest(t, characterspell.ConjurationSchoolID)
+	spellFocus := mustNewCharacterSelectedSpellSchoolFeatForTest(t, characterfeat.SpellFocusFeatID, selectedSchool)
+	state := mustNewCharacterFeatPrerequisiteStateWithSelectedSpellSchoolFeatsForTest(
+		t,
+		nil,
+		0,
+		nil,
+		nil,
+		nil,
+		nil,
+		selectedSchool,
+		[]CharacterSelectedSpellSchoolFeat{spellFocus},
+		nil,
+	)
 
-	if _, ok := NewCharacterFeat(characterfeat.GreaterSpellFocusFeatID, state); ok {
-		t.Fatal("expected same-selection prerequisite to reject without selection context")
+	if _, ok := NewCharacterFeat(characterfeat.GreaterSpellFocusFeatID, state); !ok {
+		t.Fatal("expected greater spell focus to compose from spell focus with the same selected school")
+	}
+}
+
+func TestNewCharacterFeat_ComposesSpellSchoolFeatPrerequisite(t *testing.T) {
+	spellFocus := mustNewCharacterSelectedSpellSchoolFeatForTest(
+		t,
+		characterfeat.SpellFocusFeatID,
+		mustNewCharacterSelectedSpellSchoolForTest(t, characterspell.ConjurationSchoolID),
+	)
+	state := mustNewCharacterFeatPrerequisiteStateWithSelectedSpellSchoolFeatsForTest(
+		t,
+		nil,
+		0,
+		nil,
+		nil,
+		nil,
+		nil,
+		CharacterSelectedSpellSchool{},
+		[]CharacterSelectedSpellSchoolFeat{spellFocus},
+		nil,
+	)
+
+	if _, ok := NewCharacterFeat(characterfeat.AugmentSummoningFeatID, state); !ok {
+		t.Fatal("expected augment summoning to compose from spell focus in conjuration")
+	}
+}
+
+func TestNewCharacterFeat_RejectsMismatchedSpellSchoolPrerequisites(t *testing.T) {
+	conjurationSchool := mustNewCharacterSelectedSpellSchoolForTest(t, characterspell.ConjurationSchoolID)
+	evocationSchool := mustNewCharacterSelectedSpellSchoolForTest(t, characterspell.EvocationSchoolID)
+	spellFocus := mustNewCharacterSelectedSpellSchoolFeatForTest(t, characterfeat.SpellFocusFeatID, conjurationSchool)
+	sameSelectionState := mustNewCharacterFeatPrerequisiteStateWithSelectedSpellSchoolFeatsForTest(
+		t,
+		nil,
+		0,
+		nil,
+		nil,
+		nil,
+		nil,
+		evocationSchool,
+		[]CharacterSelectedSpellSchoolFeat{spellFocus},
+		nil,
+	)
+
+	if _, ok := NewCharacterFeat(characterfeat.GreaterSpellFocusFeatID, sameSelectionState); ok {
+		t.Fatal("expected greater spell focus to reject spell focus with a different selected school")
+	}
+
+	spellSchoolState := mustNewCharacterFeatPrerequisiteStateWithSelectedSpellSchoolFeatsForTest(
+		t,
+		nil,
+		0,
+		nil,
+		nil,
+		nil,
+		nil,
+		CharacterSelectedSpellSchool{},
+		[]CharacterSelectedSpellSchoolFeat{
+			mustNewCharacterSelectedSpellSchoolFeatForTest(t, characterfeat.SpellFocusFeatID, evocationSchool),
+		},
+		nil,
+	)
+
+	if _, ok := NewCharacterFeat(characterfeat.AugmentSummoningFeatID, spellSchoolState); ok {
+		t.Fatal("expected augment summoning to reject spell focus outside conjuration")
+	}
+}
+
+func TestNewCharacterFeat_RejectsSpellSchoolPrerequisitesWithoutSelectedSchoolOwnership(t *testing.T) {
+	selectedSchool := mustNewCharacterSelectedSpellSchoolForTest(t, characterspell.ConjurationSchoolID)
+	sameSelectionState := mustNewCharacterFeatPrerequisiteStateWithSelectedSpellSchoolFeatsForTest(
+		t,
+		nil,
+		0,
+		nil,
+		nil,
+		nil,
+		nil,
+		selectedSchool,
+		nil,
+		[]characterfeat.FeatID{characterfeat.SpellFocusFeatID},
+	)
+
+	if _, ok := NewCharacterFeat(characterfeat.GreaterSpellFocusFeatID, sameSelectionState); ok {
+		t.Fatal("expected greater spell focus to reject flat spell focus without selected school ownership")
 	}
 
 	spellSchoolState := mustNewCharacterFeatPrerequisiteStateForTest(
@@ -429,7 +528,15 @@ func TestNewCharacterFeat_RejectsRemainingUnsupportedSelectionPrerequisites(t *t
 		[]characterfeat.FeatID{characterfeat.SpellFocusFeatID},
 	)
 	if _, ok := NewCharacterFeat(characterfeat.AugmentSummoningFeatID, spellSchoolState); ok {
-		t.Fatal("expected spell-school prerequisite to reject without spell school context")
+		t.Fatal("expected augment summoning to reject flat spell focus without selected school ownership")
+	}
+}
+
+func TestNewCharacterFeat_RejectsSelectionPrerequisitesWithoutContext(t *testing.T) {
+	state := mustNewCharacterFeatPrerequisiteStateForTest(t, nil, 1, nil, nil, nil, nil)
+
+	if _, ok := NewCharacterFeat(characterfeat.GreaterSpellFocusFeatID, state); ok {
+		t.Fatal("expected same-selection prerequisite to reject without selection context")
 	}
 }
 
@@ -524,6 +631,36 @@ func TestNewCharacterSelectedWeaponFeat_RejectsInvalidSelectedFeatFacts(t *testi
 	}
 }
 
+func TestNewCharacterSelectedSpellSchool_RejectsInvalidSpellSchools(t *testing.T) {
+	if _, ok := NewCharacterSelectedSpellSchool(characterspell.SchoolID("Chronomancy")); ok {
+		t.Fatal("expected unknown selected spell school to be rejected")
+	}
+
+	if _, ok := NewCharacterSelectedSpellSchool(characterspell.SchoolID(" conjuration")); ok {
+		t.Fatal("expected malformed selected spell school to be rejected")
+	}
+}
+
+func TestNewCharacterSelectedSpellSchoolFeat_RejectsInvalidSelectedFeatFacts(t *testing.T) {
+	selectedSchool := mustNewCharacterSelectedSpellSchoolForTest(t, characterspell.ConjurationSchoolID)
+
+	if _, ok := NewCharacterSelectedSpellSchoolFeat(characterfeat.FeatID("Spell Focus "), selectedSchool); ok {
+		t.Fatal("expected malformed selected feat id to be rejected")
+	}
+
+	if _, ok := NewCharacterSelectedSpellSchoolFeat(characterfeat.FeatID("Laser Focus"), selectedSchool); ok {
+		t.Fatal("expected unknown selected feat id to be rejected")
+	}
+
+	if _, ok := NewCharacterSelectedSpellSchoolFeat(characterfeat.WeaponFocusFeatID, selectedSchool); ok {
+		t.Fatal("expected non-spell-school selected feat id to be rejected")
+	}
+
+	if _, ok := NewCharacterSelectedSpellSchoolFeat(characterfeat.SpellFocusFeatID, CharacterSelectedSpellSchool{}); ok {
+		t.Fatal("expected zero-value selected spell school to be rejected for selected feat ownership")
+	}
+}
+
 func TestCharacterFeatPrerequisiteState_RejectsDuplicateAndOverlappingSelectedWeaponFeatFacts(t *testing.T) {
 	selectedWeapon := mustNewCharacterSelectedWeaponForTest(t, characterequipment.DaggerWeaponID)
 	weaponFocus := mustNewCharacterSelectedWeaponFeatForTest(t, characterfeat.WeaponFocusFeatID, selectedWeapon)
@@ -557,6 +694,39 @@ func TestCharacterFeatPrerequisiteState_RejectsDuplicateAndOverlappingSelectedWe
 	}
 }
 
+func TestCharacterFeatPrerequisiteState_RejectsDuplicateAndOverlappingSelectedSpellSchoolFeatFacts(t *testing.T) {
+	selectedSchool := mustNewCharacterSelectedSpellSchoolForTest(t, characterspell.ConjurationSchoolID)
+	spellFocus := mustNewCharacterSelectedSpellSchoolFeatForTest(t, characterfeat.SpellFocusFeatID, selectedSchool)
+
+	if _, ok := NewCharacterFeatPrerequisiteStateWithSelectedSpellSchoolFeats(
+		nil,
+		0,
+		nil,
+		nil,
+		nil,
+		nil,
+		selectedSchool,
+		[]CharacterSelectedSpellSchoolFeat{spellFocus, spellFocus},
+		nil,
+	); ok {
+		t.Fatal("expected duplicate selected spell-school feat facts to be rejected")
+	}
+
+	if _, ok := NewCharacterFeatPrerequisiteStateWithSelectedSpellSchoolFeats(
+		nil,
+		0,
+		nil,
+		nil,
+		nil,
+		nil,
+		selectedSchool,
+		[]CharacterSelectedSpellSchoolFeat{spellFocus},
+		[]characterfeat.FeatID{characterfeat.SpellFocusFeatID},
+	); ok {
+		t.Fatal("expected overlapping flat and selected spell-school feat ownership to be rejected")
+	}
+}
+
 func TestCharacterFeatPrerequisiteState_RejectsMalformedSelectedWeaponFeatFacts(t *testing.T) {
 	selectedWeapon := mustNewCharacterSelectedWeaponForTest(t, characterequipment.DaggerWeaponID)
 
@@ -582,6 +752,31 @@ func TestCharacterFeatPrerequisiteState_RejectsMalformedSelectedWeaponFeatFacts(
 		nil,
 	); ok {
 		t.Fatal("expected malformed selected weapon feat fact to be rejected")
+	}
+}
+
+func TestCharacterFeatPrerequisiteState_RejectsMalformedSelectedSpellSchoolFeatFacts(t *testing.T) {
+	if _, ok := NewCharacterFeatPrerequisiteStateWithSelectedSpellSchoolFeats(
+		nil,
+		0,
+		nil,
+		nil,
+		nil,
+		nil,
+		CharacterSelectedSpellSchool{},
+		[]CharacterSelectedSpellSchoolFeat{
+			{
+				featID: characterfeat.SpellFocusFeatID,
+				selectedSpellSchool: characterSelectedSpellSchool{
+					id:    characterspell.SchoolID("Chronomancy"),
+					valid: true,
+				},
+				valid: true,
+			},
+		},
+		nil,
+	); ok {
+		t.Fatal("expected malformed selected spell-school feat fact to be rejected")
 	}
 }
 
@@ -842,6 +1037,35 @@ func mustNewCharacterSelectedWeaponFeatForTest(
 	return value
 }
 
+func mustNewCharacterSelectedSpellSchoolForTest(
+	t *testing.T,
+	id characterspell.SchoolID,
+) CharacterSelectedSpellSchool {
+	t.Helper()
+
+	value, ok := NewCharacterSelectedSpellSchool(id)
+	if !ok {
+		t.Fatalf("expected selected spell school %q to compose", id)
+	}
+
+	return value
+}
+
+func mustNewCharacterSelectedSpellSchoolFeatForTest(
+	t *testing.T,
+	id characterfeat.FeatID,
+	selectedSpellSchool CharacterSelectedSpellSchool,
+) CharacterSelectedSpellSchoolFeat {
+	t.Helper()
+
+	value, ok := NewCharacterSelectedSpellSchoolFeat(id, selectedSpellSchool)
+	if !ok {
+		t.Fatalf("expected selected spell-school feat %q to compose", id)
+	}
+
+	return value
+}
+
 func mustNewCharacterFeatPrerequisiteStateForTest(
 	t *testing.T,
 	abilityScores []CharacterAbilityScore,
@@ -940,6 +1164,38 @@ func mustNewCharacterFeatPrerequisiteStateWithSelectedWeaponFeatsForTest(
 		skillRanks,
 		selectedWeapon,
 		selectedWeaponFeats,
+		feats,
+	)
+	if !ok {
+		t.Fatal("expected feat prerequisite state to compose")
+	}
+
+	return state
+}
+
+func mustNewCharacterFeatPrerequisiteStateWithSelectedSpellSchoolFeatsForTest(
+	t *testing.T,
+	abilityScores []CharacterAbilityScore,
+	baseAttackBonus int,
+	casterLevels []CharacterCasterLevel,
+	classLevels []CharacterClassLevel,
+	classFeatures []characterclass.ClassFeatureID,
+	skillRanks []CharacterSkillRanks,
+	selectedSpellSchool CharacterSelectedSpellSchool,
+	selectedSpellSchoolFeats []CharacterSelectedSpellSchoolFeat,
+	feats []characterfeat.FeatID,
+) CharacterFeatPrerequisiteState {
+	t.Helper()
+
+	state, ok := NewCharacterFeatPrerequisiteStateWithSelectedSpellSchoolFeats(
+		abilityScores,
+		baseAttackBonus,
+		casterLevels,
+		classLevels,
+		classFeatures,
+		skillRanks,
+		selectedSpellSchool,
+		selectedSpellSchoolFeats,
 		feats,
 	)
 	if !ok {
