@@ -586,7 +586,7 @@ Do not expand this path into:
   - expose composed scores as existing `CharacterAbilityScore` facts
   - no point buy, rolling, age, level-up, magic, temporary ability damage, or full aggregate behavior
 
-- [ ] Refresh minimum level-1 character creation slice for racial ability composition (resolution/query logic):
+- [X] Refresh minimum level-1 character creation slice for racial ability composition (resolution/query logic):
   - keep the slice test-only and adapter-focused
   - include one accepted fixed-race ability modifier path
   - include one accepted selectable-race ability modifier path

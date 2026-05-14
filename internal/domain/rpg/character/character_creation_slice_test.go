@@ -145,6 +145,106 @@ func TestMinimumLevelOneCharacterCreationSlice_ComposesSelectedFeatContexts(t *t
 	}
 }
 
+func TestMinimumLevelOneCharacterCreationSlice_ComposesRacialAbilityContexts(t *testing.T) {
+	elfAbilityScores, ok := NewFixedRacialCharacterAbilityScores(
+		mustNewCharacterRaceForSliceTest(t, characterrace.ElfRaceID),
+		[]CharacterAbilityScore{
+			mustNewCharacterAbilityScoreForAbilityTest(t, ability.StrengthScore, 10),
+			mustNewCharacterAbilityScoreForAbilityTest(t, ability.DexterityScore, 11),
+			mustNewCharacterAbilityScoreForAbilityTest(t, ability.ConstitutionScore, 10),
+			mustNewCharacterAbilityScoreForAbilityTest(t, ability.IntelligenceScore, 10),
+			mustNewCharacterAbilityScoreForAbilityTest(t, ability.WisdomScore, 10),
+			mustNewCharacterAbilityScoreForAbilityTest(t, ability.CharismaScore, 10),
+		},
+	)
+	if !ok {
+		t.Fatal("expected elf fixed racial ability modifiers to compose")
+	}
+
+	dodgeState := mustNewCharacterFeatPrerequisiteStateForTest(
+		t,
+		elfAbilityScores,
+		0,
+		nil,
+		nil,
+		nil,
+		nil,
+	)
+
+	if _, ok := NewCharacterFeat(characterfeat.DodgeFeatID, dodgeState); !ok {
+		t.Fatal("expected dodge to compose from elf-adjusted dexterity")
+	}
+
+	humanAbilityScores, ok := NewSelectableRacialCharacterAbilityScores(
+		mustNewCharacterRaceForSliceTest(t, characterrace.HumanRaceID),
+		[]CharacterAbilityScore{
+			mustNewCharacterAbilityScoreForAbilityTest(t, ability.StrengthScore, 11),
+			mustNewCharacterAbilityScoreForAbilityTest(t, ability.DexterityScore, 10),
+			mustNewCharacterAbilityScoreForAbilityTest(t, ability.ConstitutionScore, 10),
+			mustNewCharacterAbilityScoreForAbilityTest(t, ability.IntelligenceScore, 10),
+			mustNewCharacterAbilityScoreForAbilityTest(t, ability.WisdomScore, 10),
+			mustNewCharacterAbilityScoreForAbilityTest(t, ability.CharismaScore, 10),
+		},
+		[]CharacterSelectedAbilityScore{
+			mustNewCharacterSelectedAbilityScoreForTest(t, ability.StrengthScore),
+		},
+	)
+	if !ok {
+		t.Fatal("expected human selectable racial ability modifier to compose")
+	}
+
+	powerAttackState := mustNewCharacterFeatPrerequisiteStateForTest(
+		t,
+		humanAbilityScores,
+		1,
+		nil,
+		nil,
+		nil,
+		nil,
+	)
+
+	if _, ok := NewCharacterFeat(characterfeat.PowerAttackFeatID, powerAttackState); !ok {
+		t.Fatal("expected power attack to compose from human-adjusted strength")
+	}
+
+	backpack, ok := NewCharacterAdventuringGear(characterequipment.BackpackEmptyEquipmentID, 1)
+	if !ok {
+		t.Fatal("expected backpack adventuring gear to compose")
+	}
+
+	carriedWeight, ok := NewCharacterCarriedWeight(
+		mustNewAbilityScoreFromCharacterScoresForSliceTest(t, humanAbilityScores, ability.StrengthScore),
+		[]CharacterEquipment{backpack},
+	)
+	if !ok {
+		t.Fatal("expected carried weight to compose from human-adjusted strength")
+	}
+
+	if carriedWeight.GetLoadCategory() != LightLoadCategory {
+		t.Fatalf("expected backpack to stay in light load, got %q", carriedWeight.GetLoadCategory())
+	}
+}
+
+func TestMinimumLevelOneCharacterCreationSlice_RacialAbilitySelectionsFailClosed(t *testing.T) {
+	if _, ok := NewSelectableRacialCharacterAbilityScores(
+		mustNewCharacterRaceForSliceTest(t, characterrace.HumanRaceID),
+		mustNewBaseCharacterAbilityScoresForTest(t, 10),
+		nil,
+	); ok {
+		t.Fatal("expected human selectable racial ability composition to fail without a selected ability")
+	}
+
+	if _, ok := NewSelectableRacialCharacterAbilityScores(
+		mustNewCharacterRaceForSliceTest(t, characterrace.DwarfRaceID),
+		mustNewBaseCharacterAbilityScoresForTest(t, 10),
+		[]CharacterSelectedAbilityScore{
+			mustNewCharacterSelectedAbilityScoreForTest(t, ability.StrengthScore),
+		},
+	); ok {
+		t.Fatal("expected selected ability input to fail against a fixed-modifier race")
+	}
+}
+
 func TestMinimumLevelOneCharacterCreationSlice_InvalidSelectedInputsFailClosed(t *testing.T) {
 	if _, ok := NewCharacterRace(characterrace.RaceID("android")); ok {
 		t.Fatal("expected unknown race to fail")
@@ -187,4 +287,33 @@ func mustNewCharacterRaceForSliceTest(
 	}
 
 	return race
+}
+
+func mustNewAbilityScoreFromCharacterScoresForSliceTest(
+	t *testing.T,
+	scores []CharacterAbilityScore,
+	id ability.AbilityScoreID,
+) ability.AbilityScore {
+	t.Helper()
+
+	for _, score := range scores {
+		if score.GetAbilityScoreID() != id {
+			continue
+		}
+
+		value, ok := ability.NewAbilityScoreValue(score.GetScore(), true)
+		if !ok {
+			t.Fatalf("expected ability score value %d to compose", score.GetScore())
+		}
+
+		abilityScore, ok := ability.NewAbilityScore(id, value)
+		if !ok {
+			t.Fatalf("expected ability score %q to compose", id)
+		}
+
+		return abilityScore
+	}
+
+	t.Fatalf("expected composed ability score %q to exist", id)
+	return ability.AbilityScore{}
 }
