@@ -541,7 +541,7 @@ Do not expand this path into:
   - missing or zero-value eligibility facts fail closed
   - no familiar stat blocks, familiar selection catalog, or companion advancement
 
-- [ ] Refresh minimum level-1 character creation slice for selected feat contexts (resolution/query logic):
+- [X] Refresh minimum level-1 character creation slice for selected feat contexts (resolution/query logic):
   - keep the slice test-only and adapter-focused
   - include one accepted selected-weapon feat path
   - include one accepted spell-school feat path

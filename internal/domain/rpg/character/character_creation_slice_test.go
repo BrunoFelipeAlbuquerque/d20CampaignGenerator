@@ -5,8 +5,10 @@ import (
 
 	"d20campaigngenerator/internal/domain/rpg/character/ability"
 	characterclass "d20campaigngenerator/internal/domain/rpg/character/class"
+	characterequipment "d20campaigngenerator/internal/domain/rpg/character/equipment"
 	characterfeat "d20campaigngenerator/internal/domain/rpg/character/feat"
 	characterrace "d20campaigngenerator/internal/domain/rpg/character/race"
+	characterspell "d20campaigngenerator/internal/domain/rpg/character/spell"
 )
 
 func TestMinimumLevelOneCharacterCreationSlice_ComposesCoreRaceClassHPSpellcastingAndFeatPrerequisites(t *testing.T) {
@@ -84,6 +86,62 @@ func TestMinimumLevelOneCharacterCreationSlice_ComposesCoreRaceClassHPSpellcasti
 
 	if _, ok := NewCharacterFeat(characterfeat.PowerAttackFeatID, prerequisiteState); ok {
 		t.Fatal("expected power attack to fail without strength and base attack prerequisites")
+	}
+}
+
+func TestMinimumLevelOneCharacterCreationSlice_ComposesSelectedFeatContexts(t *testing.T) {
+	selectedWeapon := mustNewCharacterSelectedWeaponForTest(t, characterequipment.DaggerWeaponID)
+	weaponFeatState := mustNewCharacterFeatPrerequisiteStateWithSelectedWeaponForTest(
+		t,
+		nil,
+		1,
+		nil,
+		[]CharacterClassLevel{mustNewCharacterClassLevelForTest(t, characterclass.FighterClassID, 1)},
+		nil,
+		nil,
+		selectedWeapon,
+		nil,
+	)
+
+	if _, ok := NewCharacterFeat(characterfeat.WeaponFocusFeatID, weaponFeatState); !ok {
+		t.Fatal("expected weapon focus to compose from a level-1 fighter and selected dagger")
+	}
+
+	conjurationSchool := mustNewCharacterSelectedSpellSchoolForTest(t, characterspell.ConjurationSchoolID)
+	spellFocus := mustNewCharacterSelectedSpellSchoolFeatForTest(t, characterfeat.SpellFocusFeatID, conjurationSchool)
+	spellSchoolFeatState := mustNewCharacterFeatPrerequisiteStateWithSelectedSpellSchoolFeatsForTest(
+		t,
+		nil,
+		0,
+		nil,
+		[]CharacterClassLevel{mustNewCharacterClassLevelForTest(t, characterclass.WizardClassID, 1)},
+		nil,
+		nil,
+		conjurationSchool,
+		[]CharacterSelectedSpellSchoolFeat{spellFocus},
+		nil,
+	)
+
+	if _, ok := NewCharacterFeat(characterfeat.GreaterSpellFocusFeatID, spellSchoolFeatState); !ok {
+		t.Fatal("expected greater spell focus to compose from spell focus with the same selected school")
+	}
+
+	evocationSchool := mustNewCharacterSelectedSpellSchoolForTest(t, characterspell.EvocationSchoolID)
+	mismatchedSpellSchoolState := mustNewCharacterFeatPrerequisiteStateWithSelectedSpellSchoolFeatsForTest(
+		t,
+		nil,
+		0,
+		nil,
+		[]CharacterClassLevel{mustNewCharacterClassLevelForTest(t, characterclass.WizardClassID, 1)},
+		nil,
+		nil,
+		evocationSchool,
+		[]CharacterSelectedSpellSchoolFeat{spellFocus},
+		nil,
+	)
+
+	if _, ok := NewCharacterFeat(characterfeat.GreaterSpellFocusFeatID, mismatchedSpellSchoolState); ok {
+		t.Fatal("expected greater spell focus to reject spell focus with a mismatched selected school")
 	}
 }
 
