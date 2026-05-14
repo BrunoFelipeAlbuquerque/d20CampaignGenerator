@@ -512,7 +512,7 @@ Do not expand this path into:
 - feat-slot accounting, retraining, or a full mutable character aggregate
 - non-core feats or archetypes
 
-- [ ] Compose selected weapon proficiency feat prerequisites (resolution/query logic):
+- [X] Compose selected weapon proficiency feat prerequisites (resolution/query logic):
   - add explicit selected core weapon context to `CharacterFeatPrerequisiteState`
   - selected weapon IDs resolve through the seeded weapon catalog
   - selected weapon proficiency checks use existing core class weapon proficiency metadata
