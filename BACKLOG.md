@@ -550,6 +550,52 @@ Do not expand this path into:
 
 ---
 
+## P5 — Core character ability composition
+
+### Race ability modifiers and selected ability facts
+
+Near-term goal: compose explicit level-1 ability score facts with core race ability metadata before broader character aggregation, skill allocation, or combat-facing derived stats.
+
+The path should answer:
+
+- can fixed core racial ability modifiers compose onto explicit base ability scores?
+- can human, half-elf, and half-orc selectable `+2` ability metadata choose exactly one core ability score?
+- can composed ability scores feed existing character feat prerequisite and carrying-load adapters without duplicate side math?
+
+Do not expand this path into:
+
+- point buy, rolling methods, elite arrays, or NPC arrays
+- aging effects, level-up ability increases, magic bonuses, or temporary ability damage
+- skill-rank allocation, saving throw totals, attack rolls, armor class, or combat state
+- feat-slot accounting, favored class bonuses, traits, archetypes, or non-core sources
+- a full mutable character aggregate
+
+- [ ] Compose fixed racial ability modifiers with base ability scores (resolution/query logic):
+  - accept explicit base ability score facts for all six core abilities
+  - apply fixed core race ability modifiers from the selected race
+  - reject missing, duplicate, malformed, or non-core ability score facts
+  - reject selectable-modifier races in this fixed-only path
+  - expose composed scores as existing `CharacterAbilityScore` facts
+  - no point buy, rolling, age, level-up, magic, temporary ability damage, or full aggregate behavior
+
+- [ ] Compose selectable racial ability modifiers with base ability scores (resolution/query logic):
+  - support human, half-elf, and half-orc selectable `+2` metadata
+  - require exactly one selected core ability score for the selectable modifier
+  - reject missing, duplicate, unknown, or non-core selected abilities
+  - reject fixed-modifier races in this selectable-only path
+  - expose composed scores as existing `CharacterAbilityScore` facts
+  - no point buy, rolling, age, level-up, magic, temporary ability damage, or full aggregate behavior
+
+- [ ] Refresh minimum level-1 character creation slice for racial ability composition (resolution/query logic):
+  - keep the slice test-only and adapter-focused
+  - include one accepted fixed-race ability modifier path
+  - include one accepted selectable-race ability modifier path
+  - include fail-closed missing or mismatched selected ability coverage
+  - demonstrate composed ability facts feeding an existing feat prerequisite or carrying-load adapter
+  - no full character aggregate, skill allocation, combat behavior, or non-core content
+
+---
+
 ## P9 — Far future (non-core)
 
 - [ ] Archetype / Alternate Class Feature
