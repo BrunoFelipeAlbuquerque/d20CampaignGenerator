@@ -203,7 +203,7 @@ Those differences exist in the repository, but they are not the source of truth 
 
 ## Current Status Matrix
 
-This table is the current foundation-audit snapshot for specialist review of the existing repo surface. It reflects the delivered core foundation through Feat, the current Equipment foundation, and the first bounded simple-weapon seed batch.
+This table is the current foundation-audit snapshot for specialist review of the existing repo surface. It reflects the delivered core foundation through Feat, the completed P3 carryable equipment catalog path, and the current P4 feat selection context gap.
 
 | Area | Exists | Core-correct now | Intentional limit | Project-specific note |
 | --- | --- | --- | --- | --- |
@@ -217,7 +217,7 @@ This table is the current foundation-audit snapshot for specialist review of the
 | `spellcasting progression` | yes | core progression tables seeded for bard, cleric, druid, paladin, ranger, sorcerer, and wizard | table/query surface only; no character spell-slot composition yet | none |
 | `spell` | yes | spell chassis, spell-list entries, core spell-list bindings, and core spell data are seeded with read-only query helpers | no spell preparation, casting, or character spellbook composition yet | none |
 | `feat` | yes | feat chassis, typed prerequisites, core feat seeds, read-only catalog helpers, and character prerequisite composition are present | no full feat allocation engine, selected-weapon choices, spell-school choices, or bonus-feat grant flow yet | none |
-| `equipment` | yes | equipment, weapon, armor/shield chassis, dual imperial/metric weight and length values, adventuring-gear seed/query helpers, carryable item boundary, character inventory composition, carried-weight composition, and core simple weapon batch 1 seeds are present | no combat behavior, equipped slots, ammunition tracking, AC composition, or magic items | metric values are stored alongside PF1 imperial values for equipment measurements |
+| `equipment` | yes | equipment, weapon, armor/shield chassis, dual imperial/metric weight and length values, adventuring-gear seed/query helpers, carryable item boundary, character inventory composition, carried-weight composition, and bounded core weapon, armor, and shield seed/query slices are present | no combat behavior, equipped slots, ammunition tracking, AC composition, or magic items | metric values are stored alongside PF1 imperial values for equipment measurements |
 
 ## Current Domain Snapshot
 
@@ -388,17 +388,17 @@ Invalid body shapes are rejected.
 
 The next major tracked backlog area is:
 
-- core carryable equipment catalogs
+- P4 core feat selection context
 
 That work will likely interact with:
 
-- seeded weapon facts
-- equipment query helpers
-- carryable item lookup
-- character inventory
-- carried-weight composition
+- selected core weapon facts
+- seeded class weapon proficiency metadata
+- selected feat ownership by weapon or spell school
+- spell-school feat prerequisites
+- familiar eligibility facts
 
-The next executable backlog item is the weapon query helper slice for the seeded core simple weapons. Keep it query-only: no attack rolls, damage rolls, ammunition tracking, wielded slots, proficiency application, or combat behavior.
+The next executable backlog item is selected-weapon proficiency prerequisite composition at the `character` boundary. Keep it adapter-focused: no attack rolls, damage rolls, feat bonus application, wielded slots, proficiency bonus application, or combat behavior.
 
 ## Philosophy In One Sentence
 
