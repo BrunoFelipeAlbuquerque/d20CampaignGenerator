@@ -578,7 +578,7 @@ Do not expand this path into:
   - expose composed scores as existing `CharacterAbilityScore` facts
   - no point buy, rolling, age, level-up, magic, temporary ability damage, or full aggregate behavior
 
-- [ ] Compose selectable racial ability modifiers with base ability scores (resolution/query logic):
+- [X] Compose selectable racial ability modifiers with base ability scores (resolution/query logic):
   - support human, half-elf, and half-orc selectable `+2` metadata
   - require exactly one selected core ability score for the selectable modifier
   - reject missing, duplicate, unknown, or non-core selected abilities

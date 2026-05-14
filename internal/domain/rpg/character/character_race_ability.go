@@ -2,6 +2,25 @@ package character
 
 import ability "d20campaigngenerator/internal/domain/rpg/character/ability"
 
+type characterSelectedAbilityScore struct {
+	id    ability.AbilityScoreID
+	valid bool
+}
+type CharacterSelectedAbilityScore = characterSelectedAbilityScore
+
+func NewCharacterSelectedAbilityScore(
+	id ability.AbilityScoreID,
+) (CharacterSelectedAbilityScore, bool) {
+	if !isCoreCharacterAbilityScoreID(id) {
+		return characterSelectedAbilityScore{}, false
+	}
+
+	return characterSelectedAbilityScore{
+		id:    id,
+		valid: true,
+	}, true
+}
+
 func NewFixedRacialCharacterAbilityScores(
 	selectedRace CharacterRace,
 	baseScores []CharacterAbilityScore,
@@ -35,18 +54,56 @@ func NewFixedRacialCharacterAbilityScores(
 		composedScores[scoreID] = score.GetScore()
 	}
 
-	coreScoreIDs := coreCharacterAbilityScoreIDs()
-	result := make([]CharacterAbilityScore, 0, len(coreScoreIDs))
-	for _, scoreID := range coreScoreIDs {
-		score, ok := NewCharacterAbilityScore(scoreID, composedScores[scoreID])
-		if !ok {
-			return nil, false
-		}
+	return characterAbilityScoresFromMap(composedScores)
+}
 
-		result = append(result, score)
+func NewSelectableRacialCharacterAbilityScores(
+	selectedRace CharacterRace,
+	baseScores []CharacterAbilityScore,
+	selectedAbilities []CharacterSelectedAbilityScore,
+) ([]CharacterAbilityScore, bool) {
+	race, ok := selectedRace.GetRace()
+	if !ok {
+		return nil, false
 	}
 
-	return result, true
+	selectableModifier, ok := race.GetSelectableAbilityScoreModifier()
+	if !ok || len(race.GetAbilityScoreModifiers()) != 0 {
+		return nil, false
+	}
+
+	selectedAbility, ok := buildSingleCharacterSelectedAbilityScore(selectedAbilities)
+	if !ok {
+		return nil, false
+	}
+
+	composedScores, ok := buildCompleteCharacterAbilityScoreMap(baseScores)
+	if !ok {
+		return nil, false
+	}
+
+	scoreID := selectedAbility.GetAbilityScoreID()
+	baseScore, ok := composedScores[scoreID]
+	if !ok {
+		return nil, false
+	}
+
+	score, ok := NewCharacterAbilityScore(scoreID, baseScore+selectableModifier)
+	if !ok {
+		return nil, false
+	}
+
+	composedScores[scoreID] = score.GetScore()
+
+	return characterAbilityScoresFromMap(composedScores)
+}
+
+func (s characterSelectedAbilityScore) GetAbilityScoreID() ability.AbilityScoreID {
+	if !s.valid {
+		return ""
+	}
+
+	return s.id
 }
 
 func coreCharacterAbilityScoreIDs() []ability.AbilityScoreID {
@@ -58,6 +115,29 @@ func coreCharacterAbilityScoreIDs() []ability.AbilityScoreID {
 		ability.WisdomScore,
 		ability.CharismaScore,
 	}
+}
+
+func characterAbilityScoresFromMap(
+	values map[ability.AbilityScoreID]int,
+) ([]CharacterAbilityScore, bool) {
+	coreScoreIDs := coreCharacterAbilityScoreIDs()
+	result := make([]CharacterAbilityScore, 0, len(coreScoreIDs))
+
+	for _, scoreID := range coreScoreIDs {
+		value, ok := values[scoreID]
+		if !ok {
+			return nil, false
+		}
+
+		score, ok := NewCharacterAbilityScore(scoreID, value)
+		if !ok {
+			return nil, false
+		}
+
+		result = append(result, score)
+	}
+
+	return result, true
 }
 
 func buildCompleteCharacterAbilityScoreMap(
@@ -76,4 +156,29 @@ func buildCompleteCharacterAbilityScoreMap(
 	}
 
 	return result, true
+}
+
+func buildSingleCharacterSelectedAbilityScore(
+	values []CharacterSelectedAbilityScore,
+) (CharacterSelectedAbilityScore, bool) {
+	if len(values) != 1 {
+		return characterSelectedAbilityScore{}, false
+	}
+
+	value := values[0]
+	if !value.valid {
+		return characterSelectedAbilityScore{}, false
+	}
+
+	return NewCharacterSelectedAbilityScore(value.id)
+}
+
+func isCoreCharacterAbilityScoreID(id ability.AbilityScoreID) bool {
+	for _, scoreID := range coreCharacterAbilityScoreIDs() {
+		if id == scoreID {
+			return true
+		}
+	}
+
+	return false
 }
