@@ -522,7 +522,7 @@ Do not expand this path into:
   - unknown, malformed, or unsupported selected weapon facts fail closed
   - no attack rolls, damage rolls, feat bonuses, or combat behavior
 
-- [ ] Compose same-selection weapon feat prerequisites (resolution/query logic):
+- [X] Compose same-selection weapon feat prerequisites (resolution/query logic):
   - model selected feat ownership with a selected core weapon key
   - same-selection prerequisites compare the requested feat and selected weapon key
   - missing, duplicate, mismatched, or unknown selected feat facts fail closed
