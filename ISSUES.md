@@ -133,7 +133,7 @@
   - stale README guidance can send future delivery back into already-completed P3 equipment work
   - update README status and near-term next steps without changing backlog order
 
-- [ ] Define the selected-weapon proficiency adapter boundary before composing P4 weapon feats:
+- [X] Define the selected-weapon proficiency adapter boundary before composing P4 weapon feats:
   - independent audit found the next P4 item is valid but has a vocabulary mismatch risk
   - `class` stores weapon proficiency facts as `WeaponProficiencyID` labels such as `Simple Weapons`, `Martial Weapons`, and individual weapon names
   - `equipment` stores seeded weapons as `WeaponID` slugs plus `WeaponProficiencyCategory` values such as `Simple`, `Martial`, and `Exotic`
