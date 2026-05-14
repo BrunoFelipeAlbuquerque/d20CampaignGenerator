@@ -126,7 +126,7 @@
 
 ## SHOULD
 
-- [ ] Refresh README next-step guidance after the independent audit:
+- [X] Refresh README next-step guidance after the independent audit:
   - independent audit found `README.md` still says the next major tracked backlog area is core carryable equipment catalogs
   - `README.md` still says the next executable backlog item is the weapon query helper slice for seeded core simple weapons
   - `BACKLOG.md` and `docs/project-map.md` now show P4 core feat selection context is the next core-only path
