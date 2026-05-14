@@ -535,7 +535,7 @@ Do not expand this path into:
   - invalid spell schools or mismatched selected schools fail closed
   - no spell DCs, prepared spells, spell slots, or school power behavior
 
-- [ ] Compose selected familiar eligibility prerequisites (resolution/query logic):
+- [X] Compose selected familiar eligibility prerequisites (resolution/query logic):
   - add explicit familiar eligibility context to `CharacterFeatPrerequisiteState`
   - `Improved Familiar` requires both seeded familiar access and familiar eligibility facts
   - missing or zero-value eligibility facts fail closed

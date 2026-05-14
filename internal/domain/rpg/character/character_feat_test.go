@@ -540,6 +540,74 @@ func TestNewCharacterFeat_RejectsSelectionPrerequisitesWithoutContext(t *testing
 	}
 }
 
+func TestNewCharacterFeat_ComposesSelectedFamiliarEligibilityPrerequisite(t *testing.T) {
+	state := mustNewCharacterFeatPrerequisiteStateWithSelectedFamiliarEligibilityForTest(
+		t,
+		nil,
+		0,
+		nil,
+		nil,
+		[]characterclass.ClassFeatureID{characterclass.FamiliarAccessClassFeatureID},
+		nil,
+		NewCharacterSelectedFamiliarEligibility(),
+		nil,
+	)
+
+	if _, ok := NewCharacterFeat(characterfeat.ImprovedFamiliarFeatID, state); !ok {
+		t.Fatal("expected improved familiar to compose from familiar access and selected familiar eligibility")
+	}
+}
+
+func TestNewCharacterFeat_RejectsSelectedFamiliarEligibilityWithoutFamiliarAccess(t *testing.T) {
+	state := mustNewCharacterFeatPrerequisiteStateWithSelectedFamiliarEligibilityForTest(
+		t,
+		nil,
+		0,
+		nil,
+		nil,
+		nil,
+		nil,
+		NewCharacterSelectedFamiliarEligibility(),
+		nil,
+	)
+
+	if _, ok := NewCharacterFeat(characterfeat.ImprovedFamiliarFeatID, state); ok {
+		t.Fatal("expected improved familiar to reject eligibility without familiar access")
+	}
+}
+
+func TestNewCharacterFeat_RejectsSelectedFamiliarEligibilityWithoutEligibilityFact(t *testing.T) {
+	state := mustNewCharacterFeatPrerequisiteStateForTest(
+		t,
+		nil,
+		0,
+		nil,
+		[]characterclass.ClassFeatureID{characterclass.FamiliarAccessClassFeatureID},
+		nil,
+		nil,
+	)
+
+	if _, ok := NewCharacterFeat(characterfeat.ImprovedFamiliarFeatID, state); ok {
+		t.Fatal("expected improved familiar to reject familiar access without selected familiar eligibility")
+	}
+}
+
+func TestCharacterFeatPrerequisiteState_ZeroValueSelectedFamiliarEligibilityFailsClosed(t *testing.T) {
+	state := mustNewCharacterFeatPrerequisiteStateForTest(
+		t,
+		nil,
+		0,
+		nil,
+		[]characterclass.ClassFeatureID{characterclass.FamiliarAccessClassFeatureID},
+		nil,
+		nil,
+	)
+
+	if state.SatisfiesPrerequisite(characterfeat.NewSelectedFamiliarEligibilityPrerequisite()) {
+		t.Fatal("expected zero-value selected familiar eligibility to fail closed")
+	}
+}
+
 func TestCharacterFeatPrerequisiteState_RejectsMalformedSelectedWeaponFacts(t *testing.T) {
 	if _, ok := NewCharacterFeatPrerequisiteStateWithSelectedWeapon(
 		nil,
@@ -777,6 +845,24 @@ func TestCharacterFeatPrerequisiteState_RejectsMalformedSelectedSpellSchoolFeatF
 		nil,
 	); ok {
 		t.Fatal("expected malformed selected spell-school feat fact to be rejected")
+	}
+}
+
+func TestCharacterFeatPrerequisiteState_RejectsMalformedSelectedFamiliarEligibilityFact(t *testing.T) {
+	if _, ok := NewCharacterFeatPrerequisiteStateWithSelectedFamiliarEligibility(
+		nil,
+		0,
+		nil,
+		nil,
+		[]characterclass.ClassFeatureID{characterclass.FamiliarAccessClassFeatureID},
+		nil,
+		characterSelectedFamiliarEligibility{
+			eligible: false,
+			valid:    true,
+		},
+		nil,
+	); ok {
+		t.Fatal("expected malformed selected familiar eligibility fact to be rejected")
 	}
 }
 
@@ -1196,6 +1282,36 @@ func mustNewCharacterFeatPrerequisiteStateWithSelectedSpellSchoolFeatsForTest(
 		skillRanks,
 		selectedSpellSchool,
 		selectedSpellSchoolFeats,
+		feats,
+	)
+	if !ok {
+		t.Fatal("expected feat prerequisite state to compose")
+	}
+
+	return state
+}
+
+func mustNewCharacterFeatPrerequisiteStateWithSelectedFamiliarEligibilityForTest(
+	t *testing.T,
+	abilityScores []CharacterAbilityScore,
+	baseAttackBonus int,
+	casterLevels []CharacterCasterLevel,
+	classLevels []CharacterClassLevel,
+	classFeatures []characterclass.ClassFeatureID,
+	skillRanks []CharacterSkillRanks,
+	selectedFamiliarEligibility CharacterSelectedFamiliarEligibility,
+	feats []characterfeat.FeatID,
+) CharacterFeatPrerequisiteState {
+	t.Helper()
+
+	state, ok := NewCharacterFeatPrerequisiteStateWithSelectedFamiliarEligibility(
+		abilityScores,
+		baseAttackBonus,
+		casterLevels,
+		classLevels,
+		classFeatures,
+		skillRanks,
+		selectedFamiliarEligibility,
 		feats,
 	)
 	if !ok {
