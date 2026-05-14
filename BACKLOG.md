@@ -570,7 +570,7 @@ Do not expand this path into:
 - feat-slot accounting, favored class bonuses, traits, archetypes, or non-core sources
 - a full mutable character aggregate
 
-- [ ] Compose fixed racial ability modifiers with base ability scores (resolution/query logic):
+- [X] Compose fixed racial ability modifiers with base ability scores (resolution/query logic):
   - accept explicit base ability score facts for all six core abilities
   - apply fixed core race ability modifiers from the selected race
   - reject missing, duplicate, malformed, or non-core ability score facts
