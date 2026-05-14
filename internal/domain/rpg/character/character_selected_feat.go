@@ -9,6 +9,13 @@ type characterSelectedWeaponFeat struct {
 }
 type CharacterSelectedWeaponFeat = characterSelectedWeaponFeat
 
+type characterSelectedSpellSchoolFeat struct {
+	featID              characterfeat.FeatID
+	selectedSpellSchool characterSelectedSpellSchool
+	valid               bool
+}
+type CharacterSelectedSpellSchoolFeat = characterSelectedSpellSchoolFeat
+
 func NewCharacterSelectedWeaponFeat(
 	featID characterfeat.FeatID,
 	selectedWeapon CharacterSelectedWeapon,
@@ -46,6 +53,43 @@ func (f characterSelectedWeaponFeat) GetSelectedWeapon() CharacterSelectedWeapon
 	return f.selectedWeapon
 }
 
+func NewCharacterSelectedSpellSchoolFeat(
+	featID characterfeat.FeatID,
+	selectedSpellSchool CharacterSelectedSpellSchool,
+) (CharacterSelectedSpellSchoolFeat, bool) {
+	feat, ok := characterfeat.GetFeatByID(featID)
+	if !ok || !isSpellSchoolSelectionFeat(feat) {
+		return characterSelectedSpellSchoolFeat{}, false
+	}
+
+	selectedSpellSchoolValue, ok := buildCharacterSelectedSpellSchool(selectedSpellSchool)
+	if !ok || !selectedSpellSchoolValue.valid {
+		return characterSelectedSpellSchoolFeat{}, false
+	}
+
+	return characterSelectedSpellSchoolFeat{
+		featID:              featID,
+		selectedSpellSchool: selectedSpellSchoolValue,
+		valid:               true,
+	}, true
+}
+
+func (f characterSelectedSpellSchoolFeat) GetFeatID() characterfeat.FeatID {
+	if !f.valid {
+		return ""
+	}
+
+	return f.featID
+}
+
+func (f characterSelectedSpellSchoolFeat) GetSelectedSpellSchool() CharacterSelectedSpellSchool {
+	if !f.valid {
+		return characterSelectedSpellSchool{}
+	}
+
+	return f.selectedSpellSchool
+}
+
 func isWeaponSelectionFeat(feat characterfeat.Feat) bool {
 	if feat.GetCategory() != characterfeat.CombatFeatCategory {
 		return false
@@ -60,4 +104,14 @@ func isWeaponSelectionFeat(feat characterfeat.Feat) bool {
 	}
 
 	return false
+}
+
+func isSpellSchoolSelectionFeat(feat characterfeat.Feat) bool {
+	switch feat.GetID() {
+	case characterfeat.SpellFocusFeatID,
+		characterfeat.GreaterSpellFocusFeatID:
+		return true
+	default:
+		return false
+	}
 }
