@@ -39,6 +39,7 @@ type characterFeatPrerequisiteState struct {
 	classLevels     map[characterclass.ClassID]int
 	classFeatures   map[characterclass.ClassFeatureID]struct{}
 	skillRanks      map[skill.SkillID]int
+	selectedWeapon  characterSelectedWeapon
 	feats           map[characterfeat.FeatID]struct{}
 }
 type CharacterFeatPrerequisiteState = characterFeatPrerequisiteState
@@ -114,6 +115,50 @@ func NewCharacterFeatPrerequisiteState(
 	skillRanks []CharacterSkillRanks,
 	feats []characterfeat.FeatID,
 ) (CharacterFeatPrerequisiteState, bool) {
+	return newCharacterFeatPrerequisiteState(
+		abilityScores,
+		baseAttackBonus,
+		casterLevels,
+		classLevels,
+		classFeatures,
+		skillRanks,
+		characterSelectedWeapon{},
+		feats,
+	)
+}
+
+func NewCharacterFeatPrerequisiteStateWithSelectedWeapon(
+	abilityScores []CharacterAbilityScore,
+	baseAttackBonus int,
+	casterLevels []CharacterCasterLevel,
+	classLevels []CharacterClassLevel,
+	classFeatures []characterclass.ClassFeatureID,
+	skillRanks []CharacterSkillRanks,
+	selectedWeapon CharacterSelectedWeapon,
+	feats []characterfeat.FeatID,
+) (CharacterFeatPrerequisiteState, bool) {
+	return newCharacterFeatPrerequisiteState(
+		abilityScores,
+		baseAttackBonus,
+		casterLevels,
+		classLevels,
+		classFeatures,
+		skillRanks,
+		selectedWeapon,
+		feats,
+	)
+}
+
+func newCharacterFeatPrerequisiteState(
+	abilityScores []CharacterAbilityScore,
+	baseAttackBonus int,
+	casterLevels []CharacterCasterLevel,
+	classLevels []CharacterClassLevel,
+	classFeatures []characterclass.ClassFeatureID,
+	skillRanks []CharacterSkillRanks,
+	selectedWeapon CharacterSelectedWeapon,
+	feats []characterfeat.FeatID,
+) (CharacterFeatPrerequisiteState, bool) {
 	if baseAttackBonus < 0 {
 		return characterFeatPrerequisiteState{}, false
 	}
@@ -143,6 +188,11 @@ func NewCharacterFeatPrerequisiteState(
 		return characterFeatPrerequisiteState{}, false
 	}
 
+	selectedWeaponValue, ok := buildCharacterSelectedWeapon(selectedWeapon)
+	if !ok {
+		return characterFeatPrerequisiteState{}, false
+	}
+
 	featSet, ok := buildCharacterFeatSet(feats)
 	if !ok {
 		return characterFeatPrerequisiteState{}, false
@@ -156,6 +206,7 @@ func NewCharacterFeatPrerequisiteState(
 		classLevels:     classLevelMap,
 		classFeatures:   classFeatureSet,
 		skillRanks:      skillRankMap,
+		selectedWeapon:  selectedWeaponValue,
 		feats:           featSet,
 	}, true
 }
@@ -255,6 +306,8 @@ func (s characterFeatPrerequisiteState) SatisfiesPrerequisite(
 	case characterfeat.ClassFeaturePrerequisite:
 		_, ok := s.classFeatures[value.GetFeatureID()]
 		return ok
+	case characterfeat.SelectedWeaponProficiencyPrerequisite:
+		return s.satisfiesSelectedWeaponProficiency()
 	case characterfeat.FeatPrerequisite:
 		_, ok := s.feats[value.GetFeatID()]
 		return ok
@@ -329,6 +382,25 @@ func (s characterFeatPrerequisiteState) satisfiesCasterLevel(minimumLevel int) b
 
 	for _, level := range s.casterLevels {
 		if level >= minimumLevel {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (s characterFeatPrerequisiteState) satisfiesSelectedWeaponProficiency() bool {
+	if !s.selectedWeapon.valid {
+		return false
+	}
+
+	for classID := range s.classLevels {
+		class, ok := characterclass.GetClassByID(classID)
+		if !ok {
+			return false
+		}
+
+		if s.selectedWeapon.IsProficientWith(class.GetWeaponProficiencies()) {
 			return true
 		}
 	}
@@ -450,6 +522,33 @@ func buildCharacterSkillRankMap(values []CharacterSkillRanks) (map[skill.SkillID
 	}
 
 	return result, true
+}
+
+func buildCharacterSelectedWeapon(
+	value CharacterSelectedWeapon,
+) (characterSelectedWeapon, bool) {
+	if isEmptyCharacterSelectedWeapon(value) {
+		return characterSelectedWeapon{}, true
+	}
+
+	if !value.valid {
+		return characterSelectedWeapon{}, false
+	}
+
+	selectedWeapon, ok := NewCharacterSelectedWeapon(value.id)
+	if !ok {
+		return characterSelectedWeapon{}, false
+	}
+
+	if value.proficiencyCategory != selectedWeapon.proficiencyCategory {
+		return characterSelectedWeapon{}, false
+	}
+
+	return selectedWeapon, true
+}
+
+func isEmptyCharacterSelectedWeapon(value CharacterSelectedWeapon) bool {
+	return !value.valid && value.id == "" && value.proficiencyCategory == ""
 }
 
 func buildCharacterFeatSet(
