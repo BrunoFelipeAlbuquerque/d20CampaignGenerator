@@ -17,8 +17,8 @@ Order of work:
 3. resolution/query logic
 4. character composition
 
-As of this map, the foundation domains and most current composition adapters are present. Check `BACKLOG.md` for exact unchecked work.
-The next planned area is core feat selection context; later non-core work is intentionally deferred.
+As of this map, the foundation domains and current P4 feat selection composition adapters are present. Check `BACKLOG.md` for exact unchecked work.
+The next planned area is core character ability composition; later non-core work is intentionally deferred.
 
 ---
 
@@ -79,27 +79,22 @@ Keep composition thin. If logic belongs to a lower domain, add it there only whe
 
 ## Next Backlog Path
 
-The next core-only backlog path is P4 core feat selection context.
+The next core-only backlog path is P5 core character ability composition.
 
-The P3 carryable equipment catalog path is complete. Continue by closing the remaining selection-sensitive core feat prerequisite gaps at the `character` boundary: selected weapon proficiency, same-selection weapon feats, spell-school feat selections, and familiar eligibility.
+The P4 core feat selection context path is complete. Continue by composing explicit level-1 ability score facts with core race ability metadata at the `character` boundary.
 
 Check `BACKLOG.md` before starting any far-future non-core item.
 
-The path should prove explicit character selection facts before adding any combat-facing feat behavior.
+The path should prove fixed and selectable core racial ability modifiers before adding broader character aggregation or combat-facing derived stats.
 
 Out of scope for this path:
 
-- magic items
-- masterwork items or special materials
-- ammunition tracking
-- wealth generation, shops, or economy rules
-- crafting
-- combat resolution
-- attack rolls, damage rolls, or feat bonus application
-- spell DCs, spell preparation, or school powers
-- familiar stat blocks or companion advancement
-- equipped slots or wielded slots
-- full skill allocation
+- point buy, rolling methods, elite arrays, or NPC arrays
+- aging effects, level-up ability increases, magic bonuses, or temporary ability damage
+- saving throw totals, attack rolls, or armor class
+- skill-rank allocation
+- feat-slot accounting, favored class bonuses, traits, or archetypes
+- full mutable character aggregate
 - combat state
 - non-core content
 - broad folder or package reorganization

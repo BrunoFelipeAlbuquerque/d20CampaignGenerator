@@ -126,15 +126,12 @@
 
 ## SHOULD
 
-- [ ] Refresh source-of-truth docs after P4 completion and new P5 audit path:
+- [X] Refresh source-of-truth docs after P4 completion and new P5 audit path:
   - independent audit found `BACKLOG.md` now marks every P4 core feat selection context item complete
   - independent audit found the only unchecked backlog items before this audit were P9 far-future non-core items
-  - `docs/project-map.md` still says the next core-only backlog path is P4 core feat selection context
-  - `docs/project-map.md` still says to close selected weapon proficiency, same-selection weapon feats, spell-school feat selections, and familiar eligibility
-  - `README.md` still says the current status snapshot includes the current P4 feat selection context gap
-  - `README.md` still says the next executable backlog item is selected-weapon proficiency prerequisite composition
-  - stale guidance can send future delivery back into already-completed P4 work or toward P9 non-core work
-  - update `README.md` and `docs/project-map.md` to point at the new P5 core ability composition path without changing backlog order
+  - refreshed `README.md` current status and near-term next steps to point at P5 core character ability composition
+  - refreshed `docs/project-map.md` current goal and next backlog path to point at P5 core character ability composition
+  - preserved backlog order and left P9 as far-future non-core work
 
 - [X] Refresh README next-step guidance after the independent audit:
   - independent audit found `README.md` still says the next major tracked backlog area is core carryable equipment catalogs

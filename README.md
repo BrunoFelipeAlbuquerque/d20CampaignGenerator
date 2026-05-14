@@ -203,7 +203,7 @@ Those differences exist in the repository, but they are not the source of truth 
 
 ## Current Status Matrix
 
-This table is the current foundation-audit snapshot for specialist review of the existing repo surface. It reflects the delivered core foundation through Feat, the completed P3 carryable equipment catalog path, and the current P4 feat selection context gap.
+This table is the current foundation-audit snapshot for specialist review of the existing repo surface. It reflects the delivered core foundation through Feat, the completed P3 carryable equipment catalog path, the completed P4 feat selection context path, and the current P5 core ability composition gap.
 
 | Area | Exists | Core-correct now | Intentional limit | Project-specific note |
 | --- | --- | --- | --- | --- |
@@ -216,7 +216,7 @@ This table is the current foundation-audit snapshot for specialist review of the
 | `class` | yes | 11 core classes seeded with validated chassis, lookup helper, and spellcasting metadata | class feature details and character composition are not modeled yet | none |
 | `spellcasting progression` | yes | core progression tables seeded for bard, cleric, druid, paladin, ranger, sorcerer, and wizard | table/query surface only; no character spell-slot composition yet | none |
 | `spell` | yes | spell chassis, spell-list entries, core spell-list bindings, and core spell data are seeded with read-only query helpers | no spell preparation, casting, or character spellbook composition yet | none |
-| `feat` | yes | feat chassis, typed prerequisites, core feat seeds, read-only catalog helpers, and character prerequisite composition are present | no full feat allocation engine, selected-weapon choices, spell-school choices, or bonus-feat grant flow yet | none |
+| `feat` | yes | feat chassis, typed prerequisites, core feat seeds, read-only catalog helpers, and character prerequisite composition are present | no full feat allocation engine, feat-slot accounting, retraining, or bonus-feat grant flow yet | none |
 | `equipment` | yes | equipment, weapon, armor/shield chassis, dual imperial/metric weight and length values, adventuring-gear seed/query helpers, carryable item boundary, character inventory composition, carried-weight composition, and bounded core weapon, armor, and shield seed/query slices are present | no combat behavior, equipped slots, ammunition tracking, AC composition, or magic items | metric values are stored alongside PF1 imperial values for equipment measurements |
 
 ## Current Domain Snapshot
@@ -388,17 +388,17 @@ Invalid body shapes are rejected.
 
 The next major tracked backlog area is:
 
-- P4 core feat selection context
+- P5 core character ability composition
 
 That work will likely interact with:
 
-- selected core weapon facts
-- seeded class weapon proficiency metadata
-- selected feat ownership by weapon or spell school
-- spell-school feat prerequisites
-- familiar eligibility facts
+- explicit base ability score facts
+- fixed core racial ability modifiers
+- selectable human, half-elf, and half-orc `+2` ability metadata
+- existing `CharacterAbilityScore` facts
+- existing feat prerequisite and carrying-load adapters
 
-The next executable backlog item is selected-weapon proficiency prerequisite composition at the `character` boundary. Keep it adapter-focused: no attack rolls, damage rolls, feat bonus application, wielded slots, proficiency bonus application, or combat behavior.
+The next executable backlog item is fixed racial ability modifier composition at the `character` boundary. Keep it adapter-focused: no point buy, rolling, aging effects, level-up increases, magic bonuses, temporary ability damage, or full character aggregate behavior.
 
 ## Philosophy In One Sentence
 
