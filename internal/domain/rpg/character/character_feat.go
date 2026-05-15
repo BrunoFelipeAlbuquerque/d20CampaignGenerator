@@ -74,7 +74,7 @@ func NewCharacterClassLevel(
 	id characterclass.ClassID,
 	level int,
 ) (CharacterClassLevel, bool) {
-	if _, ok := characterclass.GetClassByID(id); !ok || level <= 0 {
+	if _, ok := characterclass.GetClassByID(id); !ok || level <= 0 || level > maxCoreCharacterLevel {
 		return characterClassLevel{}, false
 	}
 
