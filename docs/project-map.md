@@ -17,8 +17,8 @@ Order of work:
 3. resolution/query logic
 4. character composition
 
-As of this map, the foundation domains and current P4 feat selection composition adapters are present. Check `BACKLOG.md` for exact unchecked work.
-The next planned area is core character ability composition; later non-core work is intentionally deferred.
+As of this map, the foundation domains, P4 feat selection composition adapters, and P5 core ability composition adapters are present. Check `BACKLOG.md` for exact unchecked work.
+The next planned area is core class-level totals and base derived facts; later non-core work is intentionally deferred.
 
 ---
 
@@ -71,6 +71,7 @@ Current character-boundary adapters:
 - `character_feat.go`: feat prerequisite state and selected feat validation
 - `character_equipment.go`: selected carryable item lookup with quantity
 - `character_carried_weight.go`: carried equipment weight and load category from Strength
+- `character_race_ability.go`: fixed and selectable core racial ability composition
 - `racial_hit_points.go`: creature rules to racial HP bridge
 
 Keep composition thin. If logic belongs to a lower domain, add it there only when the backlog item requires it.
@@ -79,21 +80,21 @@ Keep composition thin. If logic belongs to a lower domain, add it there only whe
 
 ## Next Backlog Path
 
-The next core-only backlog path is P5 core character ability composition.
+The next core-only backlog path is P6 core class-level totals and base derived facts.
 
-The P4 core feat selection context path is complete. Continue by composing explicit level-1 ability score facts with core race ability metadata at the `character` boundary.
+The P5 core character ability composition path is complete. Continue by composing selected class levels into character level facts, BAB facts, base saving throw facts, and HP ledger entries at the `character` boundary.
 
 Check `BACKLOG.md` before starting any far-future non-core item.
 
-The path should prove fixed and selectable core racial ability modifiers before adding broader character aggregation or combat-facing derived stats.
+The path should prove class-level totals and base derived facts before adding languages, skill-rank allocation, combat-facing snapshots, spell preparation, or broader character aggregation.
 
 Out of scope for this path:
 
-- point buy, rolling methods, elite arrays, or NPC arrays
-- aging effects, level-up ability increases, magic bonuses, or temporary ability damage
-- saving throw totals, attack rolls, or armor class
-- skill-rank allocation
-- feat-slot accounting, favored class bonuses, traits, or archetypes
+- XP table automation or advancement UI
+- favored class bonuses
+- full skill-rank allocation
+- final saving throw totals, attack rolls, or armor class
+- feat-slot accounting, traits, or archetypes
 - full mutable character aggregate
 - combat state
 - non-core content
