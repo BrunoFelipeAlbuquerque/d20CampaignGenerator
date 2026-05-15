@@ -627,7 +627,7 @@ Do not expand this path into:
 - a full mutable character aggregate
 - non-core classes or sources
 
-- [ ] Compose selected class levels into character level facts (resolution/query logic):
+- [X] Compose selected class levels into character level facts (resolution/query logic):
   - accept explicit selected core class level facts
   - reject missing, duplicate, malformed, zero, or non-core class levels
   - expose total character level and per-class levels as reusable character facts
