@@ -203,13 +203,13 @@ Those differences exist in the repository, but they are not the source of truth 
 
 ## Current Status Matrix
 
-This table is the current foundation-audit snapshot for specialist review of the existing repo surface. It reflects the delivered core foundation through Feat, the completed P3 carryable equipment catalog path, the completed P4 feat selection context path, and the current P5 core ability composition gap.
+This table is the current foundation-audit snapshot for specialist review of the existing repo surface. It reflects the delivered core foundation through Feat, the completed P3 carryable equipment catalog path, the completed P4 feat selection context path, the completed P5 core ability composition path, and the current P6 class-level derived-fact gap.
 
 | Area | Exists | Core-correct now | Intentional limit | Project-specific note |
 | --- | --- | --- | --- | --- |
 | `ability` | yes | carrying capacity, hit point averages, core construct HP table, and core size ladder behavior are aligned for the current surface | not a full combat-state engine | `Titanic`, dual imperial/metric size measurements, source-based caster levels |
 | `creaturetype` | yes | supported base types and the currently supported subtype effects resolve structurally | partial subtype coverage and partial trait model by design | none beyond project-specific sizes if a caller uses them |
-| `character` | yes | composition helpers for race, class, HP, spellcasting progression, spell-list entries, feat prerequisites, selected carryable equipment, and carried weight | not a full character aggregate yet | none |
+| `character` | yes | composition helpers for race, class, HP, spellcasting progression, spell-list entries, feat prerequisites, selected carryable equipment, carried weight, and racial ability composition | not a full character aggregate yet | none |
 | `race` | yes | 7 core races seeded with lookup helpers and automatic/bonus language metadata | core seed/query slice only | none |
 | `modifier` | yes | validated modifier chassis, stacking resolution, and usable target/condition refs | not full downstream composition yet | none |
 | `skill` | yes | core catalog seeded with public lookup and grouped specializations accepted by the domain | not skill-rank composition yet | none |
@@ -388,17 +388,18 @@ Invalid body shapes are rejected.
 
 The next major tracked backlog area is:
 
-- P5 core character ability composition
+- P6 core class-level totals and base derived facts
 
 That work will likely interact with:
 
-- explicit base ability score facts
-- fixed core racial ability modifiers
-- selectable human, half-elf, and half-orc `+2` ability metadata
-- existing `CharacterAbilityScore` facts
-- existing feat prerequisite and carrying-load adapters
+- selected core class facts
+- selected class levels
+- character level facts
+- class base attack bonus progressions
+- class saving throw progressions
+- HP ledger entries beyond first level
 
-The next executable backlog item is fixed racial ability modifier composition at the `character` boundary. Keep it adapter-focused: no point buy, rolling, aging effects, level-up increases, magic bonuses, temporary ability damage, or full character aggregate behavior.
+The next executable backlog item is selected class levels into character level facts at the `character` boundary. Keep it adapter-focused: no XP table automation, multiclass favored-class bonuses, fractional BAB option rules beyond existing exact progression behavior, full character aggregate behavior, or non-core classes.
 
 ## Philosophy In One Sentence
 
