@@ -27,8 +27,9 @@ const (
 )
 
 const (
-	averageHitDieBaseMode hitDieBaseMode = "Average"
-	maximumHitDieBaseMode hitDieBaseMode = "Maximum"
+	averageHitDieBaseMode  hitDieBaseMode = "Average"
+	explicitHitDieBaseMode hitDieBaseMode = "Explicit"
+	maximumHitDieBaseMode  hitDieBaseMode = "Maximum"
 )
 
 type hitDie struct {
@@ -55,6 +56,7 @@ type hitPoints struct {
 	constitution     int
 	charisma         int
 	baseMode         hitDieBaseMode
+	explicitBaseDice int
 }
 type HitPoints = hitPoints
 
@@ -128,6 +130,29 @@ func NewMaximumStandardHitPoints(hd HitDie, constitutionScore int) (HitPoints, b
 		kind:         StandardHitPoints,
 		constitution: constitutionScore,
 		baseMode:     maximumHitDieBaseMode,
+	}
+	hp.recalculate(true)
+	return hp, true
+}
+
+func NewExplicitStandardHitPoints(
+	hd HitDie,
+	constitutionScore int,
+	baseDice int,
+) (HitPoints, bool) {
+	if !isValidLivingConstitutionScore(constitutionScore) ||
+		!isSemanticallyValidHitDie(hd) ||
+		baseDice < hd.total ||
+		baseDice > hd.GetMaximumBaseHP() {
+		return hitPoints{}, false
+	}
+
+	hp := hitPoints{
+		hd:               hd,
+		kind:             StandardHitPoints,
+		constitution:     constitutionScore,
+		baseMode:         explicitHitDieBaseMode,
+		explicitBaseDice: baseDice,
 	}
 	hp.recalculate(true)
 	return hp, true
@@ -412,11 +437,14 @@ func (h hitPoints) resolveCoreState() ([]hpSource, int, int) {
 }
 
 func (h hitPoints) resolveBaseDice() int {
-	if h.baseMode == maximumHitDieBaseMode {
+	switch h.baseMode {
+	case explicitHitDieBaseMode:
+		return h.explicitBaseDice
+	case maximumHitDieBaseMode:
 		return h.hd.GetMaximumBaseHP()
+	default:
+		return h.hd.GetAverageBaseHP()
 	}
-
-	return h.hd.GetAverageBaseHP()
 }
 
 func (h *hitPoints) recalculateTemporary(preserveActive bool) {

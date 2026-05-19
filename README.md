@@ -207,9 +207,9 @@ This table is the current foundation-audit snapshot for specialist review of the
 
 | Area | Exists | Core-correct now | Intentional limit | Project-specific note |
 | --- | --- | --- | --- | --- |
-| `ability` | yes | carrying capacity, hit point averages, core construct HP table, and core size ladder behavior are aligned for the current surface | not a full combat-state engine | `Titanic`, dual imperial/metric size measurements, source-based caster levels |
+| `ability` | yes | carrying capacity, hit point averages, explicit HP base dice, core construct HP table, and core size ladder behavior are aligned for the current surface | not a full combat-state engine | `Titanic`, dual imperial/metric size measurements, source-based caster levels |
 | `creaturetype` | yes | supported base types and the currently supported subtype effects resolve structurally | partial subtype coverage and partial trait model by design | none beyond project-specific sizes if a caller uses them |
-| `character` | yes | composition helpers for race, class, HP, spellcasting progression, spell-list entries, feat prerequisites, selected carryable equipment, carried weight, racial ability composition, character level facts, base attack bonus facts, and base saving throw facts | not a full character aggregate yet | none |
+| `character` | yes | composition helpers for race, class, HP, spellcasting progression, spell-list entries, feat prerequisites, selected carryable equipment, carried weight, racial ability composition, character level facts, base attack bonus facts, base saving throw facts, and class HP ledger facts | not a full character aggregate yet | none |
 | `race` | yes | 7 core races seeded with lookup helpers and automatic/bonus language metadata | core seed/query slice only | none |
 | `modifier` | yes | validated modifier chassis, stacking resolution, and usable target/condition refs | not full downstream composition yet | none |
 | `skill` | yes | core catalog seeded with public lookup and grouped specializations accepted by the domain | not skill-rank composition yet | none |
@@ -394,12 +394,13 @@ That work will likely interact with:
 
 - selected core class facts
 - selected class levels
-- selected class hit dice
-- explicit per-level HP choices
-- composed Constitution facts
-- character level, base attack bonus, and base saving throw facts already composed in P6
+- character level facts
+- base attack bonus facts
+- base saving throw facts
+- class HP ledger facts
+- existing feat prerequisite adapters
 
-The next executable backlog item is class hit point ledger beyond first level at the `character` boundary. Keep it adapter-focused: no random rolling, favored class bonuses, temporary HP, healing, death-state behavior, full character aggregate behavior, or non-core classes.
+The next executable backlog item is the minimum level-1 character creation slice refresh for class-level derived facts. Keep it test-only and adapter-focused: no full character aggregate, skills, feat slots, combat behavior, or non-core content.
 
 ## Philosophy In One Sentence
 

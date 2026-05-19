@@ -647,7 +647,7 @@ Do not expand this path into:
   - reject unknown classes, invalid levels, or duplicate class entries
   - no ability modifiers, resistance bonuses, conditions, or combat state
 
-- [ ] Compose class hit point ledger beyond first level (resolution/query logic):
+- [X] Compose class hit point ledger beyond first level (resolution/query logic):
   - accept explicit HP choices or rolls for each class level after first
   - first class level still uses maximum class hit die plus Constitution modifier
   - later levels use explicit validated HP entries plus Constitution modifier
