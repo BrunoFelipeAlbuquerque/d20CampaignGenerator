@@ -17,7 +17,7 @@ Order of work:
 3. resolution/query logic
 4. character composition
 
-As of this map, the foundation domains, P4 feat selection composition adapters, P5 core ability composition adapters, and the first P6 class-level/BAB adapters are present. Check `BACKLOG.md` for exact unchecked work.
+As of this map, the foundation domains, P4 feat selection composition adapters, P5 core ability composition adapters, and the first P6 class-level/BAB/base-save adapters are present. Check `BACKLOG.md` for exact unchecked work.
 The next planned area is core class-level totals and base derived facts; later non-core work is intentionally deferred.
 
 ---
@@ -67,6 +67,7 @@ Current character-boundary adapters:
 - `character_class.go`: selected core class lookup
 - `character_class_level.go`: selected class levels and character level facts
 - `character_base_attack_bonus.go`: base attack bonus facts from selected class levels
+- `character_base_saving_throw.go`: base saving throw facts from selected class levels
 - `character_class_hit_points.go`: first-level class HP from selected class hit die
 - `character_spellcasting_progression.go`: class spellcasting progression access
 - `character_spell_list_entry.go`: class spell-list entry access
@@ -84,7 +85,7 @@ Keep composition thin. If logic belongs to a lower domain, add it there only whe
 
 The next core-only backlog path is P6 core class-level totals and base derived facts.
 
-The P5 core character ability composition path is complete, and P6 now has character level facts plus base attack bonus facts. Continue by composing base saving throw facts and HP ledger entries at the `character` boundary.
+The P5 core character ability composition path is complete, and P6 now has character level facts, base attack bonus facts, and base saving throw facts. Continue by composing HP ledger entries at the `character` boundary.
 
 Check `BACKLOG.md` before starting any far-future non-core item.
 
