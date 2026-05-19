@@ -145,6 +145,57 @@ func TestNewMaximumStandardHitPoints_UsesMaximumBaseDice(t *testing.T) {
 	}
 }
 
+func TestNewExplicitStandardHitPoints_UsesProvidedBaseDice(t *testing.T) {
+	hd, ok := NewHitDie(1, 0, 2, 0)
+	if !ok {
+		t.Fatal("expected hit die to be constructed")
+	}
+	hp, ok := NewExplicitStandardHitPoints(hd, 12, 21)
+	if !ok {
+		t.Fatal("expected explicit hit points to be constructed")
+	}
+
+	if hp.GetTotal() != 24 || hp.GetCurrent() != 24 {
+		t.Fatalf("expected total/current 24, got total %d current %d", hp.GetTotal(), hp.GetCurrent())
+	}
+
+	sources := hp.GetSources()
+	if len(sources) != 2 {
+		t.Fatalf("expected 2 HP sources, got %d", len(sources))
+	}
+
+	if sources[0].GetName() != "Base Dice" || sources[0].GetValue() != 21 {
+		t.Fatalf("expected explicit base dice source 21, got %q = %d", sources[0].GetName(), sources[0].GetValue())
+	}
+
+	if sources[1].GetName() != "Constitution" || sources[1].GetValue() != 3 {
+		t.Fatalf("expected constitution source 3, got %q = %d", sources[1].GetName(), sources[1].GetValue())
+	}
+
+	if ok := hp.UpdateConstitutionScore(14); !ok {
+		t.Fatal("expected constitution update to succeed")
+	}
+
+	if hp.GetTotal() != 27 || hp.GetCurrent() != 27 {
+		t.Fatalf("expected explicit-base total/current 27 after constitution update, got total %d current %d", hp.GetTotal(), hp.GetCurrent())
+	}
+}
+
+func TestNewExplicitStandardHitPoints_RejectsOutOfRangeBaseDice(t *testing.T) {
+	hd, ok := NewHitDie(1, 0, 0, 0)
+	if !ok {
+		t.Fatal("expected hit die to be constructed")
+	}
+
+	if _, ok := NewExplicitStandardHitPoints(hd, 10, 0); ok {
+		t.Fatal("expected explicit base dice below one per hit die to be rejected")
+	}
+
+	if _, ok := NewExplicitStandardHitPoints(hd, 10, 7); ok {
+		t.Fatal("expected explicit base dice above maximum hit die total to be rejected")
+	}
+}
+
 func TestNewUndeadHitPoints_UsesCharismaAndIgnoresNonLethal(t *testing.T) {
 	hd, ok := NewHitDie(0, 2, 0, 0)
 	if !ok {
