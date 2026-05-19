@@ -126,6 +126,16 @@
 
 ## SHOULD
 
+- [ ] Define the core language identity boundary before P7 bonus-language selection hardens around race-owned IDs:
+  - independent audit before P7 found `BACKLOG.md`, `README.md`, and `docs/project-map.md` correctly point to P7 core character languages as the next path
+  - `race.LanguageID` and `validLanguageIDs` currently live inside `internal/domain/rpg/character/race`
+  - the current valid language set only covers languages needed by the seeded fixed core race lists: Common, Abyssal, Celestial, Draconic, Dwarven, Elven, Giant, Gnome, Gnoll, Goblin, Terran, Undercommon, Sylvan, Orc, and Halfling
+  - local PF1 Linguistics text also lists common languages such as Aklo, Aquan, Auran, Ignan, and Infernal, and identifies Druidic as druids-only
+  - local PF1 race text says humans and half-elves with high Intelligence can choose any language except secret languages such as Druidic
+  - `race.BonusLanguageChoice` represents human and half-elf eligibility only as `AllowsAnyNonSecret()`, with no catalog or secret-language flag for `character` to validate concrete choices against
+  - the first P7 automatic-language item is still safe, but the second P7 bonus-language item will otherwise either reject valid non-secret choices, accept arbitrary strings, or add side tables at the `character` boundary
+  - before implementing bonus-language selection, define the smallest core language identity/catalog or validation surface needed to distinguish known non-secret languages from secret languages without adding campaign or non-core language behavior
+
 - [X] Refresh source-of-truth docs after P4 completion and new P5 audit path:
   - independent audit found `BACKLOG.md` now marks every P4 core feat selection context item complete
   - independent audit found the only unchecked backlog items before this audit were P9 far-future non-core items
@@ -308,6 +318,12 @@
 ---
 
 ## CAN
+
+- [ ] Keep class-granted and class-substituted language rules out of the P7 race-language path until class feature language work is scheduled:
+  - local PF1 chunks show class-specific language rules outside race metadata: clerics add Celestial, Abyssal, and Infernal to bonus language options; druids add Sylvan and know Druidic as a secret free language; wizards may substitute Draconic for one racial bonus language
+  - P7 is scoped to race language metadata plus Intelligence-derived bonus language capacity
+  - folding class-specific grants or substitutions into P7 would expand the slice beyond the current backlog item
+  - leaving this visible prevents later character-language work from mistaking P7 race-language facts for complete PF1 language coverage
 
 - [X] Add a compact status matrix for specialist review:
   - what exists
