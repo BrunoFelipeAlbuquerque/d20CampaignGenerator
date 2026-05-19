@@ -633,7 +633,7 @@ Do not expand this path into:
   - expose total character level and per-class levels as reusable character facts
   - no XP thresholds, advancement automation, favored class bonuses, or full aggregate behavior
 
-- [ ] Compose class levels into base attack bonus facts (resolution/query logic):
+- [X] Compose class levels into base attack bonus facts (resolution/query logic):
   - use seeded core class BAB progressions
   - use the project's adopted fractional BAB math
   - expose exact and rounded BAB facts for downstream feat prerequisites and attack snapshots
