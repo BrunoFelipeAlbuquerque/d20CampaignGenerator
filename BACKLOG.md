@@ -654,7 +654,7 @@ Do not expand this path into:
   - reject missing, duplicate, out-of-range, or non-core class HP entries
   - no random rolling, favored class bonuses, temporary HP, healing, or death-state behavior
 
-- [ ] Refresh minimum level-1 character creation slice for class-level derived facts (resolution/query logic):
+- [X] Refresh minimum level-1 character creation slice for class-level derived facts (resolution/query logic):
   - keep the slice test-only and adapter-focused
   - demonstrate class levels feeding character level, BAB, and base saves
   - demonstrate class levels still feeding feat prerequisites without duplicate side inputs
