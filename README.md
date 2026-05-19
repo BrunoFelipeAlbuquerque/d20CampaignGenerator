@@ -203,13 +203,13 @@ Those differences exist in the repository, but they are not the source of truth 
 
 ## Current Status Matrix
 
-This table is the current foundation-audit snapshot for specialist review of the existing repo surface. It reflects the delivered core foundation through Feat, the completed P3 carryable equipment catalog path, the completed P4 feat selection context path, the completed P5 core ability composition path, and the in-progress P6 class-level derived-fact path.
+This table is the current foundation-audit snapshot for specialist review of the existing repo surface. It reflects the delivered core foundation through Feat, the completed P3 carryable equipment catalog path, the completed P4 feat selection context path, the completed P5 core ability composition path, the completed P6 class-level derived-fact path, and the current P7 character language composition gap.
 
 | Area | Exists | Core-correct now | Intentional limit | Project-specific note |
 | --- | --- | --- | --- | --- |
 | `ability` | yes | carrying capacity, hit point averages, explicit HP base dice, core construct HP table, and core size ladder behavior are aligned for the current surface | not a full combat-state engine | `Titanic`, dual imperial/metric size measurements, source-based caster levels |
 | `creaturetype` | yes | supported base types and the currently supported subtype effects resolve structurally | partial subtype coverage and partial trait model by design | none beyond project-specific sizes if a caller uses them |
-| `character` | yes | composition helpers for race, class, HP, spellcasting progression, spell-list entries, feat prerequisites, selected carryable equipment, carried weight, racial ability composition, character level facts, base attack bonus facts, base saving throw facts, and class HP ledger facts | not a full character aggregate yet | none |
+| `character` | yes | composition helpers for race, class, HP, spellcasting progression, spell-list entries, feat prerequisites, selected carryable equipment, carried weight, racial ability composition, character level facts, base attack bonus facts, base saving throw facts, class HP ledger facts, and a refreshed class-level derived creation slice | not a full character aggregate yet | none |
 | `race` | yes | 7 core races seeded with lookup helpers and automatic/bonus language metadata | core seed/query slice only | none |
 | `modifier` | yes | validated modifier chassis, stacking resolution, and usable target/condition refs | not full downstream composition yet | none |
 | `skill` | yes | core catalog seeded with public lookup and grouped specializations accepted by the domain | not skill-rank composition yet | none |
@@ -388,19 +388,17 @@ Invalid body shapes are rejected.
 
 The next major tracked backlog area is:
 
-- P6 core class-level totals and base derived facts
+- P7 core character languages
 
 That work will likely interact with:
 
-- selected core class facts
-- selected class levels
-- character level facts
-- base attack bonus facts
-- base saving throw facts
-- class HP ledger facts
-- existing feat prerequisite adapters
+- selected core race facts
+- automatic language metadata
+- bonus language metadata
+- composed Intelligence facts
+- race-specific bonus language eligibility
 
-The next executable backlog item is the minimum level-1 character creation slice refresh for class-level derived facts. Keep it test-only and adapter-focused: no full character aggregate, skills, feat slots, combat behavior, or non-core content.
+The next executable backlog item is automatic racial languages into character language facts at the `character` boundary. Keep it adapter-focused: no bonus language selection, campaign language behavior, social checks, language-dependent spell effects, or non-core content.
 
 ## Philosophy In One Sentence
 

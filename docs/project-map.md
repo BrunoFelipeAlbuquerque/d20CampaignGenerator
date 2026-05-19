@@ -17,8 +17,8 @@ Order of work:
 3. resolution/query logic
 4. character composition
 
-As of this map, the foundation domains, P4 feat selection composition adapters, P5 core ability composition adapters, and the P6 class-level/BAB/base-save/class-HP adapters are present. Check `BACKLOG.md` for exact unchecked work.
-The next planned area is core class-level totals and base derived facts; later non-core work is intentionally deferred.
+As of this map, the foundation domains, P4 feat selection composition adapters, P5 core ability composition adapters, and the P6 class-level derived-fact adapters and slice refresh are present. Check `BACKLOG.md` for exact unchecked work.
+The next planned area is core character language composition; later non-core work is intentionally deferred.
 
 ---
 
@@ -84,24 +84,21 @@ Keep composition thin. If logic belongs to a lower domain, add it there only whe
 
 ## Next Backlog Path
 
-The next core-only backlog path is P6 core class-level totals and base derived facts.
+The next core-only backlog path is P7 core character languages.
 
-The P5 core character ability composition path is complete, and P6 now has character level facts, base attack bonus facts, base saving throw facts, and class HP ledger facts. Continue by refreshing the minimum level-1 character creation slice for class-level derived facts.
+The P6 core class-level totals and base derived facts path is complete. Continue by composing automatic racial languages into character language facts at the `character` boundary.
 
 Check `BACKLOG.md` before starting any far-future non-core item.
 
-The path should prove class-level totals and base derived facts before adding languages, skill-rank allocation, combat-facing snapshots, spell preparation, or broader character aggregation.
+The path should prove automatic and bonus language composition before adding skill-rank allocation, combat-facing snapshots, spell preparation, or broader character aggregation.
 
 Out of scope for this path:
 
-- XP table automation or advancement UI
-- favored class bonuses
-- full skill-rank allocation
-- final saving throw totals, attack rolls, or armor class
-- feat-slot accounting, traits, or archetypes
+- literacy, secret languages beyond current core metadata, or campaign languages
+- language-dependent spell effects
+- skill checks, social interaction, or exploration behavior
+- non-core races or languages
 - full mutable character aggregate
-- combat state
-- non-core content
 - broad folder or package reorganization
 
 ---

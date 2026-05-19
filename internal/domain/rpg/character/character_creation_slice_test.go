@@ -37,9 +37,61 @@ func TestMinimumLevelOneCharacterCreationSlice_ComposesCoreRaceClassHPSpellcasti
 		t.Fatalf("expected wizard hit die %q, got %q", ability.D6HitDie, class.GetHitDieType())
 	}
 
-	hp, ok := NewFirstLevelCharacterHitPoints(selectedClass, 14)
+	classLevels := []CharacterClassLevel{
+		mustNewCharacterClassLevelForTest(t, characterclass.WizardClassID, 1),
+	}
+	levelFacts, ok := NewCharacterLevelFacts(classLevels)
 	if !ok {
-		t.Fatal("expected first-level character hit points to compose")
+		t.Fatal("expected wizard class level facts to compose")
+	}
+
+	if levelFacts.GetTotalCharacterLevel() != 1 {
+		t.Fatalf("expected total character level 1, got %d", levelFacts.GetTotalCharacterLevel())
+	}
+
+	wizardLevel, ok := levelFacts.GetClassLevel(characterclass.WizardClassID)
+	if !ok || wizardLevel != 1 {
+		t.Fatalf("expected wizard class level (1, true), got (%d, %t)", wizardLevel, ok)
+	}
+
+	baseAttackBonusFacts, ok := NewCharacterBaseAttackBonusFacts(levelFacts.GetClassLevels())
+	if !ok {
+		t.Fatal("expected wizard base attack bonus facts to compose")
+	}
+
+	if baseAttackBonusFacts.GetActualValue().GetNumerator() != 1 ||
+		baseAttackBonusFacts.GetActualValue().GetDenominator() != 2 ||
+		baseAttackBonusFacts.GetValue() != 0 {
+		t.Fatalf(
+			"expected wizard BAB 1/2 and value 0, got %d/%d and value %d",
+			baseAttackBonusFacts.GetActualValue().GetNumerator(),
+			baseAttackBonusFacts.GetActualValue().GetDenominator(),
+			baseAttackBonusFacts.GetValue(),
+		)
+	}
+
+	baseSaveFacts, ok := NewCharacterBaseSavingThrowFacts(levelFacts.GetClassLevels())
+	if !ok {
+		t.Fatal("expected wizard base saving throw facts to compose")
+	}
+
+	assertSliceBaseSave(t, baseSaveFacts, ability.FortitudeSave, 1, 3, 0)
+	assertSliceBaseSave(t, baseSaveFacts, ability.ReflexSave, 1, 3, 0)
+	assertSliceBaseSave(t, baseSaveFacts, ability.WillSave, 5, 2, 2)
+
+	hpFacts, ok := NewCharacterClassHitPointFacts(
+		levelFacts.GetClassLevels(),
+		characterclass.WizardClassID,
+		14,
+		nil,
+	)
+	if !ok {
+		t.Fatal("expected wizard class HP facts to compose")
+	}
+
+	hp, ok := hpFacts.GetHitPoints()
+	if !ok {
+		t.Fatal("expected wizard class HP facts to expose hit points")
 	}
 
 	if hp.GetTotal() != 8 || hp.GetCurrent() != 8 {
@@ -73,8 +125,8 @@ func TestMinimumLevelOneCharacterCreationSlice_ComposesCoreRaceClassHPSpellcasti
 	prerequisiteState := mustNewCharacterFeatPrerequisiteStateForTest(
 		t,
 		nil,
-		0,
-		[]CharacterClassLevel{mustNewCharacterClassLevelForTest(t, characterclass.WizardClassID, 1)},
+		baseAttackBonusFacts.GetValue(),
+		levelFacts.GetClassLevels(),
 		nil,
 		nil,
 		nil,
@@ -91,12 +143,20 @@ func TestMinimumLevelOneCharacterCreationSlice_ComposesCoreRaceClassHPSpellcasti
 
 func TestMinimumLevelOneCharacterCreationSlice_ComposesSelectedFeatContexts(t *testing.T) {
 	selectedWeapon := mustNewCharacterSelectedWeaponForTest(t, characterequipment.DaggerWeaponID)
+	fighterClassLevels := []CharacterClassLevel{
+		mustNewCharacterClassLevelForTest(t, characterclass.FighterClassID, 1),
+	}
+	fighterBaseAttackBonusFacts, ok := NewCharacterBaseAttackBonusFacts(fighterClassLevels)
+	if !ok {
+		t.Fatal("expected fighter base attack bonus facts to compose")
+	}
+
 	weaponFeatState := mustNewCharacterFeatPrerequisiteStateWithSelectedWeaponForTest(
 		t,
 		nil,
-		1,
+		fighterBaseAttackBonusFacts.GetValue(),
 		nil,
-		[]CharacterClassLevel{mustNewCharacterClassLevelForTest(t, characterclass.FighterClassID, 1)},
+		fighterClassLevels,
 		nil,
 		nil,
 		selectedWeapon,
@@ -109,12 +169,15 @@ func TestMinimumLevelOneCharacterCreationSlice_ComposesSelectedFeatContexts(t *t
 
 	conjurationSchool := mustNewCharacterSelectedSpellSchoolForTest(t, characterspell.ConjurationSchoolID)
 	spellFocus := mustNewCharacterSelectedSpellSchoolFeatForTest(t, characterfeat.SpellFocusFeatID, conjurationSchool)
+	wizardClassLevels := []CharacterClassLevel{
+		mustNewCharacterClassLevelForTest(t, characterclass.WizardClassID, 1),
+	}
 	spellSchoolFeatState := mustNewCharacterFeatPrerequisiteStateWithSelectedSpellSchoolFeatsForTest(
 		t,
 		nil,
 		0,
 		nil,
-		[]CharacterClassLevel{mustNewCharacterClassLevelForTest(t, characterclass.WizardClassID, 1)},
+		wizardClassLevels,
 		nil,
 		nil,
 		conjurationSchool,
@@ -132,7 +195,7 @@ func TestMinimumLevelOneCharacterCreationSlice_ComposesSelectedFeatContexts(t *t
 		nil,
 		0,
 		nil,
-		[]CharacterClassLevel{mustNewCharacterClassLevelForTest(t, characterclass.WizardClassID, 1)},
+		wizardClassLevels,
 		nil,
 		nil,
 		evocationSchool,
@@ -193,11 +256,19 @@ func TestMinimumLevelOneCharacterCreationSlice_ComposesRacialAbilityContexts(t *
 		t.Fatal("expected human selectable racial ability modifier to compose")
 	}
 
+	fighterClassLevels := []CharacterClassLevel{
+		mustNewCharacterClassLevelForTest(t, characterclass.FighterClassID, 1),
+	}
+	fighterBaseAttackBonusFacts, ok := NewCharacterBaseAttackBonusFacts(fighterClassLevels)
+	if !ok {
+		t.Fatal("expected fighter base attack bonus facts to compose")
+	}
+
 	powerAttackState := mustNewCharacterFeatPrerequisiteStateForTest(
 		t,
 		humanAbilityScores,
-		1,
-		nil,
+		fighterBaseAttackBonusFacts.GetValue(),
+		fighterClassLevels,
 		nil,
 		nil,
 		nil,
@@ -252,6 +323,19 @@ func TestMinimumLevelOneCharacterCreationSlice_InvalidSelectedInputsFailClosed(t
 
 	if _, ok := NewCharacterClass(characterclass.ClassID("alchemist")); ok {
 		t.Fatal("expected unknown class to fail")
+	}
+
+	fighterLevel := mustNewCharacterClassLevelForTest(t, characterclass.FighterClassID, 1)
+	if _, ok := NewCharacterLevelFacts([]CharacterClassLevel{fighterLevel, fighterLevel}); ok {
+		t.Fatal("expected duplicate class levels to fail")
+	}
+
+	if _, ok := NewCharacterBaseAttackBonusFacts([]CharacterClassLevel{{classID: characterclass.FighterClassID, level: 0}}); ok {
+		t.Fatal("expected malformed class level BAB facts to fail")
+	}
+
+	if _, ok := NewCharacterBaseSavingThrowFacts([]CharacterClassLevel{{classID: characterclass.ClassID("alchemist"), level: 1}}); ok {
+		t.Fatal("expected non-core class level save facts to fail")
 	}
 
 	var zeroClass CharacterClass
@@ -316,4 +400,35 @@ func mustNewAbilityScoreFromCharacterScoresForSliceTest(
 
 	t.Fatalf("expected composed ability score %q to exist", id)
 	return ability.AbilityScore{}
+}
+
+func assertSliceBaseSave(
+	t *testing.T,
+	facts CharacterBaseSavingThrowFacts,
+	id ability.SavingThrowID,
+	expectedNumerator int,
+	expectedDenominator int,
+	expectedValue int,
+) {
+	t.Helper()
+
+	save, ok := facts.GetSavingThrow(id)
+	if !ok {
+		t.Fatalf("expected save %q to resolve", id)
+	}
+
+	if save.GetActualValue().GetNumerator() != expectedNumerator ||
+		save.GetActualValue().GetDenominator() != expectedDenominator ||
+		save.GetValue() != expectedValue {
+		t.Fatalf(
+			"expected %q save %d/%d and value %d, got %d/%d and value %d",
+			id,
+			expectedNumerator,
+			expectedDenominator,
+			expectedValue,
+			save.GetActualValue().GetNumerator(),
+			save.GetActualValue().GetDenominator(),
+			save.GetValue(),
+		)
+	}
 }
