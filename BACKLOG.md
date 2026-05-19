@@ -640,7 +640,7 @@ Do not expand this path into:
   - reject unknown classes, invalid levels, or duplicate class entries
   - no attack rolls, iterative attack actions, weapon behavior, or combat state
 
-- [ ] Compose class levels into base saving throw facts (resolution/query logic):
+- [X] Compose class levels into base saving throw facts (resolution/query logic):
   - use seeded core class save progressions
   - use the project's adopted fractional saving throw math
   - expose Fortitude, Reflex, and Will base save facts
